@@ -12,13 +12,28 @@ function displaySearchResults(results) {
 }
 
 
-(function(socket) {
+(function(io) {
+  // Connections
+  var suggestions = io('/suggestions');
+  var search = io('/search');
+  var liveTweets = io('/liveTweets');
+
   // Setup Socket listeners
-  socket.on('searchError', handleSearchError);
-  socket.on('searchResult', displaySearchResults);
+  search.on('error', handleSearchError);
+  search.on('result', displaySearchResults);
 
   // Send some data to the server to test
   var req = { player: 'Wayne', club: 'Brighton' };
-  socket.emit('search', req);
+  search.emit('query', req);
 
-})(io());
+
+  liveTweets.on('tweet', function(tweet) {
+    console.log(tweet);
+  });
+
+  liveTweets.emit('subscribe', {
+    path: 'statuses/filter',
+    filter: { track: 'mango' }
+  });
+
+})(io);

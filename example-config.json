@@ -1,7 +1,15 @@
 {
-  "database": "db_name",
-  "username": "username",
-  "password": "password",
-  "host": "localhost",
-  "dialect": "mysql"
+  "database": {
+    "database": "db_name",
+    "username": "username",
+    "password": "password",
+    "host": "localhost",
+    "dialect": "mysql"
+  },
+  "twitter": {
+    "consumerKey": "",
+    "consumerSecret": "",
+    "accessToken": "",
+    "accessTokenSecret": ""
+  }
 }

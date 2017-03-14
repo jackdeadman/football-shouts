@@ -1,4 +1,16 @@
 var apply = require('../utils/helpers').apply;
+var T = require('twit');
+var config = require('../config').twitter
+
+var client = new T({
+ consumer_key: config.consumerKey,
+ consumer_secret: config.consumerSecret,
+ access_token: config.accessToken,
+ access_token_secret: config.accessTokenSecret
+});
+
+// Models
+var database = require('../models/Database');
 
 function findTransfers(player, club) {
   var results = {
@@ -55,10 +67,37 @@ module.exports = {
   listen: function(server) {
     var io = require('socket.io')(server);
 
-    io.on('connection', function(socket) {
-      console.log('connected.');
-      socket.on('search', apply(handleSearch, socket));
-      socket.on('reqPlayerSuggestion', apply(handleReqPlayerSuggestion, socket));
+    database.Author.findAll()
+      .then(function(authors) {
+        console.log(authors);
+      });
+
+    io.of('suggestions')
+      .on('connection', function(socket) {
+        socket.on('reqPlayerSuggestion', apply(handleReqPlayerSuggestion, socket));
+        socket.on('reqPlayerSuggestion', apply(handleReqPlayerSuggestion, socket));
+      });
+
+    io.of('search')
+      .on('connection', function(socket) {
+        socket.on('query', apply(handleSearch, socket));
+    });
+
+    io.of('liveTweets')
+      .on('connection', function(socket) {
+        socket.on('subscribe', function (req) {
+          console.log('subscribed');
+          var path = req.path;
+          var filter = req.filter;
+          // Need to add security checks here
+          var stream = client.stream(path, filter);
+          
+          stream.on('tweet', function(tweet) {
+            console.log('I HAZ TWEET');
+            // Obviously will add checks here lol
+            socket.emit('tweet', tweet);
+          });
+        });
     });
   }
 }
