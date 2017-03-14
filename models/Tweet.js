@@ -1,5 +1,5 @@
 module.exports = function(sequelize, DataTypes) {
-  var Tweet = sequelize.define('tweet', {
+  var Tweet = sequelize.define('Tweet', {
       text: DataTypes.STRING(140),
       tweetId: DataTypes.INTEGER,
       created_at: DataTypes.DATE,
