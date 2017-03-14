@@ -16,8 +16,6 @@ var sequelize = new Sequelize(config.database, config.username, config.password,
 
 var db = {};
 
-// have to make sure this is done in the right order, otherwise associations don't work
-
 fs.readdirSync(__dirname)
 .filter(function(file){
   return (file.indexOf(".") !== 0) && (file !== "Database.js");
@@ -37,3 +35,7 @@ db.sequelize = sequelize;
 db.Sequelize = Sequelize;
 
 module.exports = db;
+
+// most of this code taken from https://github.com/sequelize/express-example/blob/master/models/index.js
+// with some modifications
+
