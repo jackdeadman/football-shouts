@@ -1,12 +1,13 @@
 module.exports = function(sequelize, DataTypes) {
   var Club = sequelize.define('club', {
       name: DataTypes.STRING,
-      twitter_handle: DataTypes.STRING(15),
+      twitterHandle: DataTypes.STRING(15),
   }, {
-      classMethods: {
-          associate: function(models) {
-          }
+    classMethods: {
+      associate: function (models) {
+        Club.hasMany(models.tweet, { as: 'Tweets', foreignKey: 'transferClubId' });
       }
+    }
   });
   return Club;
 };

@@ -1,9 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
   var Tweet = sequelize.define('tweet', {
       text: DataTypes.STRING(140),
-      tweet_id: DataTypes.INTEGER,
+      tweetId: DataTypes.INTEGER,
       created_at: DataTypes.DATE,
-      has_media: DataTypes.BOOLEAN
+      hasMedia: DataTypes.BOOLEAN
   });
   return Tweet;
 };
