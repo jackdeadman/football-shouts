@@ -1,4 +1,4 @@
-apply = require('../utils/helpers').apply;
+var apply = require('../utils/helpers').apply;
 
 function findTransfers(player, club) {
   var results = {
