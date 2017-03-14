@@ -1,5 +1,8 @@
 var apply = require('../utils/helpers').apply;
 
+// Models
+var database = require('../models/Database');
+
 function findTransfers(player, club) {
   var results = {
     tweets: [
@@ -54,6 +57,11 @@ function handleReqClubSuggestion(req) {
 module.exports = {
   listen: function(server) {
     var io = require('socket.io')(server);
+
+    database.Author.findAll()
+      .then(function(authors) {
+        console.log(authors);
+      });
 
     io.on('connection', function(socket) {
       console.log('connected.');
