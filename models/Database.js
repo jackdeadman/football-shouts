@@ -1,7 +1,7 @@
 var fs = require('fs');
 var path = require('path');
 var Sequelize = require('sequelize');
-var config = require('../config.json')
+var config = require('../config').database
 
 var sequelize = new Sequelize(config.database, config.username, config.password,{
   host: config.host,
