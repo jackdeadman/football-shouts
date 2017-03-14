@@ -1,5 +1,7 @@
 function handleSearchError(err) {
   // TODO: Add error handling
+  alert('Error');
+  console.log(err);
 }
 
 function displaySearchResults(results) {
