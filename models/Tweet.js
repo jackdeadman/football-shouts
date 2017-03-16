@@ -1,9 +1,9 @@
 module.exports = function(sequelize, DataTypes) {
   var Tweet = sequelize.define('Tweet', {
-      text: DataTypes.STRING(140),
-      tweetId: DataTypes.INTEGER,
-      created_at: DataTypes.DATE,
-      hasMedia: DataTypes.BOOLEAN
+      text: { type: DataTypes.STRING(140), allowNull: false },
+      tweetId: { type: DataTypes.INTEGER, allowNull: false },
+      created_at: { type: DataTypes.DATE, allowNull: false },
+      hasMedia: { type: DataTypes.BOOLEAN, allowNull: false }
   });
   return Tweet;
 };

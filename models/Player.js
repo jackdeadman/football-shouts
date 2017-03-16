@@ -1,8 +1,8 @@
 module.exports = function(sequelize, DataTypes) {
   var Player = sequelize.define('Player', {
-      name: DataTypes.STRING,
-      twitterHandle: DataTypes.STRING(15),
-      imageUrl: DataTypes.STRING
+      name: { type: DataTypes.STRING, allowNull: false },
+      twitterHandle: { type: DataTypes.STRING(15) }, // players might not have twitter handles
+      imageUrl: DataTypes.STRING // should we allow this to be null?
   }, {
     classMethods: {
       associate: function (models) {
