@@ -1,6 +1,7 @@
 var apply = require('../utils/helpers').apply;
 var T = require('twit');
 var config = require('../config').twitter
+var Tweet = require('../models/Tweet');
 
 var client = new T({
  consumer_key: config.consumerKey,
@@ -13,6 +14,7 @@ var client = new T({
 var database = require('../models/Database');
 
 function findTransfers(player, club) {
+  Tweet.getTweets(["waynerooney"]);
   var results = {
     tweets: [
       { text: 'OMG WAYNE ROONEY IS GOING 2 BRIGHTON' }
