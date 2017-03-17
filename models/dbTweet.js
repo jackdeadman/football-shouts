@@ -3,7 +3,7 @@ module.exports = function(sequelize, DataTypes) {
       text: { type: DataTypes.STRING(140), allowNull: false },
       tweetId: { type: DataTypes.INTEGER, allowNull: false, unique: true },
       createdAt: { type: DataTypes.DATE, allowNull: false },
-      hasMedia: { type: DataTypes.BOOLEAN, allowNull: false },
+      // hasMedia: { type: DataTypes.BOOLEAN, allowNull: false },
       retweetCount: { type: DataTypes.INTEGER, allowNull: false },
       favouriteCount: { type: DataTypes.INTEGER, allowNull: false }
   });

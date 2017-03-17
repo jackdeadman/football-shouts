@@ -16,10 +16,10 @@ var database = require('../models/Database');
 function findTransfers(player, club) {
   Tweet.getTweets({ query: "waynerooney", since: "2017-03-10", until: "2017-03-17" })
   .catch(err => {
-    console.log("query failed");
+    // console.log("query failed");
   })
   .then(tweets => {
-    console.log("###############", tweets);
+    // console.log("query succeeded");
   });
 
   var results = {

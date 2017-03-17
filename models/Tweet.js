@@ -16,27 +16,24 @@ function saveTweet(tweet){
   var createdAt = tweet.created_at;
   var retweetCount = tweet.retweet_count;
   var favouriteCount = tweet.favorite_count;
-  var hasMedia = false;
-  if(tweet.entities.media){
-    var hasMedia = true;
-  }
+  // var hasMedia = !!tweet.entities.media;
+  console.log(id);
 
-  var tweet = dbTweet.build({
+  var tweetObject = dbTweet.build({
     text: text,
     tweetId: id,
     createdAt: createdAt,
-    hasMedia: hasMedia,
+    // hasMedia: hasMedia,
     retweetCount: retweetCount,
     favouriteCount: favouriteCount
   });
 
+  // return tweetObject.save()
   return new Promise((resolve, reject) => {
-    tweet.save()
-    .catch(err => {
-      reject(err)
-    })
-    .then(tweet => {
-      resolve(tweet);
+    tweetObject.save()
+    .catch(reject)
+    .then(result => {
+      resolve(result);
     })
   })
   // .catch(err => {
@@ -51,27 +48,32 @@ module.exports.getTweets = function(queryTerms){
   var twitterQuery = buildQueries(queryTerms);
 
   return new Promise((resolve, reject) => {
-    client.get('search/tweets', { q: twitterQuery, count: 100 })
-    .catch(err => {
-      console.log("failed to query twitter");
-      reject(err);
-    })
-    .then(result => {
-      var allQueryTweets = []
+    var tweets = client.get('search/tweets', { q: twitterQuery, count: 100 });
+    tweets.then(result => {
+      // console.log("in then");
+      // var allQueryTweets = []
+      // console.log(result['data']['statuses']);
       
       var tweets = result['data']['statuses'];
       tweets.forEach(tweet => {
         saveTweet(tweet)
-        .catch(err => {
-          console.log("failed to save tweet in the db");
-        })
         .then(tweet => {
-          console.log("saved tweet to db");
+          // console.log("saved tweet to db");
+        })
+        .catch(err => {
+          console.error(err);
+          // console.log("failed to save tweet in the db");
         });
-        allQueryTweets.push(tweet);
-      });
-      resolve(allQueryTweets);  
+
+      })
     });
+
+    tweets.catch(err => {
+      // console.log("failed to query twitter");
+      reject(err);
+    });
+
+    resolve(tweets);
   });
 }
 
