@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(sequelize, DataTypes) {
   var Author = sequelize.define('Author', {
     authorHandle: { type: DataTypes.STRING(15), allowNull: false },

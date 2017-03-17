@@ -1,3 +1,5 @@
+'use strict';
+
 var database = require('./Database');
 var T = require('twit');
 var config = require('../config').twitter
@@ -10,71 +12,49 @@ var client = new T({
  access_token_secret: config.accessTokenSecret
 });
 
-function saveTweet(tweet){
-  var text = tweet.text;
-  var id = tweet.id_str;
-  var createdAt = tweet.created_at;
-  var retweetCount = tweet.retweet_count;
-  var favouriteCount = tweet.favorite_count;
-  // var hasMedia = !!tweet.entities.media;
-  console.log(id);
+function makeTweetObject(tweet){
+  var tweetObject = {
+    text: tweet.text,
+    tweetId: tweet.id_str,
+    createdAt: tweet.created_at,
+    hasMedia: !!tweet.entities.media,
+    retweetCount: tweet.retweet_count,
+    favouriteCount: tweet.favorite_count
+  };
 
-  var tweetObject = dbTweet.build({
-    text: text,
-    tweetId: id,
-    createdAt: createdAt,
-    // hasMedia: hasMedia,
-    retweetCount: retweetCount,
-    favouriteCount: favouriteCount
-  });
-
-  // return tweetObject.save()
-  return new Promise((resolve, reject) => {
-    tweetObject.save()
-    .catch(reject)
-    .then(result => {
-      resolve(result);
-    })
-  })
-  // .catch(err => {
-  //   console.log("saving failed");
-  // })
-  // .then(tweet => {
-  //   return tweet;
-  // });
+  return tweetObject;
 }
 
-module.exports.getTweets = function(queryTerms){
+function saveTweet(tweet, callback){
+  var tweetObject = dbTweet.build(tweet);
+  tweetObject.save(callback);
+}
+
+module.exports.getTweets = function(queryTerms, callback){
   var twitterQuery = buildQueries(queryTerms);
 
-  return new Promise((resolve, reject) => {
-    var tweets = client.get('search/tweets', { q: twitterQuery, count: 100 });
-    tweets.then(result => {
-      // console.log("in then");
-      // var allQueryTweets = []
-      // console.log(result['data']['statuses']);
+    client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
+      if(err){
+        console.error("failed to get tweets from twitter");
+        callback(err);
+        return;
+      }
+
+      var tweetList = queryResult.statuses;
       
-      var tweets = result['data']['statuses'];
-      tweets.forEach(tweet => {
-        saveTweet(tweet)
-        .then(tweet => {
-          // console.log("saved tweet to db");
-        })
-        .catch(err => {
-          console.error(err);
-          // console.log("failed to save tweet in the db");
+      tweetList = tweetList.map(makeTweetObject);
+      callback(null, tweetList);
+
+      tweetList.forEach(function(tweet){
+        saveTweet(tweet, function(err, tweet){
+          if(err){
+            console.error("error saving to db");
+            // may be able to recover from some errors
+            return;
+          }
         });
-
-      })
+      });
     });
-
-    tweets.catch(err => {
-      // console.log("failed to query twitter");
-      reject(err);
-    });
-
-    resolve(tweets);
-  });
 }
 
 function buildQueries(query){

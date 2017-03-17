@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = function(sequelize, DataTypes) {
   var Club = sequelize.define('Club', {
       name: { type: DataTypes.STRING, allowNull: false },
