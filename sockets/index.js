@@ -14,7 +14,14 @@ var client = new T({
 var database = require('../models/Database');
 
 function findTransfers(player, club) {
-  Tweet.getTweets(["waynerooney"]);
+  Tweet.getTweets({ query: "waynerooney", since: "2017-03-10", until: "2017-03-17" })
+  .catch(err => {
+    console.log("query failed");
+  })
+  .then(tweets => {
+    console.log("###############", tweets);
+  });
+
   var results = {
     tweets: [
       { text: 'OMG WAYNE ROONEY IS GOING 2 BRIGHTON' }

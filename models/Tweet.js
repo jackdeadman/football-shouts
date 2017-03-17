@@ -30,48 +30,57 @@ function saveTweet(tweet){
     favouriteCount: favouriteCount
   });
 
-  tweet.save()
-  .catch(function(err){
-    console.log("saving failed!");
+  return new Promise((resolve, reject) => {
+    tweet.save()
+    .catch(err => {
+      reject(err)
+    })
+    .then(tweet => {
+      resolve(tweet);
+    })
   })
-  .then(function(){
-    console.log("saved tweet");
-  });
+  // .catch(err => {
+  //   console.log("saving failed");
+  // })
+  // .then(tweet => {
+  //   return tweet;
+  // });
 }
 
 module.exports.getTweets = function(queryTerms){
-  twitterQueries = buildQueries(queryTerms);
+  var twitterQuery = buildQueries(queryTerms);
 
-  var queryPromises = []
-  for(var i = 0; i < twitterQueries.length; i++){
-    console.log(twitterQueries[i]);    
-    var query = client.get('search/tweets', { q: twitterQueries[i], count: 100 });
-    queryPromises.push(query);
-  }
-
-  Promise.all(queryPromises)
-  .catch(err => {
-      console.log("Error searching for ", twitterQueries[i]);
-  })
-  .then(result => {
-    console.log("query number: ", result.length);
-    for(var queryIndex = 0; queryIndex < result.length; queryIndex++){
-      var tweets = result[queryIndex]['data']['statuses'];
-      console.log("tweet number: ", tweets.length);
-      for(var tweetIndex = 0; tweetIndex < tweets.length; tweetIndex++){
-        saveTweet(tweets[tweetIndex]);
-      }
+  return new Promise((resolve, reject) => {
+    client.get('search/tweets', { q: twitterQuery, count: 100 })
+    .catch(err => {
+      console.log("failed to query twitter");
+      reject(err);
+    })
+    .then(result => {
+      var allQueryTweets = []
       
-    }
+      var tweets = result['data']['statuses'];
+      tweets.forEach(tweet => {
+        saveTweet(tweet)
+        .catch(err => {
+          console.log("failed to save tweet in the db");
+        })
+        .then(tweet => {
+          console.log("saved tweet to db");
+        });
+        allQueryTweets.push(tweet);
+      });
+      resolve(allQueryTweets);  
+    });
   });
 }
 
-function buildQueries(queryTerms){
+function buildQueries(query){
 // build all the combinations of search terms
 // add in words like "transfer"
-  searchTerms = []
-  for(var i = 0; i < queryTerms.length; i++){
-    searchTerms.push(queryTerms[i] + " transfer AND -filter:retweets AND -filter:replies");
-  }
+  var queryText = query.query;
+  var querySinceTimestamp = query.since;
+  var queryUntilTimestamp = query.until;
+  var searchTerms = queryText + " transfer" + " since:" + querySinceTimestamp + " until:" + queryUntilTimestamp + " AND -filter:retweets AND -filter:replies";
   return searchTerms;
 }
