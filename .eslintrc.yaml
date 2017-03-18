@@ -14,3 +14,4 @@ rules:
   yoda: 'error'
   no-else-return: 'error'
   max-len: ['error', 80]
+  semi: 'error'

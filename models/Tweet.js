@@ -33,7 +33,7 @@ function makeAuthorObject(tweetObject){
   var authorObject = {
     authorHandle: tweetObject.authorHandle,
     authorName: tweetObject.authorName
-  }
+  };
   return authorObject;
 }
 
@@ -45,7 +45,7 @@ function makeTweetDbObject(tweetObject){
     hasMedia: tweetObject.hasMedia,
     retweetCount: tweetObject.retweetCount,
     favouriteCount: tweetObject.favouriteCount
-  }
+  };
 
   return tweetDbObject;
 }
@@ -87,13 +87,18 @@ module.exports.getFromTwitter = function(query, callback){
   });
 };
 
+function formatDate(date){
+  return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+}
+
 function buildQuery(queryTerms){
 // build all the combinations of search terms
 // add in words like "transfer"
   var player = queryTerms.player;
   var club = queryTerms.club;
-  var sinceTimestamp = queryTerms.since;
-  var untilTimestamp = queryTerms.until;
+  var sinceTimestamp = formatDate(queryTerms.since);
+  console.log("since: ", sinceTimestamp);
+  var untilTimestamp = formatDate(queryTerms.until);
   var searchTerms = player + " transfer " + club + " since:" + sinceTimestamp + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
   return searchTerms;
 }
@@ -118,7 +123,7 @@ module.exports.getFromDatabase = function(queryTerms, callback){
     retweetCount: 3,
     favouriteCount: 0
   }]);
-}
+};
 
 module.exports.live = function(query){
   var player = query.player;
@@ -126,4 +131,4 @@ module.exports.live = function(query){
   var queryObj = { track: player + " transfer " + club };
   var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
   return liveTweetStream;
-}
+};
