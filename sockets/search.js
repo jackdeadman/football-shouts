@@ -17,18 +17,18 @@ function findTransfers(player, club, callback) {
   };
 
   Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
-    var countFromTwitter = 0;
-    var countFromDatabase = 0;
     var tweets = databaseTweets || [];
 
-    countFromDatabase = tweets.length;
+    var countFromDatabase = tweets.length;
+    var countFromTwitter = 0;
+
     var latest = tweets[0];
 
     // Update if no tweets found or too old
     if (!latest || (Date.now() - latest.createdAt) > threshold) {
       console.log('Searching Twitter');
       // Only get newer tweets than latest
-      if (tweets.length) {
+      if (latest) {
         query.since = latest.createdAt;
       }
 
