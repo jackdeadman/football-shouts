@@ -6,3 +6,16 @@ body {
 a {
   color: #00B7FF;
 }
+
+div.content {
+  width: 50%;
+  margin: 0 auto;
+}
+
+form {
+
+}
+
+form > div.form-group {
+
+}

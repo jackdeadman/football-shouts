@@ -1,6 +1,19 @@
 extends layout
 
-block content
+block input
+  //create a form with fields for players and clubs
+  //on submit, you need to do an emit
+  //http://stackoverflow.com/questions/32252020/socket-io-send-form-data-from-client-to-server
+  form(id="search", method="", action="")
+    div.form-group
+      label(for = "players") Player names:
+      input(name="players", id="players", type="text", placeholder="Wayne Rooney")
+    div.form-group
+      label(for = "clubs") Club names:
+      input(name="clubs", id="clubs", type="text", placeholder="Brighton")
+    button.btn-large.waves-effect.waves-light.orange(type='submit') Submit
+
+block tweets
   div#app
 
   script(src="/socket.io/socket.io.js")
