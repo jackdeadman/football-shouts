@@ -18,7 +18,7 @@ var handlers = {
     });
 
     socket.livetweets = livetweets;
-  }
+  },
 
   disconect: function(req, socket) {
     socket.livetweets.disconect();
