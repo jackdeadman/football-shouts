@@ -19,18 +19,18 @@ function findTransfers(player, club, callback) {
   var tweets = [];
 
   Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
-
-    var latest = tweets[0];
+    tweets = databaseTweets || tweets;
     countFromTwitter = tweets.length;
+    var latest = tweets[0];
 
-    if (latest.datatime > threshold) {
+    if (tweets.length < 5 || latest.datatime > threshold) {
       // Only get newer tweets than latest
-      query.since = latest.datatime;
+      if (tweets.length) {
+        query.since = latest.datatime;
+      }
 
       Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-        if (databaseErr) {
-          twitterTweets = [];
-        }
+        twitterTweets = twitterTweets || [];
         countFromDatabase = databaseTweets.length;
         tweets = tweets.concat(twitterTweets);
       });
@@ -47,9 +47,10 @@ function findTransfers(player, club, callback) {
 var handlers = {
 
   query: function(socket, req) {
+    console.log('Query', req);
     // Events
-    var errorEvent = 'searchError';
-    var successEvent = 'searchResult';
+    var errorEvent = 'error';
+    var successEvent = 'result';
 
     var hasRequiredFields = req && req.player && req.club;
     if (!hasRequiredFields) {
@@ -64,6 +65,7 @@ var handlers = {
         socket.emit(errorEvent, generateErrorObj(msg, req));
         return;
       }
+      console.log('Sending results', results);
       socket.emit(successEvent, results);
     });
   }

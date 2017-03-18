@@ -18,14 +18,18 @@ module.exports = {
         return;
       }
 
-      var namespaceName = path.basename(file, '.js');
-      var namespace = io.of(namespaceName);
+      var namespace = path.basename(file, '.js');
 
-      namespace.on('connection', function(socket) {
+      io.of(namespace).on('connection', function(socket) {
         // Bind the event names with their handlers
         for (event in namespaceModule.handlers) {
           var handler = namespaceModule.handlers[event];
-          namespace.on(event, function(req) {
+
+          socket.on('search', function() {
+            console.log('amsnjx');
+          });
+          socket.on(event, function(req) {
+            console.log('event')
             handler(socket, req, io);
           })
         }
