@@ -129,7 +129,7 @@ function findPlayers(playerQuery){
 }
 
 function findTweetsForPlayers(players){
-  var playerTweets = []
+  var playerTweets = [];
   players.forEach(function(player){
     playerTweets.push(player.getTweets());
   });
@@ -152,11 +152,11 @@ function findClubs(clubQuery){
         }
       ]
     }
-  })
+  });
 }
 
 function findTweetsForClubs(clubs){
-  var clubTweets = []
+  var clubTweets = [];
   clubs.forEach(function(club){
     clubTweets.push(club.getTweets());
   });
@@ -169,25 +169,25 @@ module.exports.getFromDatabase = function(query, callback){
   // search players for twitter handles from query
   // search clubs for twitter handles from query
   // do this in as few queries as possible
-  
-  var testPlayer = {
-    name: "Jack Deadman",
-    twitterHandle: "jackdeadman96"
-  }
 
-  var testPlayerQuery = "jackdeadman96";
+  // var testPlayer = {
+  //   name: "Jack Deadman",
+  //   twitterHandle: "jackdeadman96"
+  // };
 
-  var testClub = {
-    name: "Garrison Gunners",
-    twitterHandle: "IOS_WSL"
-  }
+  // var testPlayerQuery = "jackdeadman96";
 
-  var testClubQuery = "Garrison Gunners";
+  // var testClub = {
+  //   name: "Garrison Gunners",
+  //   twitterHandle: "IOS_WSL"
+  // };
+
+  // var testClubQuery = "Garrison Gunners";
 
   var player = query.player;
   var club = query.club;
-  var since = query.since;
-  var until = query.until;
+  // var since = query.since;
+  // var until = query.until;
 
   var tweets = [];
 
@@ -199,7 +199,7 @@ module.exports.getFromDatabase = function(query, callback){
       var clubTweets = findTweetsForClubs(clubs);
       tweets = playerTweets.concat(clubTweets);
     });
-  })
+  });
 
   // still adding in dummy tweet as no players or clubs have tweets linked
   tweets = tweets.concat([{
