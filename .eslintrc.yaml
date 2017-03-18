@@ -1,4 +1,5 @@
-extends: "eslint:recommended"
+extends:
+  - eslint:recommended
 
 env:
   node: true
@@ -7,4 +8,10 @@ rules:
   indent: ['error', 2]
   no-console: 'off'
   strict: ['error', 'global']
+  sort-vars: 'error'
+  space-infix-ops: 'error'
+  no-negated-condition: 'error'
+  yoda: 'error'
+  no-else-return: 'error'
+  max-len: ['error', 80]
   semi: 'error'
