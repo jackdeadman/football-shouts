@@ -1,0 +1,9 @@
+img.avatar {
+  max-width: 64px;
+  max-height: 64px;
+  vertical-align: middle;
+}
+
+div.tweet {
+  margin-bottom: 0px;
+}

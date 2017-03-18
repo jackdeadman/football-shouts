@@ -1,13 +1,14 @@
 extends layout
 
+//Materialize-tags: http://henrychavez.github.io/materialize-tags/examples/
+//TODO: fix bug where ctrl+a and delete does some weird shit. seems to be fixed by typeahead so do that at some point
+
+//TODO: Implement a loading bar? http://lab.hakim.se/ladda/
+
 //Form for search inputs
 block input
-  //create a form with fields for players and clubs
-  //on submit, you need to do an emit
-  //http://stackoverflow.com/questions/32252020/socket-io-send-form-data-from-client-to-server
-  
   form(id="search", method="", action="")
-    div.row
+    div.row.disable-select.default-cursor
       div.col.s12
         div.row
           div.input-field.col.s12
@@ -23,4 +24,5 @@ block input
       
 //The returned tweets
 block tweets
-  div#app
+  div.row
+    div#app
