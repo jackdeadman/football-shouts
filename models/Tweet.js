@@ -60,10 +60,8 @@ function saveTweet(tweet, author){
   });
 }
 
-module.exports.getFromTwitter = function(queryTerms, callback){
-  console.log(twitterQuery);
-  var twitterQuery = buildQuery(queryTerms);
-  console.log(twitterQuery);
+module.exports.getFromTwitter = function(query, callback){
+  var twitterQuery = buildQuery(query);
   client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
     if(err){
       console.error("failed to get tweets from twitter");
@@ -92,10 +90,11 @@ module.exports.getFromTwitter = function(queryTerms, callback){
 function buildQuery(queryTerms){
 // build all the combinations of search terms
 // add in words like "transfer"
-  var queryText = queryTerms.query;
-  var querySinceTimestamp = queryTerms.since;
-  var queryUntilTimestamp = queryTerms.until;
-  var searchTerms = queryText + " transfer" + " since:" + querySinceTimestamp + " until:" + queryUntilTimestamp + " AND -filter:retweets AND -filter:replies";
+  var player = queryTerms.player;
+  var club = queryTerms.club;
+  var sinceTimestamp = queryTerms.since;
+  var untilTimestamp = queryTerms.until;
+  var searchTerms = player + " transfer " + club + " since:" + sinceTimestamp + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
   return searchTerms;
 }
 /*
