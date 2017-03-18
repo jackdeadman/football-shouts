@@ -2,7 +2,7 @@
 
 var database = require('./Database');
 var T = require('twit');
-var config = require('../config').twitter
+var config = require('../config').twitter;
 var dbTweet = database.Tweet;
 
 var client = new T({
@@ -55,7 +55,7 @@ module.exports.getTweets = function(queryTerms, callback){
         });
       });
     });
-}
+};
 
 function buildQueries(query){
 // build all the combinations of search terms
