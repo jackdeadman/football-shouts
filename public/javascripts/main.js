@@ -4,11 +4,18 @@ function handleSearchError(err) {
   console.log(err);
 }
 
-function displaySearchResults(results) {
+function displaySearchResults(node, results) {
   // TODO: Do fancy stuff here
-  if (results.tweets.length) {
-      alert(results.tweets[0].text)
-  }
+  // if (results.tweets.length) {
+  //     alert(results.tweets[0].text)
+  // }
+  console.log(results)
+  results.forEach(function(result) {
+    var div = document.createElement('div');
+    div.innerHTML = result.text;
+    console.log(div);
+    node.appendChild(div);
+  });
 }
 
 
@@ -20,20 +27,26 @@ function displaySearchResults(results) {
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
-  search.on('result', displaySearchResults);
 
   // Send some data to the server to test
   var req = { player: 'Wayne', club: 'Brighton' };
   search.emit('query', req);
 
 
-  liveTweets.on('tweet', function(tweet) {
-    console.log(tweet);
+  // liveTweets.on('tweet', function(tweet) {
+  //   console.log(tweet);
+  // });
+
+  // liveTweets.emit('subscribe', {
+  //   path: 'statuses/filter',
+  //   filter: { track: 'mango' }
+  // });
+
+
+  var app = document.getElementById('app');
+  search.on('result', function(results) {
+    displaySearchResults(app, results.tweets);
   });
 
-  liveTweets.emit('subscribe', {
-    path: 'statuses/filter',
-    filter: { track: 'mango' }
-  });
 
 })(io);
