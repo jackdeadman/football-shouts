@@ -1,8 +1,38 @@
-body {
-  padding: 50px;
-  font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+form#search {
+  margin-top: 100px;
 }
 
-a {
-  color: #00B7FF;
+/*Modifications for button highlighting*/
+.btn, .btn-large {
+  overflow: hidden;
+}
+.btn:hover:before, .btn-large:hover:before {
+  opacity:1;
+}
+.btn:before, .btn-large:before {
+  content: '';
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  transition: opacity .2s;
+  z-index: -1;
+}
+.btn.purple:before, .btn-large.purple:before {
+  background-color: #6f30ad;
+}
+
+/*Input field colours*/
+.input-field input[type=text]:focus + label {
+  color: #6a1b9a;
+}
+.input-field input[type=text]:focus {
+  border-bottom: 1px solid #6a1b9a;
+  box-shadow: 0 1px 0 0 #6a1b9a;
+}
+.materialize-tags.active {
+  border-bottom-color: #6a1b9a;
+  box-shadow: 0 1px 0 0 #6a1b9a;
 }
