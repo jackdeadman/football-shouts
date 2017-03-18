@@ -25,7 +25,7 @@ module.exports = {
         // Bind the event names with their handlers
         for (event in namespaceModule.handlers) {
           var handler = namespaceModule.handlers[event];
-          namespace.on(event, function(req) {
+          socket.on(event, function(req) {
             handler(socket, req, io);
           })
         }
