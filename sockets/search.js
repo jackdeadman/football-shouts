@@ -1,3 +1,5 @@
+"use strict"
+
 var Tweet = require('../models/Tweet');
 var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
@@ -57,16 +59,18 @@ var handlers = {
 
     // Validate user has given correct fieds
     var hasRequiredFields = req && req.players && req.clubs;
+    var errorMsg = null;
+
     if (!hasRequiredFields) {
-      var msg = 'Please provide players and a club names.';
-      socket.emit(errorEvent, generateErrorObj(msg, req));
+      errorMsg = 'Please provide players and a club names.';
+      socket.emit(errorEvent, generateErrorObj(errorMsg, req));
       return;
     }
 
     // Validate that they are arrays
     if (!Array.isArray(req.players) || !Array.isArray(req.clubs)) {
-      var msg = 'Players and a club names must be arrays.';
-      socket.emit(errorEvent, generateErrorObj(msg, req));
+      errorMsg = 'Players and a club names must be arrays.';
+      socket.emit(errorEvent, generateErrorObj(errorMsg, req));
       return;
     }
 

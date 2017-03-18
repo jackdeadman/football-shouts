@@ -5,14 +5,13 @@ var T = require('twit');
 var config = require('../config').twitter;
 var dbTweet = database.Tweet;
 var dbAuthor = database.Author;
-var events = require('events');
 var LiveTweet = require('./LiveTweet');
 
 var client = new T({
- consumer_key: config.consumerKey,
- consumer_secret: config.consumerSecret,
- access_token: config.accessToken,
- access_token_secret: config.accessTokenSecret
+  consumer_key: config.consumerKey,
+  consumer_secret: config.consumerSecret,
+  access_token: config.accessToken,
+  access_token_secret: config.accessTokenSecret
 });
 
 function makeTweetObject(tweet){
@@ -51,7 +50,7 @@ function makeTweetDbObject(tweetObject){
   return tweetDbObject;
 }
 
-function saveTweet(tweet, author, callback){
+function saveTweet(tweet, author){
   var tweetObject = dbTweet.build(tweet);
   var authorDbObject = dbAuthor.build(author);
   tweetObject.save().then(function(tweet){
@@ -64,30 +63,30 @@ function saveTweet(tweet, author, callback){
 module.exports.getFromTwitter = function(queryTerms, callback){
   console.log(twitterQuery);
   var twitterQuery = buildQuery(queryTerms);
-    console.log(twitterQuery);
-    client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
-      if(err){
-        console.error("failed to get tweets from twitter");
-        callback(err);
-        return;
-      }
+  console.log(twitterQuery);
+  client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
+    if(err){
+      console.error("failed to get tweets from twitter");
+      callback(err);
+      return;
+    }
 
-      var tweetList = queryResult.statuses;
-      // need to save hashtags to a different table probably
+    var tweetList = queryResult.statuses;
+    // need to save hashtags to a different table probably
 
-      tweetList = tweetList.map(makeTweetObject);
-      callback(null, tweetList);
+    tweetList = tweetList.map(makeTweetObject);
+    callback(null, tweetList);
 
-      tweetList.forEach(function(tweet){
-        saveTweet(makeTweetDbObject(tweet), makeAuthorObject(tweet), function(err, tweet){
-          if(err){
-            console.error("error saving to db");
-            // may be able to recover from some errors
-            return;
-          }
-        });
+    tweetList.forEach(function(tweet){
+      saveTweet(makeTweetDbObject(tweet), makeAuthorObject(tweet), function(err){
+        if(err){
+          console.error("error saving to db");
+          // may be able to recover from some errors
+          return;
+        }
       });
     });
+  });
 };
 
 function buildQuery(queryTerms){
@@ -99,10 +98,10 @@ function buildQuery(queryTerms){
   var searchTerms = queryText + " transfer" + " since:" + querySinceTimestamp + " until:" + queryUntilTimestamp + " AND -filter:retweets AND -filter:replies";
   return searchTerms;
 }
-
+/*
 function buildDbQuery(queryTerms){
   return queryTerms;
-}
+}*/
 
 module.exports.getFromDatabase = function(queryTerms, callback){
   // extract hashtags from query and search hashtags table
@@ -110,7 +109,7 @@ module.exports.getFromDatabase = function(queryTerms, callback){
   // search players for twitter handles from query
   // search clubs for twitter handles from query
   // do this in as few queries as possible
-  var dbQuery = buildDbQuery(queryTerms);
+  // var dbQuery = buildDbQuery(queryTerms);
 
   callback(null, [{
     text: "@waynerooney in rumoured transfer talks with #TruroFC",
@@ -125,7 +124,7 @@ module.exports.getFromDatabase = function(queryTerms, callback){
 module.exports.live = function(query){
   var player = query.player;
   var club = query.club;
-  var query = { track: player + " transfer " + club };
-  var liveTweetStream = new LiveTweet(client, 'statuses/filter', query);
+  var queryObj = { track: player + " transfer " + club };
+  var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
   return liveTweetStream;
 }
