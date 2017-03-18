@@ -5,3 +5,5 @@ env:
 
 rules:
   indent: ['error', 2]
+  no-console: 'off'
+  strict: ['error', 'global']

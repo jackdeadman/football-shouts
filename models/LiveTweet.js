@@ -1,3 +1,5 @@
+'use strict';
+
 var util = require('util');
 var EventEmitter = require('events');
 
@@ -15,7 +17,7 @@ LiveTweet.prototype.connect = function() {
   this.stream = this.client.stream(this.streamName, this.query);
   this.stream.on('tweet', function(tweet) {
     console.log('new tweet from stream');
-    that.emit('tweet', tweet);
+    this.emit('tweet', tweet);
   });
 };
 

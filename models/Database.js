@@ -28,8 +28,8 @@ fs.readdirSync(__dirname)
   });
 
 Object.keys(db).forEach(function(modelName){
-  if (db[modelName].hasOwnProperty('associate')) {
-      db[modelName].associate(db);
+  if ('associate' in db[modelName]) {
+    db[modelName].associate(db);
   }
 });
 

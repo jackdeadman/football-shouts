@@ -1,3 +1,5 @@
+"use strict";
+
 var Tweet = require('../models/Tweet');
 
 var handlers = {
@@ -21,11 +23,11 @@ var handlers = {
     socket.livetweets = livetweets;
   },
 
-  unsubscribe: function(socket, req) {
+  unsubscribe: function(socket) {
     socket.livetweets.disconect();
   },
 
-  disconect: function(socket, req) {
+  disconect: function(socket) {
     socket.livetweets.disconect();
   }
 }
