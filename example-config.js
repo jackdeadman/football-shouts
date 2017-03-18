@@ -17,4 +17,4 @@ module.exports = {
     // How long oldest tweet must be before searching twitter
     threshold: 5 * 60 * 1000 // 5 mins
   }
-}
+};
