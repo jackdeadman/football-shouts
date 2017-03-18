@@ -9,6 +9,6 @@ module.exports = {
   apply: function(fn, arg) {
     return function() {
       fn.apply(this, [arg].concat(arguments[0]));
-    }
+    };
   }
 };

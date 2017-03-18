@@ -19,7 +19,7 @@ var handlers = {
       socket.emit('tweet', tweet);
     });
 
-    console.log(socket)
+    console.log(socket);
     socket.livetweets = livetweets;
   },
 
@@ -30,6 +30,6 @@ var handlers = {
   disconect: function(socket) {
     socket.livetweets.disconect();
   }
-}
+};
 
 module.exports.handlers = handlers;

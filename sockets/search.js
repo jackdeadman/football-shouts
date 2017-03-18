@@ -1,4 +1,4 @@
-"use strict"
+"use strict";
 
 var Tweet = require('../models/Tweet');
 var generateErrorObj = require('./_utils').generateErrorObj;
@@ -15,7 +15,7 @@ function findTransfers(player, club, callback) {
     player: player,
     club: club,
     query: player + ' ' + club, // temp
-    since: Date.now() - 60*60, until: "2017-03-17"
+    since: new Date(Date.now() - 60 * 60), until: new Date(Date.now())
   };
 
   Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
@@ -33,9 +33,10 @@ function findTransfers(player, club, callback) {
       if (latest) {
         query.since = latest.createdAt;
       }
+      console.log("query.until:", query.until);
 
       Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-        console.log(twitterErr, twitterTweets)
+        console.log(twitterErr, twitterTweets);
         twitterTweets = twitterTweets || [];
         countFromTwitter = databaseTweets.length;
         tweets = tweets.concat(twitterTweets);
@@ -99,7 +100,7 @@ var handlers = {
           else {
             allResults.tweets = allResults.tweets.concat(results.tweets);
             allResults.countFromTwitter += results.countFromTwitter;
-            allResults.countFromDatabase += results.countFromDatabase
+            allResults.countFromDatabase += results.countFromDatabase;
           }
           if (requests === responses) {
             // allResults = allResults.sort(function(r) { return r.createdAt; })
@@ -115,7 +116,7 @@ var handlers = {
             }
           }
         });
-      })
+      });
     });
   }
 };
