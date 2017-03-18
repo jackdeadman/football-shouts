@@ -4,6 +4,7 @@ var database = require('./Database');
 var T = require('twit');
 var config = require('../config').twitter;
 var dbTweet = database.Tweet;
+var dbAuthor = database.Author;
 
 var client = new T({
  consumer_key: config.consumerKey,
@@ -19,15 +20,43 @@ function makeTweetObject(tweet){
     createdAt: tweet.created_at,
     hasMedia: !!tweet.entities.media,
     retweetCount: tweet.retweet_count,
-    favouriteCount: tweet.favorite_count
+    favouriteCount: tweet.favorite_count,
+    authorHandle: tweet.user.screen_name,
+    authorName: tweet.user.name
   };
 
   return tweetObject;
 }
 
-function saveTweet(tweet, callback){
+function makeAuthorObject(tweetObject){
+  var authorObject = {
+    authorHandle: tweetObject.authorHandle,
+    authorName: tweetObject.authorName
+  }
+  return authorObject;
+}
+
+function makeTweetDbObject(tweetObject){
+  var tweetDbObject = {
+    text: tweetObject.text,
+    tweetId: tweetObject.tweetId,
+    createdAt: tweetObject.createdAt,
+    hasMedia: tweetObject.hasMedia,
+    retweetCount: tweetObject.retweetCount,
+    favouriteCount: tweetObject.favouriteCount
+  }
+
+  return tweetDbObject;
+}
+
+function saveTweet(tweet, author, callback){
   var tweetObject = dbTweet.build(tweet);
-  tweetObject.save(callback);
+  var authorDbObject = dbAuthor.build(author);
+  tweetObject.save().then(function(tweet){
+    authorDbObject.save().then(function(author){
+      tweet.setAuthor(author);
+    });
+  });
 }
 
 module.exports.getFromTwitter = function(queryTerms, callback){
@@ -42,12 +71,12 @@ module.exports.getFromTwitter = function(queryTerms, callback){
 
       var tweetList = queryResult.statuses;
       // need to save hashtags to a different table probably
-      
+
       tweetList = tweetList.map(makeTweetObject);
       callback(null, tweetList);
 
       tweetList.forEach(function(tweet){
-        saveTweet(tweet, function(err, tweet){
+        saveTweet(makeTweetDbObject(tweet), makeAuthorObject(tweet), function(err, tweet){
           if(err){
             console.error("error saving to db");
             // may be able to recover from some errors

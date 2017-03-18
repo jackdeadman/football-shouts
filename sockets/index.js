@@ -16,7 +16,7 @@ var client = new T({
 var database = require('../models/Database');
 
 function findTransfers(player, club) {
-  Tweet.getFromDatabase({ query: "waynerooney", since: "2016-03-10", until: "2017-03-17" }, function(err, tweets){
+  Tweet.getFromTwitter({ query: "trump", since: "2016-03-10", until: "2017-03-17" }, function(err, tweets){
     if(err){
       console.error("query failed");
       return;
@@ -78,10 +78,10 @@ module.exports = {
   listen: function(server) {
     var io = require('socket.io')(server);
 
-    database.Author.findAll()
-      .then(function(authors) {
-        console.log(authors);
-      });
+    // database.Author.findAll()
+    //   .then(function(authors) {
+    //     console.log(authors);
+    //   });
 
     io.of('suggestions')
       .on('connection', function(socket) {

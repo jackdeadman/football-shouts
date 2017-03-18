@@ -8,6 +8,12 @@ module.exports = function(sequelize, DataTypes) {
       hasMedia: { type: DataTypes.BOOLEAN, allowNull: false },
       retweetCount: { type: DataTypes.INTEGER, allowNull: false },
       favouriteCount: { type: DataTypes.INTEGER, allowNull: false }
+  },{
+    classMethods: {
+      associate: function(models){
+        Tweet.belongsTo(models.Author);
+      }
+    }
   });
   return Tweet;
 };
