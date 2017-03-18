@@ -36,3 +36,16 @@ form#search {
   border-bottom-color: #6a1b9a;
   box-shadow: 0 1px 0 0 #6a1b9a;
 }
+
+/*Style for using the default mouse cursor*/
+span.chip, label, .default-cursor {
+  cursor: default;
+}
+
+/*Style for disabling the selection of text*/
+.disable-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}#

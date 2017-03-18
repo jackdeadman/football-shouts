@@ -11,10 +11,19 @@ function displaySearchResults(node, results) {
   // }
   console.log(results)
   results.forEach(function(result) {
-    var div = document.createElement('div');
-    div.innerHTML = result.text;
-    console.log(div);
-    node.appendChild(div);
+    console.log(result.text);
+
+    var div =     $('<div>', {'class': 'card-panel grey lighten-5 z-depth-1'})
+    var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
+    var image =   $('<div>', {'class': 'col s1'})
+                  .prepend('<img src="/images/test.jpg" alt="" class="circle responsive-img avatar"/>')
+    var content = $('<div>', {'class': 'col s11'})
+                  .prepend('<span class = "black-text">' + result.text + '</span>');
+
+    var inner = innerdiv.append(image).append(content);
+    var combined = div.append(inner);
+
+    node.append(combined);
   });
 }
 
@@ -31,8 +40,8 @@ function displaySearchResults(node, results) {
   //Upon pressing the search button, send the entered data
   $('#search').submit(function(e){
     e.preventDefault();
-    var playerTags = $("#players").materialtags('items');
-    var clubTags = $("#clubs").materialtags('items');
+    var playerTags = $('#players').materialtags('items');
+    var clubTags = $('#clubs').materialtags('items');
     var req = { players: playerTags, clubs: clubTags };
     search.emit('query', req);
   });
@@ -51,7 +60,7 @@ function displaySearchResults(node, results) {
   // });
 
 
-  var app = document.getElementById('app');
+  var app = $('#app');
   search.on('result', function(results) {
     console.log(results);
     displaySearchResults(app, results.tweets);
