@@ -23,11 +23,15 @@ module.exports = {
 
       namespace.on('connection', function(socket) {
         // Bind the event names with their handlers
-        for (event in namespaceModule.handlers) {
-          var handler = namespaceModule.handlers[event];
-          socket.on(event, function(req) {
+        bindHandler = function(handler) {
+          return function(req) {
             handler(socket, req, io);
-          })
+          };
+        };
+
+        for (var event in namespaceModule.handlers) {
+          var handler = namespaceModule.handlers[event];
+          socket.on(event, bindHandler(handler));
         }
       });
     });

@@ -29,7 +29,7 @@ function displaySearchResults(node, results) {
   search.on('error', handleSearchError);
 
   // Send some data to the server to test
-  var req = { player: 'Wayne', club: 'Brighton' };
+  var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
   search.emit('query', req);
 
 
@@ -45,6 +45,7 @@ function displaySearchResults(node, results) {
 
   var app = document.getElementById('app');
   search.on('result', function(results) {
+    console.log(results);
     displaySearchResults(app, results.tweets);
   });
 
