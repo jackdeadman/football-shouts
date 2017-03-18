@@ -18,10 +18,13 @@
     "morgan": "~1.7.0",
     "mysql": "^2.13.0",
     "nodemon": "^1.11.0",
+    "pre-commit": "^1.2.2",
     "sequelize": "^3.30.2",
     "serve-favicon": "~2.3.2",
     "socket.io": "^1.7.3",
     "twit": "^2.2.5"
   },
-  "pre-commit": ["lint"]
+  "pre-commit": [
+    "lint"
+  ]
 }
