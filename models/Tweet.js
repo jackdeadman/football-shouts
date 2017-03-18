@@ -131,4 +131,6 @@ module.exports.live = function(query){
   stream.on('tweet', function(tweet){
     liveTweetEmitter.emit(tweet);
   });
+
+  return liveTweetEmitter;
 }
