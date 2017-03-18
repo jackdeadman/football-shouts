@@ -16,7 +16,7 @@ var client = new T({
 var database = require('../models/Database');
 
 function findTransfers(player, club) {
-  Tweet.getTweets({ query: "waynerooney", since: "2016-03-10", until: "2017-03-17" }, function(err, tweets){
+  Tweet.getFromDatabase({ query: "waynerooney", since: "2016-03-10", until: "2017-03-17" }, function(err, tweets){
     if(err){
       console.error("query failed");
       return;
