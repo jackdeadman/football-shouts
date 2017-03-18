@@ -1,5 +1,6 @@
 extends layout
 
+//Form for search inputs
 block input
   //create a form with fields for players and clubs
   //on submit, you need to do an emit
@@ -20,13 +21,6 @@ block input
           .input-field.col.s12
             button.btn-large.waves-effect.waves-light.purple.darken-3(type='submit') Submit
       
-
+//The returned tweets
 block tweets
   div#app
-    
-  script(src="/javascripts/jquery-3.2.0.min.js")
-  script(src="/javascripts/typeahead.min.js")
-  script(src="/javascripts/materialize.min.js")
-  script(src="/javascripts/materialize-tags.min.js")
-  script(src="/socket.io/socket.io.js")
-  script(src="/javascripts/main.js")

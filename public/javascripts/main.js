@@ -28,9 +28,17 @@ function displaySearchResults(node, results) {
   // Setup Socket listeners
   search.on('error', handleSearchError);
 
+  //Upon pressing the search button, send the entered data
+  $('#search').submit(function(e){
+    e.preventDefault();
+    var playerTags = $("#players").materialtags('items');
+    var clubTags = $("#clubs").materialtags('items');
+    var req = { players: playerTags, clubs: clubTags };
+    search.emit('query', req);
+  });
   // Send some data to the server to test
-  var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
-  search.emit('query', req);
+  // var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
+  // search.emit('query', req);
 
 
   // liveTweets.on('tweet', function(tweet) {
