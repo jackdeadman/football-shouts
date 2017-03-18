@@ -5,6 +5,7 @@ var T = require('twit');
 var config = require('../config').twitter;
 var dbTweet = database.Tweet;
 var dbAuthor = database.Author;
+var events = require('events');
 
 var client = new T({
  consumer_key: config.consumerKey,
@@ -117,4 +118,17 @@ module.exports.getFromDatabase = function(queryTerms, callback){
     retweetCount: 3,
     favouriteCount: 0
   }]);
+}
+
+module.exports.live = function(query){
+  var player = query.player;
+  var club = query.club;
+
+  var liveTweetEmitter = new events.EventEmitter();
+
+  var stream = client.stream("statuses/filter", { track: player + " transfer " + club });
+
+  stream.on('tweet', function(tweet){
+    liveTweetEmitter.emit(tweet);
+  });
 }
