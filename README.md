@@ -8,3 +8,4 @@ Setting up the Project
 - Copy ```example-config.js``` to ```config.js``` and change the details.
 
 - Start the server ```$ yarn start```
+- Lint code before pushing ```$ yarn lint```
