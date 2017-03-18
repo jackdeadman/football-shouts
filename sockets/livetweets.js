@@ -1,13 +1,17 @@
+var Tweet = require('../models/Tweet');
+
 var handlers = {
   subscribe: function(req) {
-    var path = req.path;
-    var filter = req.filter;
-    // Need to add security checks here
-    var stream = client.stream(path, filter);
+    var player = req.player;
+    var club = req.club;
 
-    stream.on('tweet', function(tweet) {
+    var livetweets = Tweet.live({
+      player: player,
+      club: clib
+    });
+
+    livetweets.on('tweet', function(tweet) {
       console.log('I HAZ TWEET');
-      // Obviously will add checks here lol
       socket.emit('tweet', tweet);
     });
   }
