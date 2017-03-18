@@ -19,7 +19,6 @@ module.exports = {
       }
 
       var namespaceName = path.basename(file, '.js');
-      console.log(namespaceName);
       var namespace = io.of(namespaceName);
 
       namespace.on('connection', function(socket) {

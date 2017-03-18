@@ -30,8 +30,8 @@ function saveTweet(tweet, callback){
   tweetObject.save(callback);
 }
 
-module.exports.getTweets = function(queryTerms, callback){
-  var twitterQuery = buildQueries(queryTerms);
+module.exports.getFromTwitter = function(queryTerms, callback){
+  var twitterQuery = buildQuery(queryTerms);
 
     client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
       if(err){
@@ -41,6 +41,7 @@ module.exports.getTweets = function(queryTerms, callback){
       }
 
       var tweetList = queryResult.statuses;
+      // need to save hashtags to a different table probably
       
       tweetList = tweetList.map(makeTweetObject);
       callback(null, tweetList);
@@ -57,12 +58,34 @@ module.exports.getTweets = function(queryTerms, callback){
     });
 };
 
-function buildQueries(query){
+function buildQuery(queryTerms){
 // build all the combinations of search terms
 // add in words like "transfer"
-  var queryText = query.query;
-  var querySinceTimestamp = query.since;
-  var queryUntilTimestamp = query.until;
+  var queryText = queryTerms.query;
+  var querySinceTimestamp = queryTerms.since;
+  var queryUntilTimestamp = queryTerms.until;
   var searchTerms = queryText + " transfer" + " since:" + querySinceTimestamp + " until:" + queryUntilTimestamp + " AND -filter:retweets AND -filter:replies";
   return searchTerms;
+}
+
+function buildDbQuery(queryTerms){
+  return queryTerms;
+}
+
+module.exports.getFromDatabase = function(queryTerms, callback){
+  // extract hashtags from query and search hashtags table
+  // search text of tweets for query terms
+  // search players for twitter handles from query
+  // search clubs for twitter handles from query
+  // do this in as few queries as possible
+  var dbQuery = buildDbQuery(queryTerms);
+
+  callback(null, [{
+    text: "@waynerooney in rumoured transfer talks with #TruroFC",
+    tweetId: 840208454560174080,
+    createdAt: new Date(2017, 3, 17, 14, 31, 20),
+    hasMedia: false,
+    retweetCount: 3,
+    favouriteCount: 0
+  }]);
 }
