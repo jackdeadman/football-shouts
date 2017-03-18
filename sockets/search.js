@@ -15,7 +15,7 @@ function findTransfers(player, club, callback) {
     player: player,
     club: club,
     query: player + ' ' + club, // temp
-    since: new Date(Date.now() - 60 * 60), until: new Date(Date.now())
+    since: new Date(0), until: new Date(Date.now())
   };
 
   Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
@@ -40,14 +40,16 @@ function findTransfers(player, club, callback) {
         twitterTweets = twitterTweets || [];
         countFromTwitter = databaseTweets.length;
         tweets = tweets.concat(twitterTweets);
+
+        callback(null, {
+          tweets: tweets,
+          countFromTwitter: countFromTwitter,
+          countFromDatabase: countFromDatabase
+        });
       });
     }
 
-    callback(null, {
-      tweets: tweets,
-      countFromTwitter: countFromTwitter,
-      countFromDatabase: countFromDatabase
-    });
+    
   });
 }
 

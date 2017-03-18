@@ -63,6 +63,7 @@ function saveTweet(tweet, author){
 }
 
 module.exports.getFromTwitter = function(query, callback){
+  console.log("query: ", query);
   var twitterQuery = buildQuery(query);
   client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
     if(err){
@@ -99,9 +100,9 @@ function buildQuery(queryTerms){
   var player = queryTerms.player;
   var club = queryTerms.club;
   var sinceTimestamp = formatDate(queryTerms.since);
-  console.log("since: ", sinceTimestamp);
   var untilTimestamp = formatDate(queryTerms.until);
-  var searchTerms = player + " transfer " + club + " since:" + sinceTimestamp + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
+  var searchTerms = player + " " + club + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
+  console.log("search terms:", searchTerms);
   return searchTerms;
 }
 /*
@@ -115,12 +116,12 @@ function findPlayers(playerQuery){
       $or: [
         {
           twitterHandle: {
-            $like: '%' + playerQuery
+            $like: '%' + playerQuery + '%'
           }
         },
         {
           name: {
-            $like: '%' + playerQuery
+            $like: '%' + playerQuery + '%'
           }
         }
       ]
@@ -142,12 +143,12 @@ function findClubs(clubQuery){
       $or: [
         {
           twitterHandle: {
-            $like: '%' + clubQuery
+            $like: '%' + clubQuery + '%'
           }
         },
         {
           name: {
-            $like: '%' + clubQuery
+            $like: '%' + clubQuery + '%'
           }
         }
       ]
