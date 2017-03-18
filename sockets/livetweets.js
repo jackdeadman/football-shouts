@@ -1,13 +1,13 @@
 var Tweet = require('../models/Tweet');
 
 var handlers = {
-  subscribe: function(req, socket) {
+  subscribe: function(socket, req) {
     var player = req.player;
     var club = req.club;
 
     var livetweets = Tweet.live({
       player: player,
-      club: clib
+      club: club
     });
 
     livetweets.connect();
@@ -17,10 +17,15 @@ var handlers = {
       socket.emit('tweet', tweet);
     });
 
+    console.log(socket)
     socket.livetweets = livetweets;
   },
 
-  disconect: function(req, socket) {
+  unsubscribe: function(socket, req) {
+    socket.livetweets.disconect();
+  },
+
+  disconect: function(socket, req) {
     socket.livetweets.disconect();
   }
 }

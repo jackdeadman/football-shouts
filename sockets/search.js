@@ -1,5 +1,6 @@
 var Tweet = require('../models/Tweet');
 var generateErrorObj = require('./_utils').generateErrorObj;
+var threshold = require('../config').cache.threshold;
 
 function findTransfers(player, club, callback) {
   /**
@@ -11,29 +12,30 @@ function findTransfers(player, club, callback) {
   var query = {
     player: player,
     club: club,
-    since: "2016-03-10", until: "2017-03-17"
+    query: player + ' ' + club, // temp
+    since: Date.now() - 60*60, until: "2017-03-17"
   };
 
-  var countFromTwitter = 0;
-  var countFromDatabase = 0;
-  var tweets = [];
-
-  console.log(query);
-
   Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
-    tweets = databaseTweets || tweets;
-    countFromTwitter = tweets.length;
+    var tweets = databaseTweets || [];
+
+    var countFromDatabase = tweets.length;
+    var countFromTwitter = 0;
+
     var latest = tweets[0];
 
-    if (tweets.length < 5 || latest.datatime > threshold) {
+    // Update if no tweets found or too old
+    if (!latest || (Date.now() - latest.createdAt) > threshold) {
+      console.log('Searching Twitter');
       // Only get newer tweets than latest
-      if (tweets.length) {
-        query.since = latest.datatime;
+      if (latest) {
+        query.since = latest.createdAt;
       }
 
       Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
+        console.log(twitterErr, twitterTweets)
         twitterTweets = twitterTweets || [];
-        countFromDatabase = databaseTweets.length;
+        countFromTwitter = databaseTweets.length;
         tweets = tweets.concat(twitterTweets);
       });
     }
@@ -92,11 +94,16 @@ var handlers = {
           }
           else {
             allResults.tweets = allResults.tweets.concat(results.tweets);
-            allResults.countFromTwitter += allResults.countFromTwitter;
-            allResults.countFromDatabase += allResults.countFromDatabase
+            allResults.countFromTwitter += results.countFromTwitter;
+            allResults.countFromDatabase += results.countFromDatabase
           }
           if (requests === responses) {
             // allResults = allResults.sort(function(r) { return r.createdAt; })
+
+            // Order by createdAt
+
+            // Remove duplicates
+
             socket.emit(successEvent, allResults);
 
             if (errors.length) {

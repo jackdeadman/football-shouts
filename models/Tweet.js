@@ -6,6 +6,7 @@ var config = require('../config').twitter;
 var dbTweet = database.Tweet;
 var dbAuthor = database.Author;
 var events = require('events');
+var LiveTweet = require('./LiveTweet');
 
 var client = new T({
  consumer_key: config.consumerKey,
@@ -61,8 +62,9 @@ function saveTweet(tweet, author, callback){
 }
 
 module.exports.getFromTwitter = function(queryTerms, callback){
+  console.log(twitterQuery);
   var twitterQuery = buildQuery(queryTerms);
-
+    console.log(twitterQuery);
     client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
       if(err){
         console.error("failed to get tweets from twitter");
@@ -113,7 +115,7 @@ module.exports.getFromDatabase = function(queryTerms, callback){
   callback(null, [{
     text: "@waynerooney in rumoured transfer talks with #TruroFC",
     tweetId: 840208454560174080,
-    createdAt: new Date(2017, 3, 17, 14, 31, 20),
+    createdAt: new Date(2017, 2, 17, 14, 31, 20),
     hasMedia: false,
     retweetCount: 3,
     favouriteCount: 0
@@ -123,14 +125,7 @@ module.exports.getFromDatabase = function(queryTerms, callback){
 module.exports.live = function(query){
   var player = query.player;
   var club = query.club;
-
-  var liveTweetEmitter = new events.EventEmitter();
-
-  var stream = client.stream("statuses/filter", { track: player + " transfer " + club });
-
-  stream.on('tweet', function(tweet){
-    liveTweetEmitter.emit(tweet);
-  });
-
-  return liveTweetEmitter;
+  var query = { track: player + " transfer " + club };
+  var liveTweetStream = new LiveTweet(client, 'statuses/filter', query);
+  return liveTweetStream;
 }
