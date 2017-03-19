@@ -14,10 +14,10 @@ var client = new T({
 // from:DeadlineDayLive OR from:JPercyTelegraph OR from:Sport_Witness
 
 
-function processTweets(data){
-  var tweets = data['statuses'];
+function processTweets(response){
+  var tweets = response.statuses;
   tweets = tweets.map(function(tweet){
-    return { "text": tweet['text']};
+    return { "text": tweet.text };
   });
 
   return tweets;
@@ -25,20 +25,20 @@ function processTweets(data){
 
 var query = { q: 'from:ChelseaFC -filter:replies', count: 100 };
 
-client.get('search/tweets', query, function(err, data){
-  var tweets = processTweets(data);
+client.get('search/tweets', query, function(err, response){
+  var tweets = processTweets(response);
 
   var query = { q: 'from:ManUtd -filter:replies', count: 100 };
 
   console.log(tweets.length);
-  client.get('search/tweets', query, function(err, data){
-    tweets = tweets.concat(processTweets(data));
+  client.get('search/tweets', query, function(err, response){
+    tweets = tweets.concat(processTweets(response));
     console.log(tweets.length);
 
     var query = { q: 'from:BBCMOTD -filter:replies', count: 100 };
 
-    client.get('search/tweets', query, function(err, data){
-      tweets = tweets.concat(processTweets(data));
+    client.get('search/tweets', query, function(err, response){
+      tweets = tweets.concat(processTweets(response));
 
       console.log(tweets.length);
 

@@ -20,4 +20,4 @@ rules:
   no-multi-spaces: 'error'
   no-unmodified-loop-condition: 'error'
   no-unreachable: 'error'
-  id-blacklist: ['error', 'data', /*Objg/]
+  id-blacklist: ['error', /*Objg/]
