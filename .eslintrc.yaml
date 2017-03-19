@@ -15,3 +15,9 @@ rules:
   no-else-return: 'error'
   max-len: ['error', 80]
   semi: 'error'
+  dot-notation: 'error'
+  eqeqeq: 'error'
+  no-multi-spaces: 'error'
+  no-unmodified-loop-condition: 'error'
+  no-unreachable: 'error'
+  id-blacklist: ['error', 'data', /*Objg/]

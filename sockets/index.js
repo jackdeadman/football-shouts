@@ -13,7 +13,7 @@ module.exports = {
       return (file.indexOf('_') === -1 ) && (file !== 'index.js');
     })
     .forEach(function(file) {
-      var namespaceModule = require('./'+file);
+      var namespaceModule = require('./' + file);
 
       if (!namespaceModule.handlers) {
         console.error('Failed to bind ' + file + '. No handlers found.');
