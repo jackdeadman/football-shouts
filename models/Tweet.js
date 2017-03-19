@@ -6,6 +6,8 @@ var config = require('../config').twitter;
 var dbTweet = database.Tweet;
 var dbAuthor = database.Author;
 var LiveTweet = require('./LiveTweet');
+var dbPlayer = database.Player;
+var dbClub = database.Club;
 
 var client = new T({
   consumer_key: config.consumerKey,
@@ -61,6 +63,7 @@ function saveTweet(tweet, author){
 }
 
 module.exports.getFromTwitter = function(query, callback){
+  console.log("query: ", query);
   var twitterQuery = buildQuery(query);
   client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
     if(err){
@@ -97,9 +100,9 @@ function buildQuery(queryTerms){
   var player = queryTerms.player;
   var club = queryTerms.club;
   var sinceTimestamp = formatDate(queryTerms.since);
-  console.log("since: ", sinceTimestamp);
   var untilTimestamp = formatDate(queryTerms.until);
-  var searchTerms = player + " transfer " + club + " since:" + sinceTimestamp + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
+  var searchTerms = player + " " + club + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
+  console.log("search terms:", searchTerms);
   return searchTerms;
 }
 /*
@@ -107,15 +110,100 @@ function buildDbQuery(queryTerms){
   return queryTerms;
 }*/
 
-module.exports.getFromDatabase = function(queryTerms, callback){
+function findPlayers(playerQuery){
+  return dbPlayer.findAll({
+    where: {
+      $or: [
+        {
+          twitterHandle: {
+            $like: '%' + playerQuery + '%'
+          }
+        },
+        {
+          name: {
+            $like: '%' + playerQuery + '%'
+          }
+        }
+      ]
+    }
+  });
+}
+
+function findTweetsForPlayers(players){
+  var playerTweets = [];
+  players.forEach(function(player){
+    playerTweets.push(player.getTweets());
+  });
+  return playerTweets;
+}
+
+function findClubs(clubQuery){
+  return dbClub.findAll({
+    where: {
+      $or: [
+        {
+          twitterHandle: {
+            $like: '%' + clubQuery + '%'
+          }
+        },
+        {
+          name: {
+            $like: '%' + clubQuery + '%'
+          }
+        }
+      ]
+    }
+  });
+}
+
+function findTweetsForClubs(clubs){
+  var clubTweets = [];
+  clubs.forEach(function(club){
+    clubTweets.push(club.getTweets());
+  });
+  return clubTweets;
+}
+
+module.exports.getFromDatabase = function(query, callback){
   // extract hashtags from query and search hashtags table
   // search text of tweets for query terms
   // search players for twitter handles from query
   // search clubs for twitter handles from query
   // do this in as few queries as possible
-  // var dbQuery = buildDbQuery(queryTerms);
 
-  callback(null, [{
+  // var testPlayer = {
+  //   name: "Jack Deadman",
+  //   twitterHandle: "jackdeadman96"
+  // };
+
+  // var testPlayerQuery = "jackdeadman96";
+
+  // var testClub = {
+  //   name: "Garrison Gunners",
+  //   twitterHandle: "IOS_WSL"
+  // };
+
+  // var testClubQuery = "Garrison Gunners";
+
+  var player = query.player;
+  var club = query.club;
+  // var since = query.since;
+  // var until = query.until;
+
+  var tweets = [];
+
+  findPlayers(player)
+  .then(function(players){
+    var playerTweets = findTweetsForPlayers(players);
+    findClubs(club)
+    .then(function(clubs){
+      var clubTweets = findTweetsForClubs(clubs);
+      tweets = playerTweets.concat(clubTweets);
+    });
+  });
+
+  // still adding in dummy tweet as no players or clubs have tweets linked
+  tweets = tweets.concat([{
     text: "@waynerooney in rumoured transfer talks with #TruroFC",
     tweetId: 840208454560174080,
     createdAt: new Date(2017, 2, 17, 14, 31, 20),
@@ -123,6 +211,8 @@ module.exports.getFromDatabase = function(queryTerms, callback){
     retweetCount: 3,
     favouriteCount: 0
   }]);
+
+  callback(null, tweets);
 };
 
 module.exports.live = function(query){
