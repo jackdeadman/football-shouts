@@ -4,7 +4,12 @@ var gulp = require('gulp');
 var eslint = require('gulp-eslint');
 
 gulp.task('lint', function () {
-  return gulp.src(['**/*.js', '!node_modules/**/*', '!*config.js', '!public/**/*'])
+  var files = [
+    '**/*.js',
+    '!node_modules/**/*',
+    '!*config.js',
+    '!public/**/*'];
+  return gulp.src(files)
     .pipe(eslint())
     .pipe(eslint.format())
     .pipe(eslint.failAfterError());

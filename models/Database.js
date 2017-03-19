@@ -5,7 +5,7 @@ var path = require('path');
 var Sequelize = require('sequelize');
 var config = require('../config').database;
 
-var sequelize = new Sequelize(config.database, config.username, config.password,{
+var dbOptions = {
   host: config.host,
   dialect: config.dialect,
 
@@ -14,7 +14,12 @@ var sequelize = new Sequelize(config.database, config.username, config.password,
     min: 0,
     idle: 10000
   }
-});
+};
+
+var sequelize = new Sequelize(config.database, 
+                                config.username, 
+                                config.password,
+                                dbOptions);
 
 var db = {};
 
@@ -38,6 +43,7 @@ db.Sequelize = Sequelize;
 
 module.exports = db;
 
-// most of this code taken from https://github.com/sequelize/express-example/blob/master/models/index.js
+// most of this code taken from 
+// https://github.com/sequelize/express-example/blob/master/models/index.js
 // with some modifications
 

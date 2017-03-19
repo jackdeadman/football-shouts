@@ -65,7 +65,8 @@ function saveTweet(tweet, author){
 module.exports.getFromTwitter = function(query, callback){
   console.log("query: ", query);
   var twitterQuery = buildQuery(query);
-  client.get('search/tweets', { q: twitterQuery, count: 10, result_type: "popular" }, function(err, queryResult){
+  var fullQuery = { q: twitterQuery, count: 10, result_type: "popular" };
+  client.get('search/tweets', fullQuery, function(err, queryResult){
     if(err){
       console.error("failed to get tweets from twitter");
       callback(err);
@@ -79,7 +80,9 @@ module.exports.getFromTwitter = function(query, callback){
     callback(null, tweetList);
 
     tweetList.forEach(function(tweet){
-      saveTweet(makeTweetDbObject(tweet), makeAuthorObject(tweet), function(err){
+      tweet = makeTweetDbObject(tweet);
+      var author = makeAuthorObject(tweet);
+      saveTweet(tweet, author, function(err){
         if(err){
           console.error("error saving to db");
           // may be able to recover from some errors
@@ -91,7 +94,10 @@ module.exports.getFromTwitter = function(query, callback){
 };
 
 function formatDate(date){
-  return date.getFullYear() + "-" + (date.getMonth() + 1) + "-" + date.getDate();
+  var year = date.getFullYear();
+  var month = date.getMonth() + 1;
+  var day = date.getDate();
+  return year + "-" + month + "-" + day;
 }
 
 function buildQuery(queryTerms){
@@ -99,9 +105,13 @@ function buildQuery(queryTerms){
 // add in words like "transfer"
   var player = queryTerms.player;
   var club = queryTerms.club;
-  var sinceTimestamp = formatDate(queryTerms.since);
+  // var sinceTimestamp = formatDate(queryTerms.since);
   var untilTimestamp = formatDate(queryTerms.until);
-  var searchTerms = player + " " + club + " until:" + untilTimestamp + " AND -filter:retweets AND -filter:replies";
+  var searchTerms = player + " " 
+                    + club 
+                    + " until:" 
+                    + untilTimestamp 
+                    + " AND -filter:retweets AND -filter:replies";
   console.log("search terms:", searchTerms);
   return searchTerms;
 }
