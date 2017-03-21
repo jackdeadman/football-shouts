@@ -77,11 +77,11 @@ function saveTweet(tweet, author){
       tweetResult.setAuthor(authorResult);
     })
     .catch(function(err){
-      console.log("Can't save author: ", err);
+      console.error("Can't save author: ", err);
     });
   })
   .catch(function(err){
-    console.log("Can't save tweet: ", err);
+    console.error("Can't save tweet: ", err);
   });
 }
 
@@ -108,6 +108,7 @@ module.exports.getFromTwitter = function(query, callback){
     result_type: "mixed", 
     lang: "en" 
   };
+
   client.get('search/tweets', fullQuery, function(err, queryResult){
     if(err){
       console.error("failed to get tweets from twitter");
@@ -125,8 +126,8 @@ module.exports.getFromTwitter = function(query, callback){
     callback(null, tweetList);
 
     tweetList.forEach(function(tweet){
-      tweet = makeTweetDbObject(tweet);
       var author = makeAuthorObject(tweet);
+      tweet = makeTweetDbObject(tweet);
       try{
         saveTweet(tweet, author, function(err){
           if(err){
