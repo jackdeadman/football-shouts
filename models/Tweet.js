@@ -9,6 +9,9 @@ var LiveTweet = require('./LiveTweet');
 var dbPlayer = database.Player;
 var dbClub = database.Club;
 
+var classifier = require('../lib/tweet_processors/TweetClassifier')
+                  .getClassifier();
+
 var client = new T({
   consumer_key: config.consumerKey,
   consumer_secret: config.consumerSecret,
@@ -53,19 +56,50 @@ function makeTweetDbObject(tweetObject){
 }
 
 function saveTweet(tweet, author){
-  var tweetObject = dbTweet.build(tweet);
-  var authorDbObject = dbAuthor.build(author);
-  tweetObject.save().then(function(tweet){
-    authorDbObject.save().then(function(author){
-      tweet.setAuthor(author);
+  try{
+    var tweetObject = dbTweet.build(tweet);
+    var authorDbObject = dbAuthor.build(author);
+    tweetObject.save()
+    .then(function(tweet){
+      authorDbObject.save()
+      .then(function(author){
+        tweet.setAuthor(author);
+      })
+      .catch(function(err){
+        console.log("error saving author: ", err);
+      });
+    })
+    .catch(function(err){
+      console.log("can't save tweet: ", err);
     });
-  });
+  } catch (validationError) {
+    console.logerror(validationError);
+  }
+}
+
+function selectTransferTweet(tweet){
+  var threshold = 1.0;
+  // console.log(typeof tweet.text);
+  var probs = classifier.classify(tweet.text);
+  var ratio = probs.transfers / probs.football;
+  var isTransfer = ratio > threshold;
+  // console.log(ratio);
+  if(isTransfer){
+    console.log(ratio);
+    console.log(tweet.text);
+  }
+  return isTransfer;
 }
 
 module.exports.getFromTwitter = function(query, callback){
-  console.log("query: ", query);
+  // console.log("query: ", query);
   var twitterQuery = buildQuery(query);
-  var fullQuery = { q: twitterQuery, count: 10, result_type: "popular" };
+  var fullQuery = { 
+    q: twitterQuery, 
+    count: 100, 
+    result_type: "mixed", 
+    lang: "en" 
+  };
   client.get('search/tweets', fullQuery, function(err, queryResult){
     if(err){
       console.error("failed to get tweets from twitter");
@@ -74,21 +108,29 @@ module.exports.getFromTwitter = function(query, callback){
     }
 
     var tweetList = queryResult.statuses;
+    console.log(tweetList.length);
     // need to save hashtags to a different table probably
 
     tweetList = tweetList.map(makeTweetObject);
+    tweetList = tweetList.filter(selectTransferTweet);
+    console.log(tweetList.length);
     callback(null, tweetList);
 
     tweetList.forEach(function(tweet){
       tweet = makeTweetDbObject(tweet);
       var author = makeAuthorObject(tweet);
-      saveTweet(tweet, author, function(err){
-        if(err){
-          console.error("error saving to db");
-          // may be able to recover from some errors
-          return;
-        }
-      });
+      try{
+        saveTweet(tweet, author, function(err){
+          if(err){
+            console.error("error saving to db");
+            // may be able to recover from some errors
+            return;
+          }
+        });
+      } catch (validationError) {
+        console.error(validationError);
+      }
+      
     });
   });
 };
@@ -109,6 +151,8 @@ function buildQuery(queryTerms){
   var untilTimestamp = formatDate(queryTerms.until);
   var searchTerms = player + " " 
                     + club 
+                    // + "since:"
+                    // + sinceTimestamp
                     + " until:" 
                     + untilTimestamp 
                     + " AND -filter:retweets AND -filter:replies";

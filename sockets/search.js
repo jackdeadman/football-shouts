@@ -33,10 +33,8 @@ function findTransfers(player, club, callback) {
       if (latest) {
         query.since = latest.createdAt;
       }
-      console.log("query.until:", query.until);
 
       Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-        console.log(twitterErr, twitterTweets);
         twitterTweets = twitterTweets || [];
         countFromTwitter = databaseTweets.length;
         tweets = tweets.concat(twitterTweets);
