@@ -56,25 +56,33 @@ function makeTweetDbObject(tweetObject){
 }
 
 function saveTweet(tweet, author){
-  try{
-    var tweetObject = dbTweet.build(tweet);
-    var authorDbObject = dbAuthor.build(author);
-    tweetObject.save()
-    .then(function(tweet){
-      authorDbObject.save()
-      .then(function(author){
-        tweet.setAuthor(author);
-      })
-      .catch(function(err){
-        console.log("error saving author: ", err);
-      });
+  dbTweet.findOrCreate({
+    where: {
+      text: tweet.text,
+      tweetId: tweet.tweetId,
+      createdAt: tweet.createdAt,
+      hasMedia: tweet.hasMedia,
+      retweetCount: tweet.retweetCount,
+      favouriteCount: tweet.favouriteCount
+    }
+  })
+  .then(function(tweetResult){
+    dbAuthor.findOrCreate({
+      where: {
+        authorHandle: author.authorHandle,
+        authorName: author.authorName
+      }
+    })
+    .then(function(authorResult){
+      tweetResult.setAuthor(authorResult);
     })
     .catch(function(err){
-      console.log("can't save tweet: ", err);
+      console.log("Can't save author: ", err);
     });
-  } catch (validationError) {
-    console.logerror(validationError);
-  }
+  })
+  .catch(function(err){
+    console.log("Can't save tweet: ", err);
+  });
 }
 
 function selectTransferTweet(tweet){
