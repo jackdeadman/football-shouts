@@ -8,6 +8,9 @@ var config = require('../config').database;
 var dbOptions = {
   host: config.host,
   dialect: config.dialect,
+  dialectOptions: {
+    charset: 'utf8mb4'
+  },
 
   pool: {
     max: 5,

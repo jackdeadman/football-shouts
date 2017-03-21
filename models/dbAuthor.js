@@ -5,6 +5,8 @@ module.exports = function(sequelize, DataTypes) {
     authorHandle: { type: DataTypes.STRING(15), allowNull: false },
     authorName: { type: DataTypes.STRING(20), allowNull: false } 
     // https://support.twitter.com/articles/14609
+  }, {
+    charset: 'utf8mb4'
   });
   return Author;
 };

@@ -74,7 +74,7 @@ function saveTweet(tweet, author){
       }
     })
     .then(function(authorResult){
-      tweetResult.setAuthor(authorResult);
+      tweetResult[0].setAuthor(authorResult[0]);
     })
     .catch(function(err){
       console.error("Can't save author: ", err);

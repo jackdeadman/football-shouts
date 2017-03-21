@@ -9,6 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     retweetCount: { type: DataTypes.INTEGER, allowNull: false },
     favouriteCount: { type: DataTypes.INTEGER, allowNull: false }
   },{
+    charset: 'utf8mb4',
     classMethods: {
       associate: function(models){
         Tweet.belongsTo(models.Author);
