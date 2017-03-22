@@ -13,6 +13,12 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function(models){
         Tweet.belongsTo(models.Author);
+        Tweet.belongsToMany(models.Hashtag, 
+          { 
+            as: "Hashtags", 
+            through: "TweetHashtags" 
+          }
+        );
       }
     }
   });

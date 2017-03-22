@@ -11,11 +11,13 @@ function findTransfers(player, club, callback) {
    * @param club: String of the club
    * @param callback: fn(err, tweets)
    */
+  var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  console.log(lastWeek);
   var query = {
     player: player,
     club: club,
     query: player + ' ' + club, // temp
-    since: new Date(0), until: new Date(Date.now())
+    since: lastWeek, until: new Date(Date.now())
   };
 
   Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
