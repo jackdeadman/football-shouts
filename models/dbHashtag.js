@@ -10,7 +10,9 @@ module.exports = function(sequelize, DataTypes) {
         Hashtag.belongsToMany(models.Tweet, 
           { 
             as: "Tweets", 
-            through: "TweetHashtags" 
+            through: "TweetHashtags",
+            foreignKey:  "hashtagId",
+            otherKey: "tweetId"
           }
         );
       }

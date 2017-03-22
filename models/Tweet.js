@@ -86,19 +86,34 @@ function saveTweet(tweet, author, hashtags){
     }
   });
 
-  saveTweet
-  .then(saveAuthor)
-  .then(hashtagsDone)
+  Promise.all([saveTweet, saveAuthor, hashtagsDone])
   .then(results => {
+    console.log('#######', results[2][0][0]);
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
     var hashtagResults = results[2][0];
-    console.log(hashtagResults);
-    tweetResult.setAuthor(authorResult);
-    tweetResult.setHashtags(hashtagResults);
-    // TODO: find player, set relation
-    // TODO: find club, set relation
+    var setAuthorRelation = tweetResult.setAuthor(authorResult);
+    var setHashtagRelation = tweetResult.setHashtags(hashtagResults, 
+      { 
+        as: 'Hashtags', 
+        through: 'TweetHashtags' 
+      });
+    return Promise.all([setAuthorRelation, setHashtagRelation]);
   })
+  // saveTweet
+  // .then(saveAuthor)
+  // .then(hashtagsDone)
+  // .then(results => {
+  //   console.log('#######', results[1]);
+  //   var tweetResult = results[0][0];
+  //   var authorResult = results[1][0];
+  //   var hashtagResults = results[2][0];
+  //   var setAuthorRelation = tweetResult.setAuthor(authorResult);
+  //   var setHashtagRelation = tweetResult.setHashtags(hashtagResults);
+  //   return Promise.all([setAuthorRelation, setHashtagRelation]);
+  //   // TODO: find player, set relation
+  //   // TODO: find club, set relation
+  // })
   .catch(err => {
     console.error("problem with saving tweet: ", err);
   });
@@ -121,24 +136,26 @@ module.exports.getFromTwitter = function(query, callback){
       return;
     }
 
-    var tweetList = queryResult.statuses;
-    console.log(tweetList.length);
+    var originalTweetList = queryResult.statuses;
+    console.log(originalTweetList.length);
     // need to save hashtags to a different table probably
 
-    tweetList = tweetList.map(makeTweetObject);
+    var tweetList = originalTweetList.map(makeTweetObject);
     tweetList = tweetList.filter(utils.selectTransferTweet);
     console.log(tweetList.length);
     callback(null, tweetList);
 
-    tweetList.forEach(function(tweet){
-      var author = makeAuthorObject(tweet);
+    tweetList.forEach(function(tweet, i){
+      
       // var hashtags = tweet.entities.hashtags;
-      var hashtags;
-      if(tweet.entities.hashtags){
-        hashtags = tweet.entities.hashtags;
+      var hashtags = originalTweetList[i].entities.hashtags;
+      if(hashtags.length){
+        hashtags = hashtags.map(hashtag => hashtag.text.toLowerCase());
       }else{
         hashtags = [];
       }
+      var author = makeAuthorObject(tweet);
+      // console.log("###", author);
       tweet = makeTweetDbObject(tweet);
       saveTweet(tweet, author, hashtags, function(err){
         if(err){
@@ -147,6 +164,9 @@ module.exports.getFromTwitter = function(query, callback){
           return;
         }
       });
+      // .then(() => {
+      //   database.sequelize.sync();
+      // });
     });
   });
 };
@@ -217,6 +237,7 @@ function findTweets(player, club){
       include: [
         {
           model: dbHashtag,
+          as: 'Hashtags',
           where: {
             hashtag: {
               $in: [player, club]
@@ -234,6 +255,7 @@ function findTweets(player, club){
         },
         {
           model: dbHashtag,
+          as: 'Hashtags',
           where: {
             hashtag: player
           }
@@ -249,6 +271,7 @@ function findTweets(player, club){
         },
         {
           model: dbHashtag,
+          as: 'Hashtags',
           where: {
             hashtag: club
           }
