@@ -236,8 +236,7 @@ function findTweets(player, club){
       }
     ]
   };
-  console.log('***********', player, club)
-  console.log(isHashtag(player), isHashtag(club))
+  
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
       include: [
