@@ -38,7 +38,7 @@ function findTransfers(player, club, callback) {
 
       Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
         twitterTweets = twitterTweets || [];
-        countFromTwitter = databaseTweets.length;
+        countFromTwitter = twitterTweets.length;
         tweets = tweets.concat(twitterTweets);
 
         callback(null, {
@@ -49,7 +49,7 @@ function findTransfers(player, club, callback) {
       });
     }
 
-    
+
   });
 }
 

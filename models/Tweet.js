@@ -67,7 +67,7 @@ function saveTweet(tweet, author, hashtags){
   var hashtagsDone = Promise.all(hashtagSaves);
 
   // need to make associated tweethashtags and then associate them to tweets.
-  
+
   var saveTweet = dbTweet.findOrCreate({
     where: {
       text: tweet.text,
@@ -94,12 +94,11 @@ function saveTweet(tweet, author, hashtags){
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
     var hashtagRelations = [];
     hashtagResults.forEach(hashtag => {
-      hashtagRelations.push(tweetResult.addHashtag(hashtag, 
+      hashtagRelations.push(tweetResult.addHashtag(hashtag,
         { through: 'TweetHashtags' }
       ));
     });
     var setHashtagRelation = Promise.all(hashtagRelations);
-
     return Promise.all([setAuthorRelation, setHashtagRelation]);
   })
   // saveTweet
@@ -124,11 +123,11 @@ function saveTweet(tweet, author, hashtags){
 module.exports.getFromTwitter = function(query, callback){
   // console.log("query: ", query);
   var twitterQuery = buildQuery(query);
-  var fullQuery = { 
-    q: twitterQuery, 
-    count: 100, 
-    result_type: "mixed", 
-    lang: "en" 
+  var fullQuery = {
+    q: twitterQuery,
+    count: 100,
+    result_type: "mixed",
+    lang: "en"
   };
 
   client.get('search/tweets', fullQuery, function(err, queryResult){
@@ -148,7 +147,7 @@ module.exports.getFromTwitter = function(query, callback){
     callback(null, tweetList);
 
     tweetList.forEach(function(tweet, i){
-      
+
       // var hashtags = tweet.entities.hashtags;
       var hashtags = originalTweetList[i].entities.hashtags;
       if(hashtags.length){
@@ -187,12 +186,12 @@ function buildQuery(queryTerms){
   var club = queryTerms.club;
   var sinceTimestamp = formatDate(queryTerms.since);
   var untilTimestamp = formatDate(queryTerms.until);
-  var searchTerms = player + " " 
-                    + club 
+  var searchTerms = player + " "
+                    + club
                     + " since:"
                     + sinceTimestamp
-                    + " until:" 
-                    + untilTimestamp 
+                    + " until:"
+                    + untilTimestamp
                     + " AND -filter:retweets AND -filter:replies";
   console.log("search terms:", searchTerms);
   return searchTerms;
@@ -233,7 +232,8 @@ function findTweets(player, club){
       }
     ]
   };
-
+  console.log('***********', player, club)
+  console.log(isHashtag(player), isHashtag(club))
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
       include: [
@@ -253,7 +253,7 @@ function findTweets(player, club){
       include: [
         {
           model: dbClub,
-          where: clubQuery 
+          where: clubQuery
         },
         {
           model: dbHashtag,
@@ -269,7 +269,7 @@ function findTweets(player, club){
       include: [
         {
           model: dbPlayer,
-          where: playerQuery 
+          where: playerQuery
         },
         {
           model: dbHashtag,
