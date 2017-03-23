@@ -202,6 +202,10 @@ function isHashtag(string){
   return string.lastIndexOf('#', 0) === 0;
 }
 
+function stripHashtag(string){
+  return string.substring(1,string.length);
+}
+
 function findTweets(player, club){
   var playerQuery = {
     $or: [
@@ -242,7 +246,7 @@ function findTweets(player, club){
           as: 'Hashtags',
           where: {
             hashtag: {
-              $in: [player, club]
+              $in: [stripHashtag(player), stripHashtag(club)]
             }
           }
         }
