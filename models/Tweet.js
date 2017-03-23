@@ -21,7 +21,7 @@ var client = new T({
 function makeTweetObject(tweet){
   var tweetObject = {
     text: tweet.text,
-    tweetId: tweet.id_str,
+    twitterId: tweet.id_str,
     createdAt: tweet.created_at,
     hasMedia: !!tweet.entities.media,
     retweetCount: tweet.retweet_count,
@@ -44,7 +44,7 @@ function makeAuthorObject(tweetObject){
 function makeTweetDbObject(tweetObject){
   var tweetDbObject = {
     text: tweetObject.text,
-    tweetId: tweetObject.tweetId,
+    twitterId: tweetObject.twitterId,
     createdAt: tweetObject.createdAt,
     hasMedia: tweetObject.hasMedia,
     retweetCount: tweetObject.retweetCount,
@@ -71,7 +71,7 @@ function saveTweet(tweet, author, hashtags){
   var saveTweet = dbTweet.findOrCreate({
     where: {
       text: tweet.text,
-      tweetId: tweet.tweetId,
+      twitterId: tweet.twitterId,
       createdAt: tweet.createdAt,
       hasMedia: tweet.hasMedia,
       retweetCount: tweet.retweetCount,
@@ -88,16 +88,18 @@ function saveTweet(tweet, author, hashtags){
 
   Promise.all([saveTweet, saveAuthor, hashtagsDone])
   .then(results => {
-    console.log('#######', results[2][0][0]);
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
     var hashtagResults = results[2][0];
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
-    var setHashtagRelation = tweetResult.setHashtags(hashtagResults, 
-      { 
-        as: 'Hashtags', 
-        through: 'TweetHashtags' 
-      });
+    var hashtagRelations = [];
+    hashtagResults.forEach(hashtag => {
+      hashtagRelations.push(tweetResult.addHashtag(hashtag, 
+        { through: 'TweetHashtags' }
+      ));
+    });
+    var setHashtagRelation = Promise.all(hashtagRelations);
+
     return Promise.all([setAuthorRelation, setHashtagRelation]);
   })
   // saveTweet
@@ -312,7 +314,7 @@ module.exports.getFromDatabase = function(query, callback){
      // still adding in dummy tweet as no players or clubs have tweets linked
     tweets = tweets.concat([{
       text: "@waynerooney in rumoured transfer talks with #TruroFC",
-      tweetId: 840208454560174080,
+      twitterId: 840208454560174080,
       createdAt: new Date(2016, 1, 17, 14, 31, 20),
       hasMedia: false,
       retweetCount: 3,
