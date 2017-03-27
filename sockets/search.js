@@ -36,7 +36,7 @@ function findTransfers(player, club, callback) {
 
       Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
         twitterTweets = twitterTweets || [];
-        countFromTwitter = databaseTweets.length;
+        countFromTwitter = twitterTweets.length;
         tweets = tweets.concat(twitterTweets);
 
         callback(null, {
@@ -86,7 +86,7 @@ var handlers = {
     };
 
     // mock graph data
-    setTimeout(() => {
+    setTimeout(function() {
       socket.emit('chart', [
         { date: new Date(2017, 3, 1), count: 14},
         { date: new Date(2017, 3, 3), count: 32},
@@ -98,7 +98,7 @@ var handlers = {
         { date: new Date(2017, 3, 21), count: 140},
         { date: new Date(2017, 3, 25), count: 58},
         { date: new Date(2017, 3, 27), count: 10}
-      ])
+      ]);
     }, 3000);
 
     // Search using all combinations
