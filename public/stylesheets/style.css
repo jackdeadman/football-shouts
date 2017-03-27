@@ -37,6 +37,7 @@ div.info-title > p {
   margin-bottom: 5px;
 }
 td.info-name {
+  padding-left: 15px;
   font-weight: bold;
 }
 
