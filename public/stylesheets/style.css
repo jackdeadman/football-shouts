@@ -2,15 +2,25 @@ form#search {
   margin-top: 100px;
 }
 
-/*player stuff*/
+/*info stuff*/
 div.info {
   display: none;
-  padding: 0px;
+  padding: 0px !important;
+  margin-bottom: 20px;
+}
+div.info > table {
+  margin-bottom: 20px;
+}
+div.info-top {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: #ecdcfc;
 }
 div.info-image {
   width: 150px;
-  margin: 20px auto;
-  margin-bottom: 0px;
+  margin: 0px auto;
 }
 div.info-image > img {
   min-width: 150px;
@@ -20,11 +30,14 @@ div.info-image > img {
 }
 div.info-title > p {
   width: 100%;
-  font-size: large;
+  font-size: x-large;
   font-weight: bold;
   text-align: center;
   margin-top: 5px;
-  margin-bottom: 20px;
+  margin-bottom: 5px;
+}
+td.info-name {
+  font-weight: bold;
 }
 
 /*Modifications for button highlighting*/

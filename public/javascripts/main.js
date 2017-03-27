@@ -43,7 +43,8 @@ function displaySearchResults(node, results) {
 
     //Setting up elements
     $('#app').empty();
-    $('#playerinfo').css('display', 'initial');
+    $('#playerinfo').css('display', 'block');
+    $('#clubinfo').css('display', 'block');
 
     //Getting tags for search
     var playerTags = $('#players').materialtags('items');
