@@ -57,6 +57,11 @@ function loadGraph($holder, data) {
   $('#search').submit(function(e){
     e.preventDefault();
 
+    //Scroll down the page
+    $('html, body').animate({
+        scrollTop: $("#app").offset().top
+    }, 500);
+
     //Setting up elements
     $('#app').empty();
     $('#playerinfo').css('display', 'block');

@@ -59,7 +59,23 @@ $(document).ready(function() {
     // });
   });
 
-
+  //Initialising the drop down menu component
+  $('select').material_select();
+  //Checking whether at least one option is selected...
+  $('#options').on('change', function(){
+    console.log($('#options').val());
+    if ($('#options').val().length === 0)
+      $('#submit-button').prop('disabled', true);
+    else
+      $('#submit-button').prop('disabled', false);
+  });
+  // $('#option1', '#option2').click(function() {
+  //   console.log("here");
+  //   if (!($('#option1').is(':selected') || $('#option2').is(':selected')))
+  //     $('#submit-button').prop('disabled', true);
+  //   else
+  //     $('#submit-button').prop('disabled', false);
+  // });
 
   var playernames = $.getJSON('/data/players.json', function(data) {
     console.log(data);
