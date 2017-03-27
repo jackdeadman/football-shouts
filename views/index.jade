@@ -20,7 +20,14 @@ block input
             label(for = "clubs", id="clubs_label") Club Names
         div.row.center-align
           .input-field.col.s12
-            button.btn-large.waves-effect.waves-light.purple.darken-3(type='submit') Submit
+            select(name="options", id="options", multiple="multiple")
+              option(value="", disabled="disabled") Please select at least one option...
+              option(value="1", id="option1", selected="selected") Search database
+              option(value="2", id="option2", selected="selected") Search Twitter
+            label(for="options", id="options_label") Options
+        div.row.center-align
+          div.input-field.col.s12
+            button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Submit
       
 //The returned tweets
 block tweets

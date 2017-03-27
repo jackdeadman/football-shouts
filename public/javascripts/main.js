@@ -52,10 +52,6 @@ function displaySearchResults(node, results) {
     var req = { players: playerTags, clubs: clubTags };
     search.emit('query', req);
   });
-  // Send some data to the server to test
-  // var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
-  // search.emit('query', req);
-
 
   // liveTweets.on('tweet', function(tweet) {
   //   console.log(tweet);
