@@ -27,6 +27,40 @@ $(document).ready(function() {
   //Initialising the inputs with some tags
   // addDefaultTags();
 
+  //Input guff
+  $('#players_label').click(function(){
+    $('.n-tag:first').focus();
+  })
+
+  $('#clubs_label').click(function(){
+    $('.n-tag:eq(1)').focus();
+  })
+
+  $('.n-tag').each(function(){
+
+    //If defocused, empty the text
+    $(this).focusout(function(){
+      $(this).val("");
+    });
+
+    $(this).keyup(function(e){
+      if (e.which == 9) {
+        if ($('.n-tag:first').is(":focus"))
+          $('.n-tag:eq(1)').focus();
+      }
+    });
+
+    //If del is pressed, make sure box stays focused (not working? whyyyy)
+    // $(this).keyup(function(e){
+    //   if(e.keyCode == 8 || e.keyCode == 46) {
+    //     console.log("Here");
+    //     $(this).focus();
+    //   }
+    // });
+  });
+
+
+
   var playernames = $.getJSON('/data/players.json', function(data) {
     console.log(data);
 
