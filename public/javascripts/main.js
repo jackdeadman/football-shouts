@@ -60,7 +60,7 @@ function loadGraph($holder, data) {
     //Scroll down the page
     $('html, body').animate({
         scrollTop: $("#app").offset().top
-    }, 500);
+    }, 1000);
 
     //Setting up elements
     $('#app').empty();
