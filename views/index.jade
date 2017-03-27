@@ -25,35 +25,56 @@ block input
 //The returned tweets
 block tweets
   div.row
-    div.col.s5.card-panel.grey.lighten-5.z-depth-1#playerinfo
-      div#playername
-        | Name: 
-        span Jim
-      div#currentclub
-        | Current Club: 
-        span Brighton
-      div#position
-        | Position: 
-        span Front, back and sides
-      div#jerseynumber
-        | Jersey Number: 
-        span 13
-      div#age
-        | Age: 
-        span 11
-      div#country
-        | Country: 
-        span Wales
-      div#height
-        | Height: 
-        span 2ft
-      div#weight
-        | Weight: 
-        span 1kg
-      div#preferredfoot
-        | Preferred Foot:
-        span the wrong one
-      div#estimatedvalue
-        | Estimated Value:
-        span £1
+    div.col.s5.card-panel.grey.lighten-5.z-depth-1.info#playerinfo
+      div.info-image#playerimage
+        img.circle.responsive-img(src = "/images/test.jpg")
+      div.info-title#playername
+        p Manny Calavera
+      table.striped
+        tbody
+          tr
+            td
+              | Current Club: 
+            td#currentclub
+              span Mexico
+          tr
+            td
+              | Position: 
+            td#position              
+              span Front, back and sides
+          tr
+            td
+              | Jersey Number: 
+            td#jerseynumber
+              span 13
+          tr
+            td
+              | Age: 
+            td#age
+              span 11
+          tr
+            td
+              | Country: 
+            td#country
+              span Mexico
+          tr
+            td
+              | Height: 
+            td#height
+              span 2ft
+          tr
+            td
+              | Weight: 
+            td#weight
+              span 1kg
+          tr
+            td
+              | Preferred Foot:
+            td#preferredfoot
+              span the wrong one
+          tr
+            td
+              | Estimated Value:
+            td#estimatedvalue
+              span £1
     div.col.s7#app

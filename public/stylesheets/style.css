@@ -2,8 +2,29 @@ form#search {
   margin-top: 100px;
 }
 
-div#playerinfo {
+/*player stuff*/
+div.info {
   display: none;
+  padding: 0px;
+}
+div.info-image {
+  width: 150px;
+  margin: 20px auto;
+  margin-bottom: 0px;
+}
+div.info-image > img {
+  min-width: 150px;
+  min-height: 150px;
+  max-width: 150px;
+  max-height: 150px;
+}
+div.info-title > p {
+  width: 100%;
+  font-size: large;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 20px;
 }
 
 /*Modifications for button highlighting*/
