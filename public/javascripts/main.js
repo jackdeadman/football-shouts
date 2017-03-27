@@ -15,9 +15,9 @@ function displaySearchResults(node, results) {
 
     var div =     $('<div>', {'class': 'card-panel grey lighten-5 z-depth-1'})
     var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
-    var image =   $('<div>', {'class': 'col s1'})
+    var image =   $('<div>', {'class': 'col s2'})
                   .prepend('<img src="/images/test.jpg" alt="" class="circle responsive-img avatar"/>')
-    var content = $('<div>', {'class': 'col s11'})
+    var content = $('<div>', {'class': 'col s10'})
                   .prepend('<span class = "black-text">' + result.text + '</span>');
 
     var inner = innerdiv.append(image).append(content);
@@ -40,6 +40,12 @@ function displaySearchResults(node, results) {
   //Upon pressing the search button, send the entered data
   $('#search').submit(function(e){
     e.preventDefault();
+
+    //Setting up elements
+    $('#app').empty();
+    $('#playerinfo').css('display', 'initial');
+
+    //Getting tags for search
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var req = { players: playerTags, clubs: clubTags };

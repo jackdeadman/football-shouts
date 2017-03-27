@@ -25,7 +25,7 @@ function applySuggestions(input, suggestions) {
 
 $(document).ready(function() {
   //Initialising the inputs with some tags
-  // addDefaultTags();
+  addDefaultTags();
 
   //Input guff
   $('#players_label').click(function(){

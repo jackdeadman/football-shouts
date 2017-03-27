@@ -2,6 +2,10 @@ form#search {
   margin-top: 100px;
 }
 
+div#playerinfo {
+  display: none;
+}
+
 /*Modifications for button highlighting*/
 .btn, .btn-large {
   overflow: hidden;
