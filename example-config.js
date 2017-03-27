@@ -14,7 +14,6 @@ module.exports = {
   },
 
   cache: {
-    // How long oldest tweet must be before searching twitter
-    threshold: 5 * 60 * 1000 // 5 mins
+    threshold: 7 * 24 * 60 * 60 * 1000 // 7 days
   }
 };

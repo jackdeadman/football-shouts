@@ -47,7 +47,7 @@ function findTransfers(player, club, callback) {
       });
     }
 
-    
+
   });
 }
 
@@ -84,6 +84,22 @@ var handlers = {
       countFromTwitter: 0,
       countFromDatabase: 0
     };
+
+    // mock graph data
+    setTimeout(() => {
+      socket.emit('chart', [
+        { date: new Date(2017, 3, 1), count: 14},
+        { date: new Date(2017, 3, 3), count: 32},
+        { date: new Date(2017, 3, 5), count: 101},
+        { date: new Date(2017, 3, 7), count: 23},
+        { date: new Date(2017, 3, 11), count: 5},
+        { date: new Date(2017, 3, 13), count: 58},
+        { date: new Date(2017, 3, 20), count: 90},
+        { date: new Date(2017, 3, 21), count: 140},
+        { date: new Date(2017, 3, 25), count: 58},
+        { date: new Date(2017, 3, 27), count: 10}
+      ])
+    }, 3000);
 
     // Search using all combinations
     req.players.forEach(function(player) {

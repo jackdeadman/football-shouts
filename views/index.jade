@@ -30,11 +30,6 @@ block input
 
 //The returned tweets
 block tweets
-  div.row#js-tweet-chart-container
-    div.col.s12
-      div.card-panel.grey.lighten-5
-        canvas#tweet-chart(width='400', height='200')
-
   div.row
     div.col.s5
       div.card-panel.grey.lighten-5.z-depth-1.info#playerinfo
@@ -103,4 +98,10 @@ block tweets
                 | League:
               td#league
                 span Liga MX
-    div.col.s7#app
+    div.col.s7#js-tweet-start
+      div.row#js-tweet-chart-container
+        div.col.s12
+          div.card-panel
+            #loader.centered Making a pretty graph...
+            canvas#tweet-chart(width='400', height='200')
+      #app
