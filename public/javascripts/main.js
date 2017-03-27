@@ -27,12 +27,28 @@ function displaySearchResults(node, results) {
   });
 }
 
+function loadGraph($holder, data) {
+  $holder.show();
+  var canvas = $holder.find('canvas');
+
+  var myLineChart = new Chart(canvas, {
+    type: 'line',
+    data: data
+  });
+
+  $holder.find('canvas').show();
+}
+
 
 (function(io) {
   // Connections
   var suggestions = io('/suggestions');
   var search = io('/search');
   var liveTweets = io('/liveTweets');
+
+  var $chartHolder = $('#js-tweet-chart-container');
+
+  $chartHolder.hide();
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
@@ -51,7 +67,40 @@ function displaySearchResults(node, results) {
     var clubTags = $('#clubs').materialtags('items');
     var req = { players: playerTags, clubs: clubTags };
     search.emit('query', req);
+
+
+    $chartHolder.find('canvas').hide();
+
+    loadGraph($chartHolder, {
+        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        datasets: [{
+            label: '# of Votes',
+            data: [12, 19, 3, 5, 2, 3],
+            backgroundColor: [
+                'rgba(255, 99, 132, 0.2)',
+                'rgba(54, 162, 235, 0.2)',
+                'rgba(255, 206, 86, 0.2)',
+                'rgba(75, 192, 192, 0.2)',
+                'rgba(153, 102, 255, 0.2)',
+                'rgba(255, 159, 64, 0.2)'
+            ],
+            borderColor: [
+                'rgba(255,99,132,1)',
+                'rgba(54, 162, 235, 1)',
+                'rgba(255, 206, 86, 1)',
+                'rgba(75, 192, 192, 1)',
+                'rgba(153, 102, 255, 1)',
+                'rgba(255, 159, 64, 1)'
+            ],
+            borderWidth: 1
+        }]
+    });
   });
+
+  search.on('graph', function(data) {
+    loadGraph($chartHolder, data);
+  });
+
   // Send some data to the server to test
   // var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
   // search.emit('query', req);

@@ -21,9 +21,14 @@ block input
         div.row.center-align
           .input-field.col.s12
             button.btn-large.waves-effect.waves-light.purple.darken-3(type='submit') Submit
-      
+
 //The returned tweets
 block tweets
+  div.row#js-tweet-chart-container
+    div.col.s12
+      div.card-panel.grey.lighten-5
+        canvas#tweet-chart(width='400', height='200')
+
   div.row
     div.col.s5
       div.card-panel.grey.lighten-5.z-depth-1.info#playerinfo
@@ -36,37 +41,37 @@ block tweets
           tbody
             tr
               td.info-name
-                | Current Club: 
+                | Current Club:
               td#currentclub
                 span Club Universidad Nacional
             tr
               td.info-name
-                | Position: 
-              td#position              
+                | Position:
+              td#position
                 span Front, back and sides
             tr
               td.info-name
-                | Jersey Number: 
+                | Jersey Number:
               td#jerseynumber
                 span 13
             tr
               td.info-name
-                | Age: 
+                | Age:
               td#age
                 span 11
             tr
               td.info-name
-                | Country: 
+                | Country:
               td#country
                 span Mexico
             tr
               td.info-name
-                | Height: 
+                | Height:
               td#height
                 span 2ft
             tr
               td.info-name
-                | Weight: 
+                | Weight:
               td#weight
                 span 1kg
             tr
@@ -89,7 +94,7 @@ block tweets
           tbody
             tr
               td.info-name
-                | League: 
+                | League:
               td#league
                 span Liga MX
     div.col.s7#app
