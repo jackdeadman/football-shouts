@@ -46,10 +46,15 @@ function findTransfers(player, club, callback) {
           countFromTwitter: countFromTwitter,
           countFromDatabase: countFromDatabase
         });
+        return;
       });
     }
 
-
+    callback(null, {
+      tweets: tweets,
+      countFromTwitter: 0,
+      countFromDatabase: countFromDatabase
+    });
   });
 }
 
