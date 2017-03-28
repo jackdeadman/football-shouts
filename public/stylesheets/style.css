@@ -2,6 +2,14 @@ form#search {
   margin-top: 100px;
 }
 
+/*Back to top button*/
+a#back-to-top {
+  display: none;
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+}
+
 /*info stuff*/
 div.info {
   display: none;

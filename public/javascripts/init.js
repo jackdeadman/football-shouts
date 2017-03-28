@@ -69,13 +69,18 @@ $(document).ready(function() {
     else
       $('#submit-button').prop('disabled', false);
   });
-  // $('#option1', '#option2').click(function() {
-  //   console.log("here");
-  //   if (!($('#option1').is(':selected') || $('#option2').is(':selected')))
-  //     $('#submit-button').prop('disabled', true);
-  //   else
-  //     $('#submit-button').prop('disabled', false);
-  // });
+
+  //Back to top button stuff...
+  // $('#back-to-top')
+  $(window).scroll(function(){
+    if ($(this).scrollTop() > 0)
+      $('#back-to-top').css('display', 'initial');
+    else
+      $('#back-to-top').css('display', 'none');
+  });
+  $('#back-to-top').click(function(){
+    scrollTo($('html').offset().top, 500);
+  });
 
   var playernames = $.getJSON('/data/players.json', function(data) {
     console.log(data);

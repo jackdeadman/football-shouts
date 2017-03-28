@@ -1,3 +1,9 @@
+function scrollTo(position, speed) {
+  $('html, body').animate({
+      scrollTop: position
+  }, speed);
+}
+
 function handleSearchError(err) {
   // TODO: Add error handling
   alert('Error');
@@ -94,9 +100,7 @@ function loadGraph(canvas, data, callback) {
     e.preventDefault();
 
     //Scroll down the page
-    $('html, body').animate({
-        scrollTop: $("#js-tweet-start").offset().top
-    }, 1000);
+    scrollTo($("#js-tweet-start").offset().top, 1000);
 
     //Setting up elements
     $('#app').empty();
