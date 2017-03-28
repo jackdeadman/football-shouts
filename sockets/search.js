@@ -114,6 +114,8 @@ var handlers = {
         findTransfers(player, club, function(err, results) {
           // response has been received
           responses ++;
+          console.log("responses: ", responses);
+          console.log("results: ", results.tweets.length);
           // Accumulate the errors, then tell the client when all requests
           // have been made
           if (err) {
@@ -125,13 +127,14 @@ var handlers = {
             allResults.countFromTwitter += results.countFromTwitter;
             allResults.countFromDatabase += results.countFromDatabase;
           }
+          console.log(requests === responses);
           if (requests === responses) {
             // allResults = allResults.sort(function(r) { return r.createdAt; })
 
             // Order by createdAt
 
             // Remove duplicates
-
+            console.log("should be emitting");
             socket.emit(successEvent, allResults);
 
             if (errors.length) {

@@ -33,6 +33,18 @@ function makeTweetObject(tweet){
   return tweetObject;
 }
 
+function makeTweetObjectFromDb(databaseTweet){
+  var tweetObject = {
+    text: databaseTweet.text,
+    twitterId: databaseTweet.twitterId,
+    createdAt: databaseTweet.createdAt,
+    hasMedia: databaseTweet.hasMedia,
+    retweetCount: databaseTweet.retweetCount,
+    favouriteCount: databaseTweet.favouriteCount
+  };
+  return tweetObject;
+}
+
 // function makeTweetObjectFromDb(databaseTweet, databaseAuthor){
 //   return new Promise((resolve, reject) => {
 //     var tweetObject = {
@@ -177,8 +189,7 @@ module.exports.getFromTwitter = function(query, callback){
 
     var tweetList = originalTweetList.map(makeTweetObject);
     tweetList = tweetList.filter(utils.selectTransferTweet);
-    console.log(tweetList.length);
-    callback(null, tweetList);
+    console.log("tweet list length", tweetList.length);
 
     tweetList.forEach(function(tweet, i){
 
@@ -199,11 +210,12 @@ module.exports.getFromTwitter = function(query, callback){
           // may be able to recover from some errors
           return;
         }
-      });
+      }); 
       // .then(() => {
       //   database.sequelize.sync();
       // });
     });
+    callback(null, tweetList);
   });
 };
 
@@ -363,7 +375,8 @@ module.exports.getFromDatabase = function(query, callback){
 
   findTweets(player, club)
   .then(tweets => {
-
+    
+    tweets = tweets.map(makeTweetObjectFromDb);
     // makeTweetAndAuthorObjects(tweets)
     // .then(formattedTweets => {
       // formattedTweets = formattedTweets.concat([{
