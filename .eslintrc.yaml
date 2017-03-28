@@ -3,6 +3,10 @@ extends:
 
 env:
   node: true
+  es6: true
+
+# globals:
+#   Promise: true
 
 rules:
   indent: ['error', 2]

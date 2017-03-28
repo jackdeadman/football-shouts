@@ -2,6 +2,7 @@
 
 var util = require('util');
 var EventEmitter = require('events');
+var utils = require('./_utils');
 
 function LiveTweet(client, streamName, query) {
   EventEmitter.call(this);
@@ -16,8 +17,10 @@ util.inherits(LiveTweet, EventEmitter);
 LiveTweet.prototype.connect = function() {
   this.stream = this.client.stream(this.streamName, this.query);
   this.stream.on('tweet', function(tweet) {
-    console.log('new tweet from stream');
-    this.emit('tweet', tweet);
+    if(utils.selectTransferTweet(tweet)){
+      console.log('new tweet from stream');
+      this.emit('tweet', tweet);
+    }
   });
 };
 
