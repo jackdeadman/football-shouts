@@ -5,6 +5,31 @@ function addDefaultTags() {
   $('#clubs').materialtags('add', '@brighton');
 }
 
+function showButton() {
+  $('#back-to-top').css('display', 'initial');
+  $('#back-to-top').stop().animate({
+    bottom: '20px',
+    opacity: '1'
+  },
+  {
+    queue: false,
+    duration: 50
+  });
+}
+
+function hideButton() {
+  $('#back-to-top').stop().animate({
+    bottom: '10px',
+    opacity: '0'
+  },
+  {
+    queue: false,
+    duration: 200
+  }).promise().done(function(){
+    $('#back-to-top').css('display', 'none');
+  });
+}
+
 function applySuggestions(input, suggestions) {
   // console.log(suggestions.get(1));
 
@@ -71,14 +96,20 @@ $(document).ready(function() {
   });
 
   //Back to top button stuff...
-  // $('#back-to-top')
+  var hiding = false;
+
   $(window).scroll(function(){
-    if ($(this).scrollTop() > 0)
-      $('#back-to-top').css('display', 'initial');
-    else
-      $('#back-to-top').css('display', 'none');
+    if ($(this).scrollTop() > 0) {
+      if (!hiding && $('#back-to-top').css('opacity') == 0)
+        showButton();
+    } else {
+      hiding = false;
+      hideButton();
+    }
   });
   $('#back-to-top').click(function(){
+    hiding = true;
+    hideButton();
     scrollTo($('html').offset().top, 500);
   });
 
