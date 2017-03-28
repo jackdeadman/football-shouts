@@ -13,18 +13,18 @@ block input
         div.row
           div.input-field.col.s12
             input(name="players", id="players", type="text", data-role="materialtags")
-            label(for = "players", id="players_label") Player Names
+            label(for = "players", id="players_label") What's the player's name?
         div.row
           div.input-field.col.s12
             input(name="clubs", id="clubs", type="text", data-role="materialtags")
-            label(for = "clubs", id="clubs_label") Club Names
+            label(for = "clubs", id="clubs_label") What club are they rumoured with?
         div.row.center-align
           div.input-field.col.s12
             select(name="options", id="options", multiple="multiple")
               option(value="", disabled="disabled") Please select at least one option...
-              option(value="1", id="option1", selected="selected") Search database
-              option(value="2", id="option2", selected="selected") Search Twitter
-            label(for="options", id="options_label") Options
+              option(value="1", id="option1", selected="selected") Database
+              option(value="2", id="option2", selected="selected") Twitter
+            label(for="options", id="options_label") Where should we search?
         div.row.center-align
           div.input-field.col.s12
             button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Submit
@@ -34,7 +34,7 @@ block overlay
   a.btn-floating.btn-large.waves-effect.waves-light.purple.darken-3.z-depth-5#back-to-top
     i
       img(src="/images/top-arrow.svg")
-      
+
 
 //The returned tweets
 block tweets
