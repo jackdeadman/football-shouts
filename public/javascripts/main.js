@@ -41,16 +41,22 @@ function loadGraph(canvas, data, callback) {
       datasets: [{
           label: 'No. of Tweets',
           data: data,
-          backgroundColor: [
-              'rgba(153, 102, 255, 0.2)'
-          ],
-          borderColor: [
+          backgroundColor:'rgba(153, 102, 255, 0.2)'
+          ,
+          borderColor:
               'rgba(153, 102, 255, 1)'
-          ],
+          ,
           borderWidth: 1
       }]
     },
     options: {
+      tooltips: {
+        callbacks: {
+                      title: function(item) {
+                          return moment(item[0].xLabel).format('LL');
+                      },
+                  }
+          },
         scales: {
             xAxes: [{
             type: 'time',
