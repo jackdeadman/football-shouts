@@ -33,6 +33,22 @@ function makeTweetObject(tweet){
   return tweetObject;
 }
 
+// function makeTweetObjectFromDb(databaseTweet, databaseAuthor){
+//   return new Promise((resolve, reject) => {
+//     var tweetObject = {
+//       text: databaseTweet.text,
+//       twitterId: databaseTweet.twitterId,
+//       createdAt: databaseTweet.createdAt,
+//       hasMedia: databaseTweet.hasMedia,
+//       retweetCount: databaseTweet.retweetCount,
+//       favouriteCount: databaseTweet.favouriteCount,
+//       authorHandle: databaseAuthor.authorHandle,
+//       authorName: databaseAuthor.authorName
+//     };
+//     resolve(tweetObject);
+//   });
+// }
+
 function makeAuthorObject(tweetObject){
   var authorObject = {
     authorHandle: tweetObject.authorHandle,
@@ -54,7 +70,7 @@ function makeTweetDbObject(tweetObject){
   return tweetDbObject;
 }
 
-function saveTweet(tweet, author, hashtags){
+function saveTweet(tweet, player, club, author, hashtags){
   var hashtagSaves = [];
   hashtags.forEach(function(hashtag){
     hashtagSaves.push(dbHashtag.findOrCreate({
@@ -66,7 +82,21 @@ function saveTweet(tweet, author, hashtags){
 
   var hashtagsDone = Promise.all(hashtagSaves);
 
-  // need to make associated tweethashtags and then associate them to tweets.
+  // var playerQuery = makePlayerOrClubQuery(player);
+  // var clubQuery = makePlayerOrClubQuery(club);
+
+
+  var playerSaved = dbPlayer.findOrCreate({
+    where: {
+      name: player
+    }
+  });
+
+  var clubSaved = dbClub.findOrCreate({
+    where: {
+      name: club
+    }
+  });
 
   var saveTweet = dbTweet.findOrCreate({
     where: {
@@ -86,11 +116,13 @@ function saveTweet(tweet, author, hashtags){
     }
   });
 
-  Promise.all([saveTweet, saveAuthor, hashtagsDone])
+  Promise.all([saveTweet, saveAuthor, hashtagsDone, playerSaved, clubSaved])
   .then(results => {
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
     var hashtagResults = results[2][0];
+    var playerResult = results[3][0];
+    var clubResult = results[4][0];
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
     var hashtagRelations = [];
     hashtagResults.forEach(hashtag => {
@@ -99,28 +131,30 @@ function saveTweet(tweet, author, hashtags){
       ));
     });
     var setHashtagRelation = Promise.all(hashtagRelations);
-    return Promise.all([setAuthorRelation, setHashtagRelation]);
+    var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
+    var setTweetRelationToClub = tweetResult.setClub(clubResult);
+    var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
+    var setClubRelationToTweet = clubResult.addTweet(tweetResult);
+
+    return Promise.all([
+      setAuthorRelation, 
+      setHashtagRelation, 
+      setTweetRelationToPlayer, 
+      setTweetRelationToClub, 
+      setPlayerRelationToTweet, 
+      setClubRelationToTweet
+    ]);
   })
-  // saveTweet
-  // .then(saveAuthor)
-  // .then(hashtagsDone)
-  // .then(results => {
-  //   console.log('#######', results[1]);
-  //   var tweetResult = results[0][0];
-  //   var authorResult = results[1][0];
-  //   var hashtagResults = results[2][0];
-  //   var setAuthorRelation = tweetResult.setAuthor(authorResult);
-  //   var setHashtagRelation = tweetResult.setHashtags(hashtagResults);
-  //   return Promise.all([setAuthorRelation, setHashtagRelation]);
-  //   // TODO: find player, set relation
-  //   // TODO: find club, set relation
-  // })
   .catch(err => {
-    console.error("problem with saving tweet: ", err);
+    console.error(
+      "problem saving the tweet, club, player, or author to db", err
+    );
   });
 }
 
 module.exports.getFromTwitter = function(query, callback){
+
+  console.log("getting from twitter");
   // console.log("query: ", query);
   var twitterQuery = buildQuery(query);
   var fullQuery = {
@@ -158,7 +192,8 @@ module.exports.getFromTwitter = function(query, callback){
       var author = makeAuthorObject(tweet);
       // console.log("###", author);
       tweet = makeTweetDbObject(tweet);
-      saveTweet(tweet, author, hashtags, function(err){
+      saveTweet(tweet, query.player, query.club, author, hashtags, 
+      function(err){
         if(err){
           console.error("error saving to db");
           // may be able to recover from some errors
@@ -206,36 +241,28 @@ function stripHashtag(string){
   return string.substring(1,string.length);
 }
 
-function findTweets(player, club){
-  var playerQuery = {
+function makePlayerOrClubQuery(query){
+  var queryObj = {
     $or: [
       {
         twitterHandle: {
-          $like: '%' + player + '%'
+          $like: '%' + query + '%'
         }
       },
       {
         name: {
-          $like: '%' + player + '%'
+          $like: '%' + query + '%'
         }
       }
     ]
   };
+  return queryObj;
+}
 
-  var clubQuery = {
-    $or: [
-      {
-        twitterHandle: {
-          $like: '%' + club + '%'
-        }
-      },
-      {
-        name: {
-          $like: '%' + club + '%'
-        }
-      }
-    ]
-  };
+function findTweets(player, club){
+  
+  var playerQuery = makePlayerOrClubQuery(player);
+  var clubQuery = makePlayerOrClubQuery(club);
   
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
@@ -256,13 +283,14 @@ function findTweets(player, club){
       include: [
         {
           model: dbClub,
-          where: clubQuery
+          where: clubQuery,
+          foreignKey: 'transferClubId'
         },
         {
           model: dbHashtag,
           as: 'Hashtags',
           where: {
-            hashtag: player
+            hashtag: stripHashtag(player)
           }
         }
       ]
@@ -278,12 +306,13 @@ function findTweets(player, club){
           model: dbHashtag,
           as: 'Hashtags',
           where: {
-            hashtag: club
+            hashtag: stripHashtag(club)
           }
         }
       ]
     });
   }
+  console.log("no hashtags");
 
   return dbTweet.findAll({
     include: [
@@ -293,11 +322,31 @@ function findTweets(player, club){
       },
       {
         model: dbClub,
-        where: clubQuery
+        where: clubQuery,
+        foreignKey: 'transferClubId'
       }
     ]
   });
 }
+
+// function makeTweetAndAuthorObjects(tweets){
+//   return new Promise((resolve, reject) => {
+//     var formatTweetPromises = [];
+//     var getAuthorPromises = [];
+//     tweets.forEach(tweet => {
+//       getAuthorPromises.push(tweet.getAuthor());
+//     });
+//     Promise.all(getAuthorPromises)
+//     .then(author => {
+//       formatTweetPromises.push(makeTweetObjectFromDb(tweet, author));
+//     });
+//     Promise.all(formatTweetPromises)
+//     .then(formattedTweets => {
+//       resolve(formattedTweets);
+//     });
+//   });
+  
+// }
 
 module.exports.getFromDatabase = function(query, callback){
   // extract hashtags from query and search hashtags table
@@ -305,26 +354,36 @@ module.exports.getFromDatabase = function(query, callback){
   // search players for twitter handles from query
   // search clubs for twitter handles from query
   // do this in as few queries as possible
+  console.log("getting from database");
 
   var player = query.player;
   var club = query.club;
-
   // var since = query.since;
   // var until = query.until;
 
   findTweets(player, club)
   .then(tweets => {
-     // still adding in dummy tweet as no players or clubs have tweets linked
-    tweets = tweets.concat([{
-      text: "@waynerooney in rumoured transfer talks with #TruroFC",
-      twitterId: 840208454560174080,
-      createdAt: new Date(2016, 1, 17, 14, 31, 20),
-      hasMedia: false,
-      retweetCount: 3,
-      favouriteCount: 0
-    }]);
+
+    // makeTweetAndAuthorObjects(tweets)
+    // .then(formattedTweets => {
+      // formattedTweets = formattedTweets.concat([{
+      //   text: "@waynerooney in rumoured transfer talks with #TruroFC",
+      //   twitterId: 840208454560174080,
+      //   createdAt: new Date(2016, 1, 17, 14, 31, 20),
+      //   hasMedia: false,
+      //   retweetCount: 3,
+      //   favouriteCount: 0,
+      //   authorHandle: "@test",
+      //   authorName: "T User"
+      // }]);
 
     callback(null, tweets);
+    // });
+    
+  })
+  .catch(err => {
+    console.error("Can't find tweets from db.", err);
+    callback(null, []);
   });
 };
 

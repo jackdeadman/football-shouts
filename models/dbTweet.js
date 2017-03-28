@@ -21,6 +21,8 @@ module.exports = function(sequelize, DataTypes) {
             otherKey: "hashtagId"
           }
         );
+        Tweet.belongsTo(models.Player);
+        Tweet.belongsTo(models.Club);
       }
     }
   });

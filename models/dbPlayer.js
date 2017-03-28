@@ -11,7 +11,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function (models) {
         Player.belongsTo(models.Club, { foreignKey: 'currentClubId' });
-        Player.hasMany(models.Tweet, { as: 'Tweets' });
+        Player.hasMany(models.Tweet);
       }
     }
   });

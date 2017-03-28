@@ -9,7 +9,7 @@ module.exports = function(sequelize, DataTypes) {
     classMethods: {
       associate: function (models) {
         Club.hasMany(models.Tweet, { 
-          as: 'Tweets', foreignKey: 'transferClubId' 
+          foreignKey: 'transferClubId' 
         });
       }
     }
