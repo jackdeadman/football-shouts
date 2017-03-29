@@ -29,7 +29,7 @@ function displaySearchResults(node, results) {
     console.log(tweet.createdAt, tweet.source)
     var bottom = $(''+
           '<div class="row right-align">'+
-            '<div>'+ moment(tweet.createdAt).fromNow('hour') + ' ago.</div>'+
+            '<div>'+ moment(tweet.createdAt).format('LLL') + '</div>'+
           '</div>'
     );
 

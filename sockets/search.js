@@ -138,7 +138,7 @@ var handlers = {
           if (requests === responses) {
             // Order by createdAt
             allTweets = allTweets.sort(function(t1, t2) {
-              return t1.createdAt > t2.createdAt;
+              return new Date(t1.createdAt) >= new Date(t2.createdAt) ? -1 : 1;
             });
 
             // Remove duplicate twitters
