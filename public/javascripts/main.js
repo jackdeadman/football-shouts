@@ -183,9 +183,8 @@ function loadGraph(canvas, data, callback) {
     console.log(results);
     displaySearchResults(app, results.tweets);
     $tweetStats.show();
-    $tweetsFromTwitter.find('.count').html(results.countFromTwitter);
-    $tweetsFromDatabse.find('.count').html(results.countFromDatabase);
+    $('#tweetsFromTwitter').html(results.countFromTwitter);
+    $('#tweetsFromDatabase').html(results.countFromDatabase);
   });
-
 
 })(io);
