@@ -5,6 +5,7 @@ function scrollTo(position, speed) {
 }
 
 function parseChar(text, url, char, omitCharFromURL = false) {
+  var NONE = 9999;
   var final = '';
   var leftover = text;
   var index = 0;
@@ -16,16 +17,17 @@ function parseChar(text, url, char, omitCharFromURL = false) {
       var pre = leftover.slice(0, index);
 
       //Forming the hashtag
-      var before = '<span class = "blue-text">';
       var after = leftover.slice(index);
-      var nextSpace = after.indexOf(' ');
-      var content = nextSpace != -1 ? after.slice(0, nextSpace) : after;
+      var nextNewline = after.indexOf('\n') != -1 ? after.indexOf('\n') : NONE;
+      var nextSpace = after.indexOf(' ') != -1 ? after.indexOf(' ') : NONE;
+      var next = nextSpace < nextNewline ? nextSpace : nextNewline;
+      var content = next != NONE ? after.slice(0, next) : after;
       var encode = omitCharFromURL ? content.slice(1) : content;
       var link = '<a href = ' + url + encodeURIComponent(encode) + ' target = "_blank">';
 
       //Getting the text after the hashtag
-      leftover = nextSpace != -1 ? after.slice(after.indexOf(' ')) : '';
-      final = final + pre + before + link + content + '</a></span>';
+      leftover = next != NONE ? after.slice(next) : '';
+      final = final + pre + link + content + '</a>';
     }
   } while(index != -1);
 
@@ -33,7 +35,8 @@ function parseChar(text, url, char, omitCharFromURL = false) {
 }
 
 function parseTweet(text) {
-  var parsed = parseChar(text, 'https://twitter.com/search?q=', '#');
+  var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1">$1</a>');
+  parsed = parseChar(parsed, 'https://twitter.com/search?q=', '#');
   parsed = parseChar(parsed, 'https://twitter.com/', '@', true);
 
   return parsed;
@@ -53,7 +56,7 @@ function displaySearchResults(node, results) {
 
   // console.log(parseTweet('Report claims West Ham ready to pay £150,000-a-week to 31-year-old #WHU #COYI #Rooney #MUFC https://t.co/ilxANjgIAT'));
 
-  console.log(results)
+  console.log(results);
   results.forEach(function(tweet) {
 
     var tweetText = parseTweet(tweet.text);
@@ -66,7 +69,8 @@ function displaySearchResults(node, results) {
                   .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
                   .prepend('<span class = "black-text">' + tweetText + '</span>')
                   .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
-                           '</div><div class="tweetHandle">@' + tweet.authorHandle + '</div></div>');
+                           '</div><div class="tweetHandle"> ' +
+                           '<a href = "' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + '</a></div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
