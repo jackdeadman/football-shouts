@@ -103,9 +103,9 @@ function saveTweet(tweet, player, club, author, hashtags){
   var everythingSaved;
   if(hashtags.length === 0){
     everythingSaved = Promise.all([
-      saveTweet, 
-      saveAuthor, 
-      savePlayer, 
+      saveTweet,
+      saveAuthor,
+      savePlayer,
       saveClub
     ]);
   }else{
@@ -120,15 +120,15 @@ function saveTweet(tweet, player, club, author, hashtags){
 
     var hashtagsDone = Promise.all(hashtagSaves);
     everythingSaved = Promise.all([
-      saveTweet, 
+      saveTweet,
       saveAuthor,
-      savePlayer, 
+      savePlayer,
       saveClub,
       hashtagsDone
     ]);
   }
 
-  everythingSaved
+  return everythingSaved
   .then(results => {
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
@@ -172,6 +172,7 @@ function saveTweet(tweet, player, club, author, hashtags){
     return allRelationsDone;
   })
   .catch(err => {
+    return Promise.reject('problem saving the tweet, club, player, or author to db');
     console.error(
       "problem saving the tweet, club, player, or author to db", err
     );
@@ -211,14 +212,18 @@ module.exports.getFromTwitter = function(query, callback){
       }
       var author = makeAuthorObject(tweet);
       tweet = makeTweetDbObject(tweet);
-      saveTweet(tweet, query.player, query.club, author, hashtags, 
-      function(err){
+      console.time('saving tweet');
+      console.log('saving from twitter')
+      saveTweet(tweet, query.player, query.club, author, hashtags)
+      .then(function(err){
+        console.log('saved from twitter')
+        console.log(err);
         if(err){
           console.error("error saving to db");
           // may be able to recover from some errors
           return;
         }
-      }); 
+      });
     });
   });
 };
@@ -274,10 +279,10 @@ function makePlayerOrClubQuery(query){
 }
 
 function findTweets(player, club){
-  
+
   var playerQuery = makePlayerOrClubQuery(player);
   var clubQuery = makePlayerOrClubQuery(club);
-  
+
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
       include: [
@@ -353,7 +358,7 @@ module.exports.getFromDatabase = function(query, callback){
 
   findTweets(player, club)
   .then(tweets => {
-    
+
     tweets = tweets.map(makeTweetObjectFromDb);
     // makeTweetAndAuthorObjects(tweets)
     // .then(formattedTweets => {
@@ -370,7 +375,7 @@ module.exports.getFromDatabase = function(query, callback){
     console.log("tweets from db length: ", tweets.length);
     callback(null, tweets);
     // });
-    
+
   })
   .catch(err => {
     console.error("Can't find tweets from db.", err);
