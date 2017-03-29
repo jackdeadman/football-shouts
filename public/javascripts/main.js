@@ -4,40 +4,10 @@ function scrollTo(position, speed) {
   }, speed);
 }
 
-function parseChar(text, url, char, omitCharFromURL = false) {
-  var NONE = 9999;
-  var final = '';
-  var leftover = text;
-  var index = 0;
-
-  do {
-    index = leftover.indexOf(char);
-    if (index != -1) {
-      //Getting the text before the hashtag
-      var pre = leftover.slice(0, index);
-
-      //Forming the hashtag
-      var after = leftover.slice(index);
-      var nextNewline = after.indexOf('\n') != -1 ? after.indexOf('\n') : NONE;
-      var nextSpace = after.indexOf(' ') != -1 ? after.indexOf(' ') : NONE;
-      var next = nextSpace < nextNewline ? nextSpace : nextNewline;
-      var content = next != NONE ? after.slice(0, next) : after;
-      var encode = omitCharFromURL ? content.slice(1) : content;
-      var link = '<a href = ' + url + encodeURIComponent(encode) + ' target = "_blank">';
-
-      //Getting the text after the hashtag
-      leftover = next != NONE ? after.slice(next) : '';
-      final = final + pre + link + content + '</a>';
-    }
-  } while(index != -1);
-
-  return final + leftover;
-}
-
 function parseTweet(text) {
   var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1">$1</a>');
-  parsed = parseChar(parsed, 'https://twitter.com/search?q=', '#');
-  parsed = parseChar(parsed, 'https://twitter.com/', '@', true);
+  parsed = parsed.replace(/#(\S*)/g,'<a href="http://twitter.com/#!/search/$1">#$1</a>');
+  parsed = parsed.replace(/@(\S*)/g,'<a href="https://twitter.com/$1">@$1</a>');
 
   return parsed;
 }
