@@ -116,7 +116,12 @@ function loadGraph(canvas, data, callback) {
     //Getting tags for search
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
-    var req = { players: playerTags, clubs: clubTags };
+    var sources = $('#options').val();
+    var req = {
+      players: playerTags,
+      clubs: clubTags,
+      sources: sources
+    };
     search.emit('query', req);
 
     $canvas.hide();

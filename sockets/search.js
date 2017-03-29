@@ -4,7 +4,11 @@ var Tweet = require('../models/Tweet');
 var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
 
-function findTransfers(player, club, callback) {
+function getFromTwitter() {
+
+}
+
+function findTransfers(player, club, sources,callback) {
   /**
    * Finds tweets between players and clubs using database and twitter
    * @param player: String of the player
@@ -12,50 +16,58 @@ function findTransfers(player, club, callback) {
    * @param callback: fn(err, tweets)
    */
   var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  console.log(lastWeek);
+  var today = new Date(Date.now())
+
   var query = {
     player: player,
     club: club,
     query: player + ' ' + club, // temp
-    since: lastWeek, until: new Date(Date.now())
+    since: lastWeek, until: today
   };
+  console.log(sources);
+  var useDatabase = sources.indexOf('database') > -1;
+  var useTwitter = sources.indexOf('twitter') > -1;
+  if (useDatabase) {
+    Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
 
-  Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
-    var tweets = databaseTweets || [];
+      var latest = databaseTweets[0];
 
-    var countFromDatabase = tweets.length;
-    var countFromTwitter = 0;
+      // Update if no tweets found or too old
+      if (!latest || (Date.now() - latest.createdAt) > threshold) {
+        if (latest) {
+          query.since = latest.createdAt;
+        }
 
-    var latest = tweets[0];
-
-    // Update if no tweets found or too old
-    if (!latest || (Date.now() - latest.createdAt) > threshold) {
-      console.log('Searching Twitter');
-      // Only get newer tweets than latest
-      if (latest) {
-        query.since = latest.createdAt;
+        if (useTwitter) {
+          Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
+            callback(null, {
+              tweets: databaseTweets.concat(twitterTweets),
+              countFromTwitter: twitterTweets.length || 0,
+              countFromDatabase: databaseTweets.length || 0
+            });
+          });
+        } else {
+          callback(null, {
+            tweets: databaseTweets,
+            countFromTwitter: 0,
+            countFromDatabase: databaseTweets.length
+          });
+        }
       }
-
-      Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-        twitterTweets = twitterTweets || [];
-        countFromTwitter = twitterTweets.length;
-        tweets = tweets.concat(twitterTweets);
-
-        callback(null, {
-          tweets: tweets,
-          countFromTwitter: countFromTwitter,
-          countFromDatabase: countFromDatabase
-        });
-        return;
-      });
-    }
-
-    callback(null, {
-      tweets: tweets,
-      countFromTwitter: 0,
-      countFromDatabase: countFromDatabase
     });
-  });
+    // Just using twitter
+  } else if (useTwitter) {
+    Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
+      callback(null, {
+        tweets: twitterTweets,
+        countFromTwitter: twitterTweets.length,
+        countFromDatabase: 0
+      })
+    });
+    // No known sources selected
+  } else {
+    callback(new Error('No sources found.'));
+  }
 }
 
 var handlers = {
@@ -108,10 +120,16 @@ var handlers = {
       ]);
     }, 3000);
 
+    if (!req.sources) {
+      errorMsg = 'Sources have not been defined.';
+      socket.emit(errorEvent, generateErrorObj(errorMsg, req));
+      return;
+    }
+
     // Search using all combinations
     req.players.forEach(function(player) {
       req.clubs.forEach(function(club) {
-        findTransfers(player, club, function(err, results) {
+        findTransfers(player, club, req.sources, function(err, results) {
           // response has been received
           responses ++;
           console.log("responses: ", responses);
