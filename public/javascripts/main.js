@@ -5,9 +5,9 @@ function scrollTo(position, speed) {
 }
 
 function parseTweet(text) {
-  var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1">$1</a>');
-  parsed = parsed.replace(/#(\S*)/g,'<a href="http://twitter.com/#!/search/$1">#$1</a>');
-  parsed = parsed.replace(/@(\S*)/g,'<a href="https://twitter.com/$1">@$1</a>');
+  var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1" target = "_blank">$1</a>');
+  parsed = parsed.replace(/#(\S*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
+  parsed = parsed.replace(/@(\S*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
 
   return parsed;
 }
