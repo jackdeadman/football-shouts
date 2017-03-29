@@ -1,32 +1,42 @@
-String.prototype.splice = function(idx, rem, str) {
-    return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
-};
-
 function scrollTo(position, speed) {
   $('html, body').animate({
       scrollTop: position
   }, speed);
 }
 
-function parseTweet(text) {
-  var hashtagIndex = 0;
+function parseChar(text, url, char, omitCharFromURL = false) {
   var final = '';
   var leftover = text;
-  do {
-    //Parsing hashtags
-    hashtagIndex = leftover.indexOf('#');
-    if (hashtagIndex != -1) {
-      var before = '<span class = "blue-text">';
-      var after = leftover.slice(hashtagIndex);
-      var hashtag = after.slice(hashtagIndex, after.indexOf(' '));
-      var link = '<a href = https://twitter.com/search?q=' + encodeURIComponent(hashtag) + ' target = "_blank">';
-      leftover = after.slice(after.indexOf(' '));
-      final = final + before + link + hashtag + '</a></span>';
-    }
-  } while(hashtagIndex != -1);
+  var index = 0;
 
-  final = final + leftover;
-  return final;
+  do {
+    index = leftover.indexOf(char);
+    if (index != -1) {
+      //Getting the text before the hashtag
+      var pre = leftover.slice(0, index);
+
+      //Forming the hashtag
+      var before = '<span class = "blue-text">';
+      var after = leftover.slice(index);
+      var nextSpace = after.indexOf(' ');
+      var content = nextSpace != -1 ? after.slice(0, nextSpace) : after;
+      var encode = omitCharFromURL ? content.slice(1) : content;
+      var link = '<a href = ' + url + encodeURIComponent(encode) + ' target = "_blank">';
+
+      //Getting the text after the hashtag
+      leftover = nextSpace != -1 ? after.slice(after.indexOf(' ')) : '';
+      final = final + pre + before + link + content + '</a></span>';
+    }
+  } while(index != -1);
+
+  return final + leftover;
+}
+
+function parseTweet(text) {
+  var parsed = parseChar(text, 'https://twitter.com/search?q=', '#');
+  parsed = parseChar(parsed, 'https://twitter.com/', '@', true);
+
+  return parsed;
 }
 
 function handleSearchError(err) {
@@ -40,6 +50,9 @@ function displaySearchResults(node, results) {
   // if (results.tweets.length) {
   //     alert(results.tweets[0].text)
   // }
+
+  // console.log(parseTweet('Report claims West Ham ready to pay £150,000-a-week to 31-year-old #WHU #COYI #Rooney #MUFC https://t.co/ilxANjgIAT'));
+
   console.log(results)
   results.forEach(function(tweet) {
 
