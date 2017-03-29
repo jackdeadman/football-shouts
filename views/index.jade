@@ -109,7 +109,14 @@ block tweets
     div.col.s7#js-tweet-start
       div.row#js-tweet-chart-container
         div.col.s12
-          div.card-panel
-            #loader.centered Making a pretty graph...
-            canvas#tweet-chart(width='400', height='200')
+            div.card-panel
+              #loader.centered Making a pretty graph...
+              canvas#tweet-chart(width='400', height='200')
+      div.row#js-tweet-stats
+        div.col.s6
+          div.card-panel.js-twitter-stats Tweets from Twitter:
+              span.count  0
+        div.col.s6
+          div.card-panel.js-database-stats Tweets from Database:
+              span.count  0
       #app
