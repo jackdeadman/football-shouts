@@ -11,6 +11,15 @@ a#back-to-top {
   right: 20px;
 }
 
+/*data stuff*/
+#tweetData {
+  margin-bottom: 5px;
+}
+
+#loader {
+  text-align: center;
+}
+
 /*info stuff*/
 div.info {
   display: none;

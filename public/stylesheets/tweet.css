@@ -17,6 +17,9 @@ div.tweetHandle {
   display: inline-block;
   margin-left: 5px;
   font-size: 14px;
+}
+
+div.tweetHandle > a {
   color: #8a9ba7;
 }
 

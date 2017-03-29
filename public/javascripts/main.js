@@ -4,37 +4,10 @@ function scrollTo(position, speed) {
   }, speed);
 }
 
-function parseChar(text, url, char, omitCharFromURL = false) {
-  var final = '';
-  var leftover = text;
-  var index = 0;
-
-  do {
-    index = leftover.indexOf(char);
-    if (index != -1) {
-      //Getting the text before the hashtag
-      var pre = leftover.slice(0, index);
-
-      //Forming the hashtag
-      var before = '<span class = "blue-text">';
-      var after = leftover.slice(index);
-      var nextSpace = after.indexOf(' ');
-      var content = nextSpace != -1 ? after.slice(0, nextSpace) : after;
-      var encode = omitCharFromURL ? content.slice(1) : content;
-      var link = '<a href = ' + url + encodeURIComponent(encode) + ' target = "_blank">';
-
-      //Getting the text after the hashtag
-      leftover = nextSpace != -1 ? after.slice(after.indexOf(' ')) : '';
-      final = final + pre + before + link + content + '</a></span>';
-    }
-  } while(index != -1);
-
-  return final + leftover;
-}
-
 function parseTweet(text) {
-  var parsed = parseChar(text, 'https://twitter.com/search?q=', '#');
-  parsed = parseChar(parsed, 'https://twitter.com/', '@', true);
+  var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1" target = "_blank">$1</a>');
+  parsed = parsed.replace(/#(\S*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
+  parsed = parsed.replace(/@(\S*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
 
   return parsed;
 }
@@ -53,7 +26,7 @@ function displaySearchResults(node, results) {
 
   // console.log(parseTweet('Report claims West Ham ready to pay £150,000-a-week to 31-year-old #WHU #COYI #Rooney #MUFC https://t.co/ilxANjgIAT'));
 
-  console.log(results)
+  console.log(results);
   results.forEach(function(tweet) {
 
     var tweetText = parseTweet(tweet.text);
@@ -66,7 +39,8 @@ function displaySearchResults(node, results) {
                   .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
                   .prepend('<span class = "black-text">' + tweetText + '</span>')
                   .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
-                           '</div><div class="tweetHandle">@' + tweet.authorHandle + '</div></div>');
+                           '</div><div class="tweetHandle"> ' +
+                           '<a href = "' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + '</a></div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
@@ -209,9 +183,8 @@ function loadGraph(canvas, data, callback) {
     console.log(results);
     displaySearchResults(app, results.tweets);
     $tweetStats.show();
-    $tweetsFromTwitter.find('.count').html(results.countFromTwitter);
-    $tweetsFromDatabse.find('.count').html(results.countFromDatabase);
+    $('#tweetsFromTwitter').html(results.countFromTwitter);
+    $('#tweetsFromDatabase').html(results.countFromDatabase);
   });
-
 
 })(io);

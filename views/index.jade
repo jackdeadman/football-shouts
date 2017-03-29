@@ -110,13 +110,18 @@ block tweets
       div.row#js-tweet-chart-container
         div.col.s12
             div.card-panel
-              #loader.centered Making a pretty graph...
+              table#tweetData
+                tbody
+                  tr
+                    td.info-name
+                      | Tweets from Twitter
+                    td#tweetsFromTwitter
+                      | 0
+                  tr
+                    td.info-name
+                      | Tweets from Database
+                    td#tweetsFromDatabase
+                      | 0
+              #loader Generating graph...
               canvas#tweet-chart(width='400', height='200')
-      div.row#js-tweet-stats
-        div.col.s6
-          div.card-panel.js-twitter-stats Tweets from Twitter:
-              span.count  0
-        div.col.s6
-          div.card-panel.js-database-stats Tweets from Database:
-              span.count  0
       #app
