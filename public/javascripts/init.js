@@ -1,8 +1,8 @@
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
-  $('#clubs').materialtags('add', 'Brighton');
-  $('#clubs').materialtags('add', '@brighton');
+  $('#clubs').materialtags('add', 'West Ham');
+  $('#clubs').materialtags('add', '@WestHamUtd');
 }
 
 function showButton() {
