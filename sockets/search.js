@@ -4,10 +4,6 @@ var Tweet = require('../models/Tweet');
 var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
 
-function getFromTwitter() {
-
-}
-
 function findTransfers(player, club, sources,callback) {
   /**
    * Finds tweets between players and clubs using database and twitter
@@ -16,7 +12,7 @@ function findTransfers(player, club, sources,callback) {
    * @param callback: fn(err, tweets)
    */
   var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
-  var today = new Date(Date.now())
+  var today = new Date(Date.now());
 
   var query = {
     player: player,
@@ -62,7 +58,7 @@ function findTransfers(player, club, sources,callback) {
         tweets: twitterTweets,
         countFromTwitter: twitterTweets.length,
         countFromDatabase: 0
-      })
+      });
     });
     // No known sources selected
   } else {
