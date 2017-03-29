@@ -1,7 +1,32 @@
+String.prototype.splice = function(idx, rem, str) {
+    return this.slice(0, idx) + str + this.slice(idx + Math.abs(rem));
+};
+
 function scrollTo(position, speed) {
   $('html, body').animate({
       scrollTop: position
   }, speed);
+}
+
+function parseTweet(text) {
+  var hashtagIndex = 0;
+  var final = '';
+  var leftover = text;
+  do {
+    //Parsing hashtags
+    hashtagIndex = leftover.indexOf('#');
+    if (hashtagIndex != -1) {
+      var before = '<span class = "blue-text">';
+      var after = leftover.slice(hashtagIndex);
+      var hashtag = after.slice(hashtagIndex, after.indexOf(' '));
+      var link = '<a href = https://twitter.com/search?q=' + encodeURIComponent(hashtag) + ' target = "_blank">';
+      leftover = after.slice(after.indexOf(' '));
+      final = final + before + link + hashtag + '</a></span>';
+    }
+  } while(hashtagIndex != -1);
+
+  final = final + leftover;
+  return final;
 }
 
 function handleSearchError(err) {
@@ -18,20 +43,22 @@ function displaySearchResults(node, results) {
   console.log(results)
   results.forEach(function(tweet) {
 
+    var tweetText = parseTweet(tweet.text);
+
     var div =     $('<div>', {'class': 'card-panel z-depth-1'});
     var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
     var image =   $('<div>', {'class': 'col s2'})
                   .prepend('<img src="/images/egg.png" alt="" class="circle responsive-img avatar"/>');
     var content = $('<div>', {'class': 'col s10'})
                   .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
-                  .prepend('<span class = "black-text">' + tweet.text + '</span>')
+                  .prepend('<span class = "black-text">' + tweetText + '</span>')
                   .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
                            '</div><div class="tweetHandle">@' + tweet.authorHandle + '</div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
     // console.log(tweet.createdAt, tweet.source)
-    console.log(tweet)
+    // console.log(tweet);
 
     node.append(combined);
   });
