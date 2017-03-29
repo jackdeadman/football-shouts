@@ -16,18 +16,25 @@ function displaySearchResults(node, results) {
   //     alert(results.tweets[0].text)
   // }
   console.log(results)
-  results.forEach(function(result) {
-    console.log(result.text);
+  results.forEach(function(tweet) {
 
     var div =     $('<div>', {'class': 'card-panel grey lighten-5 z-depth-1'})
     var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
     var image =   $('<div>', {'class': 'col s2'})
                   .prepend('<img src="/images/test.jpg" alt="" class="circle responsive-img avatar"/>')
     var content = $('<div>', {'class': 'col s10'})
-                  .prepend('<span class = "black-text">' + result.text + '</span>');
+                  .prepend('<span class = "black-text">' + tweet.text + '</span>');
 
     var inner = innerdiv.append(image).append(content);
+    console.log(tweet.createdAt, tweet.source)
+    var bottom = $(''+
+          '<div class="row right-align">'+
+            '<div>'+ moment(tweet.createdAt).fromNow('hour') + ' ago.</div>'+
+          '</div>'
+    );
+
     var combined = div.append(inner);
+    combined = combined.append(bottom);
 
     node.append(combined);
   });
