@@ -45,22 +45,6 @@ function makeTweetObjectFromDb(databaseTweet){
   return tweetObject;
 }
 
-// function makeTweetObjectFromDb(databaseTweet, databaseAuthor){
-//   return new Promise((resolve, reject) => {
-//     var tweetObject = {
-//       text: databaseTweet.text,
-//       twitterId: databaseTweet.twitterId,
-//       createdAt: databaseTweet.createdAt,
-//       hasMedia: databaseTweet.hasMedia,
-//       retweetCount: databaseTweet.retweetCount,
-//       favouriteCount: databaseTweet.favouriteCount,
-//       authorHandle: databaseAuthor.authorHandle,
-//       authorName: databaseAuthor.authorName
-//     };
-//     resolve(tweetObject);
-//   });
-// }
-
 function makeAuthorObject(tweetObject){
   var authorObject = {
     authorHandle: tweetObject.authorHandle,
@@ -83,28 +67,16 @@ function makeTweetDbObject(tweetObject){
 }
 
 function saveTweet(tweet, player, club, author, hashtags){
-  var hashtagSaves = [];
-  hashtags.forEach(function(hashtag){
-    hashtagSaves.push(dbHashtag.findOrCreate({
-      where: {
-        hashtag: hashtag
-      }
-    }));
-  });
-
-  var hashtagsDone = Promise.all(hashtagSaves);
-
   // var playerQuery = makePlayerOrClubQuery(player);
   // var clubQuery = makePlayerOrClubQuery(club);
 
-
-  var playerSaved = dbPlayer.findOrCreate({
+  var savePlayer = dbPlayer.findOrCreate({
     where: {
       name: player
     }
   });
 
-  var clubSaved = dbClub.findOrCreate({
+  var saveClub = dbClub.findOrCreate({
     where: {
       name: club
     }
@@ -128,34 +100,76 @@ function saveTweet(tweet, player, club, author, hashtags){
     }
   });
 
-  Promise.all([saveTweet, saveAuthor, hashtagsDone, playerSaved, clubSaved])
+  var everythingSaved;
+  if(hashtags.length === 0){
+    everythingSaved = Promise.all([
+      saveTweet, 
+      saveAuthor, 
+      savePlayer, 
+      saveClub
+    ]);
+  }else{
+    var hashtagSaves = [];
+    hashtags.forEach(function(hashtag){
+      hashtagSaves.push(dbHashtag.findOrCreate({
+        where: {
+          hashtag: hashtag
+        }
+      }));
+    });
+
+    var hashtagsDone = Promise.all(hashtagSaves);
+    everythingSaved = Promise.all([
+      saveTweet, 
+      saveAuthor,
+      savePlayer, 
+      saveClub,
+      hashtagsDone
+    ]);
+  }
+
+  everythingSaved
   .then(results => {
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
-    var hashtagResults = results[2][0];
-    var playerResult = results[3][0];
-    var clubResult = results[4][0];
+    var playerResult = results[2][0];
+    var clubResult = results[3][0];
+
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
-    var hashtagRelations = [];
-    hashtagResults.forEach(hashtag => {
-      hashtagRelations.push(tweetResult.addHashtag(hashtag,
-        { through: 'TweetHashtags' }
-      ));
-    });
-    var setHashtagRelation = Promise.all(hashtagRelations);
     var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
     var setTweetRelationToClub = tweetResult.setClub(clubResult);
     var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
     var setClubRelationToTweet = clubResult.addTweet(tweetResult);
 
-    return Promise.all([
-      setAuthorRelation, 
-      setHashtagRelation, 
-      setTweetRelationToPlayer, 
-      setTweetRelationToClub, 
-      setPlayerRelationToTweet, 
-      setClubRelationToTweet
-    ]);
+    var allRelationsDone;
+    if(results.length === 5){
+      var hashtagResults = results[4][0];
+      var hashtagRelations = [];
+      hashtagResults.forEach(hashtag => {
+        hashtagRelations.push(tweetResult.addHashtag(hashtag,
+          { through: 'TweetHashtags' }
+        ));
+      });
+      var setHashtagRelation = Promise.all(hashtagRelations);
+      allRelationsDone = Promise.all([
+        setAuthorRelation,
+        setHashtagRelation,
+        setTweetRelationToPlayer,
+        setTweetRelationToClub,
+        setPlayerRelationToTweet,
+        setClubRelationToTweet
+      ]);
+    }else{
+      allRelationsDone = Promise.all([
+        setAuthorRelation,
+        setTweetRelationToPlayer,
+        setTweetRelationToClub,
+        setPlayerRelationToTweet,
+        setClubRelationToTweet
+      ]);
+    }
+
+    return allRelationsDone;
   })
   .catch(err => {
     console.error(
@@ -167,7 +181,6 @@ function saveTweet(tweet, player, club, author, hashtags){
 module.exports.getFromTwitter = function(query, callback){
 
   console.log("getting from twitter");
-  // console.log("query: ", query);
   var twitterQuery = buildQuery(query);
   var fullQuery = {
     q: twitterQuery,
@@ -184,16 +197,12 @@ module.exports.getFromTwitter = function(query, callback){
     }
 
     var originalTweetList = queryResult.statuses;
-    console.log(originalTweetList.length);
-    // need to save hashtags to a different table probably
 
     var tweetList = originalTweetList.map(makeTweetObject);
     tweetList = tweetList.filter(utils.selectTransferTweet);
-    console.log("tweet list length", tweetList.length);
+    callback(null, tweetList);
 
     tweetList.forEach(function(tweet, i){
-
-      // var hashtags = tweet.entities.hashtags;
       var hashtags = originalTweetList[i].entities.hashtags;
       if(hashtags.length){
         hashtags = hashtags.map(hashtag => hashtag.text.toLowerCase());
@@ -201,7 +210,6 @@ module.exports.getFromTwitter = function(query, callback){
         hashtags = [];
       }
       var author = makeAuthorObject(tweet);
-      // console.log("###", author);
       tweet = makeTweetDbObject(tweet);
       saveTweet(tweet, query.player, query.club, author, hashtags, 
       function(err){
@@ -211,11 +219,7 @@ module.exports.getFromTwitter = function(query, callback){
           return;
         }
       }); 
-      // .then(() => {
-      //   database.sequelize.sync();
-      // });
     });
-    callback(null, tweetList);
   });
 };
 
@@ -227,8 +231,6 @@ function formatDate(date){
 }
 
 function buildQuery(queryTerms){
-// build all the combinations of search terms
-// add in words like "transfer"
   var player = queryTerms.player;
   var club = queryTerms.club;
   var sinceTimestamp = formatDate(queryTerms.since);
@@ -341,31 +343,7 @@ function findTweets(player, club){
   });
 }
 
-// function makeTweetAndAuthorObjects(tweets){
-//   return new Promise((resolve, reject) => {
-//     var formatTweetPromises = [];
-//     var getAuthorPromises = [];
-//     tweets.forEach(tweet => {
-//       getAuthorPromises.push(tweet.getAuthor());
-//     });
-//     Promise.all(getAuthorPromises)
-//     .then(author => {
-//       formatTweetPromises.push(makeTweetObjectFromDb(tweet, author));
-//     });
-//     Promise.all(formatTweetPromises)
-//     .then(formattedTweets => {
-//       resolve(formattedTweets);
-//     });
-//   });
-  
-// }
-
 module.exports.getFromDatabase = function(query, callback){
-  // extract hashtags from query and search hashtags table
-  // search text of tweets for query terms
-  // search players for twitter handles from query
-  // search clubs for twitter handles from query
-  // do this in as few queries as possible
   console.log("getting from database");
 
   var player = query.player;
@@ -389,7 +367,7 @@ module.exports.getFromDatabase = function(query, callback){
       //   authorHandle: "@test",
       //   authorName: "T User"
       // }]);
-
+    console.log("tweets from db length: ", tweets.length);
     callback(null, tweets);
     // });
     
