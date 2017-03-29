@@ -25,6 +25,10 @@ function findTransfers(player, club, sources,callback) {
   var useTwitter = sources.indexOf('twitter') > -1;
   if (useDatabase) {
     Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
+      databaseTweets = databaseTweets.map(function(tweet) {
+        tweet.source = 'database';
+        return tweet;
+      });
 
       var latest = databaseTweets[0];
 
@@ -36,29 +40,25 @@ function findTransfers(player, club, sources,callback) {
 
         if (useTwitter) {
           Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-            callback(null, {
-              tweets: databaseTweets.concat(twitterTweets),
-              countFromTwitter: twitterTweets.length || 0,
-              countFromDatabase: databaseTweets.length || 0
+            twitterTweets = twitterTweets.map(function(tweet) {
+              tweet.source = 'twitter';
+              return tweet;
             });
+            callback(null, databaseTweets.concat(twitterTweets));
           });
         } else {
-          callback(null, {
-            tweets: databaseTweets,
-            countFromTwitter: 0,
-            countFromDatabase: databaseTweets.length
-          });
+          callback(null, databaseTweets);
         }
       }
     });
     // Just using twitter
   } else if (useTwitter) {
     Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-      callback(null, {
-        tweets: twitterTweets,
-        countFromTwitter: twitterTweets.length,
-        countFromDatabase: 0
+      twitterTweets = twitterTweets.map(function(tweet) {
+        tweet.source = 'twitter';
+        return tweet;
       });
+      callback(null, twitterTweets);
     });
     // No known sources selected
   } else {
@@ -94,11 +94,7 @@ var handlers = {
     var requests = req.players.length * req.clubs.length;
     var responses = 0;
     var errors = [];
-    var allResults = {
-      tweets: [],
-      countFromTwitter: 0,
-      countFromDatabase: 0
-    };
+    var allTweets = [];
 
     // mock graph data
     setTimeout(function() {
@@ -125,11 +121,10 @@ var handlers = {
     // Search using all combinations
     req.players.forEach(function(player) {
       req.clubs.forEach(function(club) {
-        findTransfers(player, club, req.sources, function(err, results) {
+        findTransfers(player, club, req.sources, function(err, tweets) {
           // response has been received
           responses ++;
-          console.log("responses: ", responses);
-          console.log("results: ", results.tweets.length);
+
           // Accumulate the errors, then tell the client when all requests
           // have been made
           if (err) {
@@ -137,19 +132,35 @@ var handlers = {
             errors.push(generateErrorObj(msg, req));
           }
           else {
-            allResults.tweets = allResults.tweets.concat(results.tweets);
-            allResults.countFromTwitter += results.countFromTwitter;
-            allResults.countFromDatabase += results.countFromDatabase;
+            allTweets = allTweets.concat(tweets);
           }
           console.log(requests === responses);
           if (requests === responses) {
-            // allResults = allResults.sort(function(r) { return r.createdAt; })
-
             // Order by createdAt
+            allTweets = allTweets.sort(function(t1, t2) {
+              return t1.createdAt > t2.createdAt;
+            });
 
-            // Remove duplicates
-            console.log("should be emitting");
-            socket.emit(successEvent, allResults);
+            // Remove duplicate twitters
+            var prev = { twitterId: null };
+            allTweets = allTweets.filter(function(t) {
+              var different = prev.twitterId !== t.twitterId;
+              prev = t;
+              return different;
+            });
+
+            // Squash into a final results object
+            var resultObj = allTweets.reduce(function(acc, tweet) {
+              return {
+                tweets: acc.tweets.concat([tweet]),
+                countFromTwitter: acc.countFromTwitter
+                                      + (tweet.source === 'twitter'),
+                countFromDatabase: acc.countFromDatabase
+                                      + (tweet.source === 'database'),
+              };
+            }, { tweets: [], countFromDatabase: 0, countFromTwitter: 0 });
+
+            socket.emit(successEvent, resultObj);
 
             if (errors.length) {
               socket.emit(errorEvent, errors);
