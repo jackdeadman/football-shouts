@@ -97,20 +97,20 @@ var handlers = {
     var allTweets = [];
 
     // mock graph data
-    setTimeout(function() {
-      socket.emit('chart', [
-        { date: new Date(2017, 3, 1), count: 14},
-        { date: new Date(2017, 3, 3), count: 32},
-        { date: new Date(2017, 3, 5), count: 101},
-        { date: new Date(2017, 3, 7), count: 23},
-        { date: new Date(2017, 3, 11), count: 5},
-        { date: new Date(2017, 3, 13), count: 58},
-        { date: new Date(2017, 3, 20), count: 90},
-        { date: new Date(2017, 3, 21), count: 140},
-        { date: new Date(2017, 3, 25), count: 58},
-        { date: new Date(2017, 3, 27), count: 10}
-      ]);
-    }, 3000);
+    // setTimeout(function() {
+    //   socket.emit('chart', [
+    //     { date: new Date(2017, 3, 1), count: 14},
+    //     { date: new Date(2017, 3, 3), count: 32},
+    //     { date: new Date(2017, 3, 5), count: 101},
+    //     { date: new Date(2017, 3, 7), count: 23},
+    //     { date: new Date(2017, 3, 11), count: 5},
+    //     { date: new Date(2017, 3, 13), count: 58},
+    //     { date: new Date(2017, 3, 20), count: 90},
+    //     { date: new Date(2017, 3, 21), count: 140},
+    //     { date: new Date(2017, 3, 25), count: 58},
+    //     { date: new Date(2017, 3, 27), count: 10}
+    //   ]);
+    // }, 3000);
 
     if (!req.sources) {
       errorMsg = 'Sources have not been defined.';
@@ -161,6 +161,31 @@ var handlers = {
             }, { tweets: [], countFromDatabase: 0, countFromTwitter: 0 });
 
             socket.emit(successEvent, resultObj);
+
+            var chartData = {};
+            tweets.forEach(tweet => {
+              var date = new Date(tweet.createdAt);
+              var newDate = new Date(date.getFullYear(),
+                                      date.getMonth() + 1,
+                                      date.getDate());
+              if (chartData[newDate.toString()]) {
+                chartData[newDate.toString()]++;
+              } else {
+                chartData[newDate.toString()] = 1;
+              }
+            });
+
+            var array = [];
+            for (var date in chartData) {
+              array.push({ date: date, count: chartData[date] });
+            }
+
+            array = array.sort((d1, d2) => {
+              return new Date(d1.date) > new Date(d2.date) ? 1 : -1;
+            });
+
+
+            socket.emit('chart', array);
 
             if (errors.length) {
               socket.emit(errorEvent, errors);

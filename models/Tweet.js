@@ -171,11 +171,10 @@ function saveTweet(tweet, player, club, author, hashtags){
 
     return allRelationsDone;
   })
-  .catch(err => {
-    return Promise.reject('problem saving the tweet, club, player, or author to db');
-    console.error(
-      "problem saving the tweet, club, player, or author to db", err
-    );
+  .catch(() => {
+    // console.error(
+    //   "problem saving the tweet, club, player, or author to db", err
+    // );
   });
 }
 
@@ -213,10 +212,10 @@ module.exports.getFromTwitter = function(query, callback){
       var author = makeAuthorObject(tweet);
       tweet = makeTweetDbObject(tweet);
       console.time('saving tweet');
-      console.log('saving from twitter')
+      console.log('saving from twitter');
       saveTweet(tweet, query.player, query.club, author, hashtags)
       .then(function(err){
-        console.log('saved from twitter')
+        console.log('saved from twitter');
         console.log(err);
         if(err){
           console.error("error saving to db");
