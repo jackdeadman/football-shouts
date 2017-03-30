@@ -26,8 +26,9 @@ function makeTweetObject(tweet){
     hasMedia: !!tweet.entities.media,
     retweetCount: tweet.retweet_count,
     favouriteCount: tweet.favorite_count,
-    authorHandle: tweet.user.screen_name,
-    authorName: tweet.user.name
+    handle: tweet.user.screen_name,
+    name: tweet.user.name,
+    profileImageUrl: tweet.user.profile_image_url
   };
 
   return tweetObject;
@@ -41,17 +42,19 @@ function makeTweetObjectFromDb(databaseTweet){
     hasMedia: databaseTweet.hasMedia,
     retweetCount: databaseTweet.retweetCount,
     favouriteCount: databaseTweet.favouriteCount,
-    authorName: databaseTweet.Author.authorName,
-    authorHandle: databaseTweet.Author.authorHandle,
-    updatedAt: databaseTweet.updatedAt
+    updatedAt: databaseTweet.updatedAt,
+    name: databaseTweet.Author.name,
+    handle: databaseTweet.Author.handle,
+    profileImageUrl: databaseTweet.Author.profileImageUrl
   };
   return tweetObject;
 }
 
 function makeAuthorObject(tweetObject){
   var authorObject = {
-    authorHandle: tweetObject.authorHandle,
-    authorName: tweetObject.authorName
+    handle: tweetObject.handle,
+    name: tweetObject.name,
+    profileImageUrl: tweetObject.profileImageUrl
   };
   return authorObject;
 }
@@ -98,8 +101,9 @@ function saveTweet(tweet, player, club, author, hashtags){
 
   var saveAuthor = dbAuthor.findOrCreate({
     where: {
-      authorHandle: author.authorHandle,
-      authorName: author.authorName
+      handle: author.handle,
+      name: author.name,
+      profileImageUrl: author.profileImageUrl
     }
   });
 
@@ -400,8 +404,8 @@ module.exports.getFromDatabase = function(query, callback){
       //   hasMedia: false,
       //   retweetCount: 3,
       //   favouriteCount: 0,
-      //   authorHandle: "@test",
-      //   authorName: "T User"
+      //   handle: "@test",
+      //   name: "T User"
       // }]);
     console.log("tweets from db length: ", tweets.length);
     callback(null, tweets);

@@ -34,13 +34,13 @@ function displaySearchResults(node, results) {
     var div =     $('<div>', {'class': 'card-panel z-depth-1'});
     var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
     var image =   $('<div>', {'class': 'col s2'})
-                  .prepend('<img src="/images/egg.png" alt="" class="circle responsive-img avatar"/>');
+                  .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
     var content = $('<div>', {'class': 'col s10'})
                   .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
                   .prepend('<span class = "black-text">' + tweetText + '</span>')
-                  .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
+                  .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.name +
                            '</div><div class="tweetHandle"> ' +
-                           '<a href = "https://twitter.com/' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + '</a></div></div>');
+                           '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank">@' + tweet.handle + ' +' + tweet.source + '</a></div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
