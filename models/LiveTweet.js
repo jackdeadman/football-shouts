@@ -16,10 +16,11 @@ util.inherits(LiveTweet, EventEmitter);
 
 LiveTweet.prototype.connect = function() {
   this.stream = this.client.stream(this.streamName, this.query);
-  this.stream.on('tweet', function(tweet) {
+  var that = this;
+  this.stream.on('tweet', tweet => {
     if(utils.selectTransferTweet(tweet)){
       console.log('new tweet from stream');
-      this.emit('tweet', tweet);
+      that.emit('tweet', tweet);
     }
   });
 };

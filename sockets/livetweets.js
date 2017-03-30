@@ -4,6 +4,7 @@ var Tweet = require('../models/Tweet');
 
 var handlers = {
   subscribe: function(socket, req) {
+
     var player = req.player;
     var club = req.club;
 
@@ -20,16 +21,16 @@ var handlers = {
     });
 
     console.log(socket);
-    socket.livetweets = livetweets;
+    // socket.livetweets = livetweets;
   },
 
-  unsubscribe: function(socket) {
-    socket.livetweets.disconect();
-  },
-
-  disconect: function(socket) {
-    socket.livetweets.disconect();
-  }
+  // unsubscribe: function(socket) {
+  //   socket.livetweets.disconect();
+  // },
+  //
+  // disconect: function(socket) {
+  //   socket.livetweets.disconect();
+  // }
 };
 
 module.exports.handlers = handlers;

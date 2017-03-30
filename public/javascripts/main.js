@@ -18,6 +18,25 @@ function handleSearchError(err) {
   console.log(err);
 }
 
+function createTweetNode(tweet) {
+  var tweetText = parseTweet(tweet.text);
+
+  var div =     $('<div>', {'class': 'card-panel z-depth-1'});
+  var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
+  var image =   $('<div>', {'class': 'col s2'})
+                .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
+  var content = $('<div>', {'class': 'col s10'})
+                .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
+                .prepend('<span class = "black-text">' + tweetText + '</span>')
+                .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.name +
+                         '</div><div class="tweetHandle"> ' +
+                         '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank">@' + tweet.handle + ' +' + tweet.source + '</a></div></div>');
+
+  var inner = innerdiv.append(image).append(content);
+  var combined = div.append(inner);
+  return combined;
+}
+
 function displaySearchResults(node, results) {
   // TODO: Do fancy stuff here
   // if (results.tweets.length) {
@@ -29,25 +48,9 @@ function displaySearchResults(node, results) {
   console.log(results);
   results.forEach(function(tweet) {
 
-    var tweetText = parseTweet(tweet.text);
+    var tweetNode = createTweetNode(tweet)
 
-    var div =     $('<div>', {'class': 'card-panel z-depth-1'});
-    var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
-    var image =   $('<div>', {'class': 'col s2'})
-                  .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
-    var content = $('<div>', {'class': 'col s10'})
-                  .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
-                  .prepend('<span class = "black-text">' + tweetText + '</span>')
-                  .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.name +
-                           '</div><div class="tweetHandle"> ' +
-                           '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank">@' + tweet.handle + ' +' + tweet.source + '</a></div></div>');
-
-    var inner = innerdiv.append(image).append(content);
-    var combined = div.append(inner);
-    // console.log(tweet.createdAt, tweet.source)
-    // console.log(tweet);
-
-    node.append(combined);
+    node.append(tweetNode);
   });
 }
 
@@ -106,7 +109,7 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections
-  var suggestions = io('/suggestions');
+  // var suggestions = io('/suggestions');
   var search = io('/search');
   var liveTweets = io('/liveTweets');
 
@@ -146,11 +149,11 @@ function loadGraph(canvas, data, callback) {
     $canvas.hide();
     $tweetStats.hide();
 	$('#tweetData').hide();
-	
+
 	$('#app-container').show();
     $chartHolder.show();
     $chartLoader.show();
-	
+
 	//Scroll down the page
     scrollTo($("#app-container").offset().top, 1000);
   });
@@ -169,15 +172,22 @@ function loadGraph(canvas, data, callback) {
   // var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
   // search.emit('query', req);
 
-
-  // liveTweets.on('tweet', function(tweet) {
-  //   console.log(tweet);
-  // });
-
   // liveTweets.emit('subscribe', {
   //   path: 'statuses/filter',
   //   filter: { track: 'mango' }
   // });
+
+  liveTweets.emit('subscribe', {
+    player: 'trump',
+    club: 'usa'
+  });
+
+  liveTweets.on('tweet', function(tweet) {
+    console.log(tweet);
+    var node = createTweetNode(tweet);
+    app.prepend(createTweetNode(tweet));
+    console.log(node);
+  });
 
 
   var app = $('#app');
