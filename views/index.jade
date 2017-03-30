@@ -8,30 +8,28 @@ extends layout
 //Form for search inputs
 block input
   form(id="search", method="", action="")
-    div.row.disable-select.default-cursor
-      div.col.s12
-        div.row
-          div.input-field.col.s12
-            input(name="players", id="players", type="text", data-role="materialtags")
-            label(for = "players", id="players_label") What's the player's name?
-        div.row
-          div.input-field.col.s12
-            input(name="clubs", id="clubs", type="text", data-role="materialtags")
-            label(for = "clubs", id="clubs_label") What club are they rumoured with?
-        div.row.center-align
-          div.input-field.col.s12
-            select(name="options", id="options", multiple="multiple")
-              option(value="", disabled="disabled") Please select at least one option...
-              option(value="database", id="option1", selected="selected") Database
-              option(value="twitter", id="option2", selected="selected") Twitter
-            label(for="options", id="options_label") Where should we search?
-        div.row.center-align
-          div.input-field.col.s12
-            button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Submit
-
+    div.disable-select.default-cursor
+      div.row
+        div.input-field.col.s12
+          input(name="players", id="players", type="text", data-role="materialtags")
+          label.white-text(for = "players", id="players_label") What is the player's name?
+      div.row
+        div.input-field.col.s12
+          input(name="clubs", id="clubs", type="text", data-role="materialtags")
+          label.white-text(for = "clubs", id="clubs_label") What club are they rumoured with?
+      div.row.center-align
+        div.input-field.col.s12
+          select(name="options", id="options", multiple="multiple")
+            option(value="", disabled="disabled") Please select at least one option...
+            option(value="database", id="option1", selected="selected") Database
+            option(value="twitter", id="option2", selected="selected") Twitter
+          label.white-text(for="options", id="options_label") Where should we search?
+      div.center-align
+        div.input-field.col.s12
+          button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
 //The floating return to top button
 block overlay
-  a.btn-floating.btn-large.waves-effect.waves-light.purple.darken-3.z-depth-5#back-to-top
+  a.btn-floating.btn-large.btn-light.waves-effect.waves-light.z-depth-5#back-to-top
     i
       img(src="/images/top-arrow.svg")
 
@@ -40,13 +38,13 @@ block overlay
 block tweets
   div.row
     div.col.s5
-      div.card-panel.grey.lighten-5.z-depth-1.info#playerinfo
+      div.card-panel.z-depth-1.info#playerinfo
         div.info-top
           div.info-image#playerimage
             img.circle.responsive-img(src = "/images/manny.png")
           div.info-title#playername
             p Manny Calavera
-        table.striped
+        table.responsive-table.striped
           tbody
             tr
               td.info-name
@@ -110,7 +108,7 @@ block tweets
       div.row#js-tweet-chart-container
         div.col.s12
             div.card-panel
-              table#tweetData
+              table.responsive-table#tweetData
                 tbody
                   tr
                     td.info-name
@@ -124,4 +122,6 @@ block tweets
                       | 0
               #loader Generating graph...
               canvas#tweet-chart(width='400', height='200')
+      .card-panel.loadMore#loadMoreTweets
+        | View #[span(class='count') 0] new Tweets
       #app

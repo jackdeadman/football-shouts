@@ -6,8 +6,8 @@ function scrollTo(position, speed) {
 
 function parseTweet(text) {
   var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1" target = "_blank">$1</a>');
-  parsed = parsed.replace(/#(\S*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
-  parsed = parsed.replace(/@(\S*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
+  parsed = parsed.replace(/#([A-Za-z0-9]*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
+  parsed = parsed.replace(/@([A-Za-z0-9]*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
 
   return parsed;
 }
@@ -16,6 +16,26 @@ function handleSearchError(err) {
   // TODO: Add error handling
   alert('Error');
   console.log(err);
+}
+
+function createTweetNode(tweet) {
+  var tweetText = parseTweet(tweet.text);
+
+  var div =     $('<div>', {'class': 'card-panel z-depth-1'});
+  var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
+  var image =   $('<div>', {'class': 'col s2'})
+                .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
+  var content = $('<div>', {'class': 'col s10'})
+                .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
+                .prepend('<span class = "black-text">' + tweetText + '</span>')
+                .prepend('<div class="tweetTop"><div class="tweetName">' +
+                         '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +
+                         '</div><div class="tweetHandle"> ' +
+                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + '</a></div></div>');
+
+  var inner = innerdiv.append(image).append(content);
+  var combined = div.append(inner);
+  return combined;
 }
 
 function displaySearchResults(node, results) {
@@ -28,26 +48,8 @@ function displaySearchResults(node, results) {
 
   console.log(results);
   results.forEach(function(tweet) {
-
-    var tweetText = parseTweet(tweet.text);
-
-    var div =     $('<div>', {'class': 'card-panel z-depth-1'});
-    var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
-    var image =   $('<div>', {'class': 'col s2'})
-                  .prepend('<img src="/images/egg.png" alt="" class="circle responsive-img avatar"/>');
-    var content = $('<div>', {'class': 'col s10'})
-                  .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
-                  .prepend('<span class = "black-text">' + tweetText + '</span>')
-                  .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
-                           '</div><div class="tweetHandle"> ' +
-                           '<a href = "' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + '</a></div></div>');
-
-    var inner = innerdiv.append(image).append(content);
-    var combined = div.append(inner);
-    // console.log(tweet.createdAt, tweet.source)
-    // console.log(tweet);
-
-    node.append(combined);
+    var tweetNode = createTweetNode(tweet)
+    node.append(tweetNode);
   });
 }
 
@@ -106,19 +108,21 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections
-  var suggestions = io('/suggestions');
+  // var suggestions = io('/suggestions');
   var search = io('/search');
   var liveTweets = io('/liveTweets');
 
   var $chartHolder = $('#js-tweet-chart-container');
   var $canvas = $chartHolder.find('canvas');
   var $chartLoader = $chartHolder.find('#loader')
+  var $loadMoreTweets = $('#loadMoreTweets');
+  $loadMoreTweets.hide();
   $chartHolder.hide();
 
   var $tweetStats = $('#js-tweet-stats');
+  $('#tweetData').hide();
   $tweetStats.hide();
-  var $tweetsFromTwitter = $($tweetStats).find('.js-twitter-stats')
-  var $tweetsFromDatabse = $($tweetStats).find('.js-database-stats')
+  $('#app-container').hide();
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
@@ -126,9 +130,6 @@ function loadGraph(canvas, data, callback) {
   //Upon pressing the search button, send the entered data
   $('#search').submit(function(e){
     e.preventDefault();
-
-    //Scroll down the page
-    scrollTo($("#js-tweet-start").offset().top, 1000);
 
     //Setting up elements
     $('#app').empty();
@@ -148,9 +149,15 @@ function loadGraph(canvas, data, callback) {
 
     $canvas.hide();
     $tweetStats.hide();
+	$('#tweetData').hide();
+  $loadMoreTweets.hide();
 
+	$('#app-container').show();
     $chartHolder.show();
     $chartLoader.show();
+
+	//Scroll down the page
+    scrollTo($("#app-container").offset().top, 1000);
   });
 
   search.on('chart', function(data) {
@@ -167,15 +174,34 @@ function loadGraph(canvas, data, callback) {
   // var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
   // search.emit('query', req);
 
-
-  // liveTweets.on('tweet', function(tweet) {
-  //   console.log(tweet);
-  // });
-
   // liveTweets.emit('subscribe', {
   //   path: 'statuses/filter',
   //   filter: { track: 'mango' }
   // });
+
+  liveTweets.emit('subscribe', {
+    player: 'hazard',
+    club: 'real madrid'
+  });
+
+  var hiddenTweets = [];
+  var title = document.title;
+
+  liveTweets.on('tweet', function(tweet) {
+    var node = createTweetNode(tweet);
+    hiddenTweets.push(tweet);
+    document.title = '(' + hiddenTweets.length + ') ' + title;
+    $loadMoreTweets.show();
+    $loadMoreTweets.find('.count').html(hiddenTweets.length);
+  });
+
+  $loadMoreTweets.on('click', function() {
+    while (hiddenTweets.length !== 0) {
+      app.prepend(createTweetNode(hiddenTweets.pop()));
+    }
+    document.title = title;
+    $(this).hide();
+  });
 
 
   var app = $('#app');
@@ -183,6 +209,7 @@ function loadGraph(canvas, data, callback) {
     console.log(results);
     displaySearchResults(app, results.tweets);
     $tweetStats.show();
+	$('#tweetData').show();
     $('#tweetsFromTwitter').html(results.countFromTwitter);
     $('#tweetsFromDatabase').html(results.countFromDatabase);
   });

@@ -3,7 +3,7 @@
 module.exports = function(sequelize, DataTypes) {
   var Tweet = sequelize.define('Tweet', {
     text: { type: DataTypes.STRING(140), allowNull: false },
-    twitterId: { type: DataTypes.BIGINT, allowNull: false, unique: true },
+    twitterId: { type: DataTypes.STRING(30), allowNull: false, unique: true },
     createdAt: { type: DataTypes.DATE, allowNull: false },
     hasMedia: { type: DataTypes.BOOLEAN, allowNull: false },
     retweetCount: { type: DataTypes.INTEGER, allowNull: false },
@@ -22,7 +22,7 @@ module.exports = function(sequelize, DataTypes) {
           }
         );
         Tweet.belongsTo(models.Player);
-        Tweet.belongsTo(models.Club);
+        Tweet.belongsTo(models.Club, { foreignKey: "transferClubId" });
       }
     }
   });

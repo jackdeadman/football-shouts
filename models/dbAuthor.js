@@ -2,16 +2,19 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Author = sequelize.define('Author', {
-    authorHandle: { 
+    twitterHandle: { 
       type: DataTypes.STRING(15), 
       allowNull: false, 
       unique: true 
     },
-    authorName: { 
+    name: { 
       type: DataTypes.STRING(20), 
       allowNull: false 
-    } 
+    },
     // https://support.twitter.com/articles/14609
+    profileImageUrl: {
+      type: DataTypes.STRING
+    }
   }, {
     charset: 'utf8mb4'
   });

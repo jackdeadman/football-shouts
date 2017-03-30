@@ -26,8 +26,9 @@ function makeTweetObject(tweet){
     hasMedia: !!tweet.entities.media,
     retweetCount: tweet.retweet_count,
     favouriteCount: tweet.favorite_count,
-    authorHandle: tweet.user.screen_name,
-    authorName: tweet.user.name
+    twitterHandle: tweet.user.screen_name,
+    name: tweet.user.name,
+    profileImageUrl: tweet.user.profile_image_url
   };
 
   return tweetObject;
@@ -41,17 +42,19 @@ function makeTweetObjectFromDb(databaseTweet){
     hasMedia: databaseTweet.hasMedia,
     retweetCount: databaseTweet.retweetCount,
     favouriteCount: databaseTweet.favouriteCount,
-    authorName: databaseTweet.Author.authorName,
-    authorHandle: databaseTweet.Author.authorHandle,
-    updatedAt: databaseTweet.updatedAt
+    updatedAt: databaseTweet.updatedAt,
+    name: databaseTweet.Author.name,
+    twitterHandle: databaseTweet.Author.twitterHandle,
+    profileImageUrl: databaseTweet.Author.profileImageUrl
   };
   return tweetObject;
 }
 
 function makeAuthorObject(tweetObject){
   var authorObject = {
-    authorHandle: tweetObject.authorHandle,
-    authorName: tweetObject.authorName
+    twitterHandle: tweetObject.twitterHandle,
+    name: tweetObject.name,
+    profileImageUrl: tweetObject.profileImageUrl
   };
   return authorObject;
 }
@@ -98,8 +101,9 @@ function saveTweet(tweet, player, club, author, hashtags){
 
   var saveAuthor = dbAuthor.findOrCreate({
     where: {
-      authorHandle: author.authorHandle,
-      authorName: author.authorName
+      twitterHandle: author.twitterHandle,
+      name: author.name,
+      profileImageUrl: author.profileImageUrl
     }
   });
 
@@ -273,13 +277,19 @@ function makePlayerOrClubQuery(query){
   return queryObj;
 }
 
-function findTweets(player, club){
+function findTweets(player, club, since, until){
 
   var playerQuery = makePlayerOrClubQuery(player);
   var clubQuery = makePlayerOrClubQuery(club);
 
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
+      where: {
+        createdAt: {
+          $gte: since,
+          $lte: until
+        }
+      },
       include: [
         {
           model: dbHashtag,
@@ -297,6 +307,12 @@ function findTweets(player, club){
     });
   } else if(isHashtag(player)){
     return dbTweet.findAll({
+      where: {
+        createdAt: {
+          $gte: since,
+          $lte: until
+        }
+      },
       include: [
         {
           model: dbClub,
@@ -317,6 +333,12 @@ function findTweets(player, club){
     });
   } else if(isHashtag(club)) {
     return dbTweet.findAll({
+      where: {
+        createdAt: {
+          $gte: since,
+          $lte: until
+        }
+      },
       include: [
         {
           model: dbPlayer,
@@ -338,6 +360,12 @@ function findTweets(player, club){
   console.log("no hashtags");
 
   return dbTweet.findAll({
+    where: {
+      createdAt: {
+        $gte: since,
+        $lte: until
+      }
+    },
     include: [
       {
         model: dbPlayer,
@@ -360,10 +388,10 @@ module.exports.getFromDatabase = function(query, callback){
 
   var player = query.player;
   var club = query.club;
-  // var since = query.since;
-  // var until = query.until;
+  var since = query.since;
+  var until = query.until;
 
-  findTweets(player, club)
+  findTweets(player, club, since, until)
   .then(tweets => {
 
     tweets = tweets.map(makeTweetObjectFromDb);
@@ -376,8 +404,8 @@ module.exports.getFromDatabase = function(query, callback){
       //   hasMedia: false,
       //   retweetCount: 3,
       //   favouriteCount: 0,
-      //   authorHandle: "@test",
-      //   authorName: "T User"
+      //   handle: "@test",
+      //   name: "T User"
       // }]);
     console.log("tweets from db length: ", tweets.length);
     callback(null, tweets);

@@ -8,8 +8,12 @@ html
     link(rel='stylesheet', href='/stylesheets/style.css')
     link(rel='stylesheet', href='/stylesheets/tweet.css')
   body
-    div.container
-      block input
+    #search-container.parallax-container
+      div.container
+        block input
+      div.parallax
+        img(src = "/images/background.jpg")
+    div.container#app-container
       block overlay
       block tweets
 
