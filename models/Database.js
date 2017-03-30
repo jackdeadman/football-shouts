@@ -14,7 +14,7 @@ var dbOptions = {
   logging: false,
 
   pool: {
-    max: 5,
+    max: 30,
     min: 0,
     idle: 10000
   }
