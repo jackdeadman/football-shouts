@@ -29,7 +29,7 @@ function createTweetNode(tweet) {
                 .prepend('<div class = "tweetDate">' + moment(tweet.datePublished).format('LLL') + '</div>')
                 .prepend('<span class = "black-text">' + tweetText + '</span>')
                 .prepend('<div class="tweetTop"><div class="tweetName">' +
-                         '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +
+                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +
                          '</div><div class="tweetHandle"> ' +
                          '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + '</a></div></div>');
 
