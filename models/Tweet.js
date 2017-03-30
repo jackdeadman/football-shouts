@@ -40,7 +40,9 @@ function makeTweetObjectFromDb(databaseTweet){
     createdAt: databaseTweet.createdAt,
     hasMedia: databaseTweet.hasMedia,
     retweetCount: databaseTweet.retweetCount,
-    favouriteCount: databaseTweet.favouriteCount
+    favouriteCount: databaseTweet.favouriteCount,
+    authorName: databaseTweet.authorName,
+    authorHandle: databaseTweet.authorHandle
   };
   return tweetObject;
 }
@@ -292,6 +294,9 @@ function findTweets(player, club){
               $in: [stripHashtag(player), stripHashtag(club)]
             }
           }
+        }, 
+        {
+          model: dbAuthor
         }
       ]
     });
@@ -309,6 +314,9 @@ function findTweets(player, club){
           where: {
             hashtag: stripHashtag(player)
           }
+        }, 
+        {
+          model: dbAuthor
         }
       ]
     });
@@ -325,6 +333,9 @@ function findTweets(player, club){
           where: {
             hashtag: stripHashtag(club)
           }
+        }, 
+        {
+          model: dbAuthor
         }
       ]
     });
@@ -341,6 +352,9 @@ function findTweets(player, club){
         model: dbClub,
         where: clubQuery,
         foreignKey: 'transferClubId'
+      },
+      {
+        model: dbAuthor
       }
     ]
   });
