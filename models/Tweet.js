@@ -40,7 +40,9 @@ function makeTweetObjectFromDb(databaseTweet){
     createdAt: databaseTweet.createdAt,
     hasMedia: databaseTweet.hasMedia,
     retweetCount: databaseTweet.retweetCount,
-    favouriteCount: databaseTweet.favouriteCount
+    favouriteCount: databaseTweet.favouriteCount,
+    authorName: databaseTweet.authorName,
+    authorHandle: databaseTweet.authorHandle
   };
   return tweetObject;
 }
@@ -171,10 +173,9 @@ function saveTweet(tweet, player, club, author, hashtags){
 
     return allRelationsDone;
   })
-  .catch(() => {
-    // console.error(
-    //   "problem saving the tweet, club, player, or author to db", err
-    // );
+  .catch(err => {
+    return Promise.reject(
+      'problem saving the tweet, club, player, or author to db', err);
   });
 }
 
@@ -214,14 +215,8 @@ module.exports.getFromTwitter = function(query, callback){
       console.time('saving tweet');
       console.log('saving from twitter');
       saveTweet(tweet, query.player, query.club, author, hashtags)
-      .then(function(err){
+      .then( () => {
         console.log('saved from twitter');
-        console.log(err);
-        if(err){
-          console.error("error saving to db");
-          // may be able to recover from some errors
-          return;
-        }
       });
     });
   });
@@ -293,6 +288,9 @@ function findTweets(player, club){
               $in: [stripHashtag(player), stripHashtag(club)]
             }
           }
+        }, 
+        {
+          model: dbAuthor
         }
       ]
     });
@@ -310,6 +308,9 @@ function findTweets(player, club){
           where: {
             hashtag: stripHashtag(player)
           }
+        }, 
+        {
+          model: dbAuthor
         }
       ]
     });
@@ -326,6 +327,9 @@ function findTweets(player, club){
           where: {
             hashtag: stripHashtag(club)
           }
+        }, 
+        {
+          model: dbAuthor
         }
       ]
     });
@@ -342,6 +346,9 @@ function findTweets(player, club){
         model: dbClub,
         where: clubQuery,
         foreignKey: 'transferClubId'
+      },
+      {
+        model: dbAuthor
       }
     ]
   });

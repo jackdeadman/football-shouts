@@ -11,10 +11,10 @@ var dbOptions = {
   dialectOptions: {
     charset: 'utf8mb4'
   },
-  logging: false,
+  logging: console.log,
 
   pool: {
-    max: 5,
+    max: 30,
     min: 0,
     idle: 10000
   }
