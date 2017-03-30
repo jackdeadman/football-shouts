@@ -22,7 +22,7 @@ module.exports = function(sequelize, DataTypes) {
           }
         );
         Tweet.belongsTo(models.Player);
-        Tweet.belongsTo(models.Club);
+        Tweet.belongsTo(models.Club, { foreignKey: "transferClubId" });
       }
     }
   });
