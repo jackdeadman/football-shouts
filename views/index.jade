@@ -8,27 +8,25 @@ extends layout
 //Form for search inputs
 block input
   form(id="search", method="", action="")
-    div.row.disable-select.default-cursor
-      div.col.s12
-        div.row
-          div.input-field.col.s12
-            input(name="players", id="players", type="text", data-role="materialtags")
-            label(for = "players", id="players_label") What's the player's name?
-        div.row
-          div.input-field.col.s12
-            input(name="clubs", id="clubs", type="text", data-role="materialtags")
-            label(for = "clubs", id="clubs_label") What club are they rumoured with?
-        div.row.center-align
-          div.input-field.col.s12
-            select(name="options", id="options", multiple="multiple")
-              option(value="", disabled="disabled") Please select at least one option...
-              option(value="database", id="option1", selected="selected") Database
-              option(value="twitter", id="option2", selected="selected") Twitter
-            label(for="options", id="options_label") Where should we search?
-        div.row.center-align
-          div.input-field.col.s12
-            button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
-
+    div.disable-select.default-cursor
+      div.row
+        div.input-field.col.s12
+          input(name="players", id="players", type="text", data-role="materialtags")
+          label.white-text(for = "players", id="players_label") What's the player's name?
+      div.row
+        div.input-field.col.s12
+          input(name="clubs", id="clubs", type="text", data-role="materialtags")
+          label.white-text(for = "clubs", id="clubs_label") What club are they rumoured with?
+      div.row.center-align
+        div.input-field.col.s12
+          select(name="options", id="options", multiple="multiple")
+            option(value="", disabled="disabled") Please select at least one option...
+            option(value="database", id="option1", selected="selected") Database
+            option(value="twitter", id="option2", selected="selected") Twitter
+          label.white-text(for="options", id="options_label") Where should we search?
+      div.center-align
+        div.input-field.col.s12
+          button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
 //The floating return to top button
 block overlay
   a.btn-floating.btn-large.btn-light.waves-effect.waves-light.z-depth-5#back-to-top

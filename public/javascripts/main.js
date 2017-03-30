@@ -40,7 +40,7 @@ function displaySearchResults(node, results) {
                   .prepend('<span class = "black-text">' + tweetText + '</span>')
                   .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
                            '</div><div class="tweetHandle"> ' +
-                           '<a href = "https://twitter.com/' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + ' +' + tweet.source + '</a></div></div>');
+                           '<a href = "https://twitter.com/' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + '</a></div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
@@ -118,6 +118,7 @@ function loadGraph(canvas, data, callback) {
   var $tweetStats = $('#js-tweet-stats');
   $('#tweetData').hide();
   $tweetStats.hide();
+  $('#app-container').hide();
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
@@ -125,9 +126,6 @@ function loadGraph(canvas, data, callback) {
   //Upon pressing the search button, send the entered data
   $('#search').submit(function(e){
     e.preventDefault();
-
-    //Scroll down the page
-    scrollTo($("#js-tweet-start").offset().top, 1000);
 
     //Setting up elements
     $('#app').empty();
@@ -148,9 +146,13 @@ function loadGraph(canvas, data, callback) {
     $canvas.hide();
     $tweetStats.hide();
 	$('#tweetData').hide();
-
+	
+	$('#app-container').show();
     $chartHolder.show();
     $chartLoader.show();
+	
+	//Scroll down the page
+    scrollTo($("#app-container").offset().top, 1000);
   });
 
   search.on('chart', function(data) {

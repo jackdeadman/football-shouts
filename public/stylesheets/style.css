@@ -2,9 +2,6 @@
 body {
 	background-color: #f5f8fa; /*#f9fbff*/
 }
-form#search {
-  margin-top: 100px;
-}
 a {
 	color: #ab47bc;
 }
@@ -17,6 +14,58 @@ table.striped > tbody > tr:nth-child(odd) {
 
 a.btn-light {
 	background-color: white;
+}
+
+span.chip {
+  background-color: #faf3fb;
+  transition: .3s background-color;
+}
+
+/*.active ~ label {
+  color: #6a1b9a !important;
+}*/
+
+.active .chip {
+  background-color: #6a1b9a;
+  color: #fff;
+}
+
+div#app-container {
+  padding-top: 15px;
+}
+
+/*hero stuff*/
+div#search-container {
+  position: relative;
+  padding-top: 100px;
+  padding-bottom: 100px;
+}
+
+div#search-container > .container {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.parallax-container {
+	height: 100vh;
+}
+
+.parallax-container > .container {
+	max-width: 700px;
+}
+
+.parallax {
+	height: 100%;
+}
+
+.parallax > img {
+	bottom: 0px;
+	min-width: 100%;
+	min-height: calc(100% + 300px);
+	width: auto;
+	height: 100%;
 }
 
 /*Back to top button*/
@@ -104,11 +153,14 @@ td.info-name {
 }
 .input-field input[type=text]:focus {
   border-bottom: 1px solid #6a1b9a;
-  box-shadow: 0 1px 0 0 #6a1b9a;
+  box-shadow: inset 0px -1px 0 0 #6a1b9a;
+}
+.materialize-tags {
+	border-bottom-color: #fff;
 }
 .materialize-tags.active {
   border-bottom-color: #6a1b9a;
-  box-shadow: 0 1px 0 0 #6a1b9a;
+  box-shadow: inset 0px -1px 0 0 #6a1b9a;
 }
 
 /*Dropdown field*/
@@ -125,6 +177,13 @@ label#options_label {
 .input-field > .select-wrapper > ul.dropdown-content > li:not(.disabled) > span > label::before {
   border-right-color: #5a5a5a;
   border-bottom-color: #5a5a5a;
+}
+.input-field > .select-wrapper > input.select-dropdown {
+  color: #faf3fb;
+  border-bottom-color: #fff;
+}
+.input-field > .select-wrapper > span.caret {
+  color: #fff;
 }
 
 /*data guff*/

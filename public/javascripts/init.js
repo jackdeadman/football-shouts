@@ -107,7 +107,9 @@ $(document).ready(function() {
     // });
   });
   
-
+  //Initialising the parallax background
+  $('.parallax').parallax();
+  
   //Initialising the drop down menu component
   $('select').material_select();
   //Checking whether at least one option is selected...
