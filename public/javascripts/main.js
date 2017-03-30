@@ -38,9 +38,10 @@ function displaySearchResults(node, results) {
     var content = $('<div>', {'class': 'col s10'})
                   .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
                   .prepend('<span class = "black-text">' + tweetText + '</span>')
-                  .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.name +
+                  .prepend('<div class="tweetTop"><div class="tweetName">' +
+                           '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +
                            '</div><div class="tweetHandle"> ' +
-                           '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank">@' + tweet.handle + ' +' + tweet.source + '</a></div></div>');
+                           '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank">@' + tweet.handle + '</a></div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
@@ -146,11 +147,11 @@ function loadGraph(canvas, data, callback) {
     $canvas.hide();
     $tweetStats.hide();
 	$('#tweetData').hide();
-	
+
 	$('#app-container').show();
     $chartHolder.show();
     $chartLoader.show();
-	
+
 	//Scroll down the page
     scrollTo($("#app-container").offset().top, 1000);
   });
