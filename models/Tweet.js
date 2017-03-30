@@ -183,7 +183,11 @@ function saveTweet(tweet, player, club, author, hashtags){
   })
   .catch(err => {
     return Promise.reject(
-      'problem saving the tweet, club, player, or author to db', err);
+      { 
+        message: 'problem saving the tweet, club, player, or author to db', 
+        err 
+      }
+    );
   });
 }
 
