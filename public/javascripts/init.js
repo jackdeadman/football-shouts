@@ -48,6 +48,14 @@ function applySuggestions(input, suggestions) {
   console.log('Bloodhound initialised and applied!');
 }
 
+function checkEmpty(e, obj) {
+  var input = obj.parent().find('.materialize-tags input');
+  if (input.val() !== '') {
+    e.cancel = true;
+    input.empty();
+  }
+}
+
 $(document).ready(function() {
   //Initialising the inputs with some tags
   addDefaultTags();
@@ -60,30 +68,26 @@ $(document).ready(function() {
   $('#clubs_label').click(function(){
     $('.n-tag:eq(1)').focus();
   })
-  
+
   var $inputs = $('#players, #clubs');
-  
+
   $inputs.on('itemRemoved', function() {
-	console.log(this);
-	$(this).parent().find('.materialize-tags input').focus();
-  });
-  
-  $inputs.on('beforeItemRemove', function(e) {
-	  console.log(this);
-	  console.log(this.value);
-	  var input = $(this).parent().find('.materialize-tags input');
-	  if (input.val() !== '') {
-		  e.cancel = true;
-		  input.empty();
-	  }
-	  console.log(e);
+	  $(this).parent().find('.materialize-tags input').focus();
   });
 
-  
+  $inputs.on('beforeItemRemove', function(e) {
+    checkEmpty(e, $(this));
+  });
+
+  $inputs.on('beforeItemAdd', function(e) {
+    checkEmpty(e, $(this));
+  });
+
+
   $('.n-tag').each(function(){
 	console.log(this)
-  
-  
+
+
     //If defocused, empty the text
     $(this).focusout(function(){
       $(this).val("");
@@ -106,10 +110,10 @@ $(document).ready(function() {
     //   }
     // });
   });
-  
+
   //Initialising the parallax background
   $('.parallax').parallax();
-  
+
   //Initialising the drop down menu component
   $('select').material_select();
   //Checking whether at least one option is selected...
@@ -123,7 +127,7 @@ $(document).ready(function() {
 
   //Back to top button stuff...
   var hiding = false;
-  	
+
   var top = $('#back-to-top');
 
   $(window).scroll(function(){

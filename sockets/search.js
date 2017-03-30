@@ -27,9 +27,7 @@ function findTransfers(player, club, sources,callback) {
   if (useDatabase) {
     Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
       databaseTweets = databaseTweets.sort(function(t1, t2) {
-        var datePublished1 = new Date(t1.datePublished);
-        var datePublished2 = new Date(t2.datePublished);
-        return datePublished1 >= datePublished2 ? -1 : 1;
+        return new Date(t1.updatedAt) >= new Date(t2.updatedAt) ? -1 : 1;
       });
 
       databaseTweets = databaseTweets.map(function(tweet) {
@@ -40,7 +38,7 @@ function findTransfers(player, club, sources,callback) {
       var latest = databaseTweets[0];
       // Update if no tweets found or too old
       //
-      if (!latest || ((today - new Date(latest.datePublished)) > threshold)) {
+      if (!latest || ((today - new Date(latest.updatedAt)) > threshold)) {
         if (latest) {
           query.since = latest.datePublished;
         }
