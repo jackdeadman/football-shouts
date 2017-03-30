@@ -40,7 +40,7 @@ function displaySearchResults(node, results) {
                   .prepend('<span class = "black-text">' + tweetText + '</span>')
                   .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.authorName +
                            '</div><div class="tweetHandle"> ' +
-                           '<a href = "' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + '</a></div></div>');
+                           '<a href = "https://twitter.com/' + tweet.authorHandle + '" target = "_blank">@' + tweet.authorHandle + ' +' + tweet.source + '</a></div></div>');
 
     var inner = innerdiv.append(image).append(content);
     var combined = div.append(inner);
