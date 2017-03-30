@@ -273,13 +273,19 @@ function makePlayerOrClubQuery(query){
   return queryObj;
 }
 
-function findTweets(player, club){
+function findTweets(player, club, since, until){
 
   var playerQuery = makePlayerOrClubQuery(player);
   var clubQuery = makePlayerOrClubQuery(club);
 
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
+      where: {
+        createdAt: {
+          $gte: since,
+          $lte: until
+        }
+      },
       include: [
         {
           model: dbHashtag,
@@ -297,6 +303,12 @@ function findTweets(player, club){
     });
   } else if(isHashtag(player)){
     return dbTweet.findAll({
+      where: {
+        createdAt: {
+          $gte: since,
+          $lte: until
+        }
+      },
       include: [
         {
           model: dbClub,
@@ -317,6 +329,12 @@ function findTweets(player, club){
     });
   } else if(isHashtag(club)) {
     return dbTweet.findAll({
+      where: {
+        createdAt: {
+          $gte: since,
+          $lte: until
+        }
+      },
       include: [
         {
           model: dbPlayer,
@@ -338,6 +356,12 @@ function findTweets(player, club){
   console.log("no hashtags");
 
   return dbTweet.findAll({
+    where: {
+      createdAt: {
+        $gte: since,
+        $lte: until
+      }
+    },
     include: [
       {
         model: dbPlayer,
@@ -360,10 +384,10 @@ module.exports.getFromDatabase = function(query, callback){
 
   var player = query.player;
   var club = query.club;
-  // var since = query.since;
-  // var until = query.until;
+  var since = query.since;
+  var until = query.until;
 
-  findTweets(player, club)
+  findTweets(player, club, since, until)
   .then(tweets => {
 
     tweets = tweets.map(makeTweetObjectFromDb);
