@@ -114,6 +114,8 @@ function loadGraph(canvas, data, callback) {
   var $chartHolder = $('#js-tweet-chart-container');
   var $canvas = $chartHolder.find('canvas');
   var $chartLoader = $chartHolder.find('#loader')
+  var $loadMoreTweets = $('#loadMoreTweets');
+  $loadMoreTweets.hide();
   $chartHolder.hide();
 
   var $tweetStats = $('#js-tweet-stats');
@@ -147,6 +149,7 @@ function loadGraph(canvas, data, callback) {
     $canvas.hide();
     $tweetStats.hide();
 	$('#tweetData').hide();
+  $loadMoreTweets.hide();
 
 	$('#app-container').show();
     $chartHolder.show();
@@ -176,15 +179,27 @@ function loadGraph(canvas, data, callback) {
   // });
 
   liveTweets.emit('subscribe', {
-    player: 'trump',
-    club: 'usa'
+    player: 'hazard',
+    club: 'real madrid'
   });
 
+  var hiddenTweets = [];
+  var title = document.title;
+
   liveTweets.on('tweet', function(tweet) {
-    console.log(tweet);
     var node = createTweetNode(tweet);
-    app.prepend(createTweetNode(tweet));
-    console.log(node);
+    hiddenTweets.push(tweet);
+    document.title = '(' + hiddenTweets.length + ') ' + title;
+    $loadMoreTweets.show();
+    $loadMoreTweets.find('.count').html(hiddenTweets.length);
+  });
+
+  $loadMoreTweets.on('click', function() {
+    while (hiddenTweets.length !== 0) {
+      app.prepend(createTweetNode(hiddenTweets.pop()));
+    }
+    document.title = title;
+    $(this).hide();
   });
 
 

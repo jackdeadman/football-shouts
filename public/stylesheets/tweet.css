@@ -34,3 +34,11 @@ div.tweetDate {
   font-size: 12px;
   color: #8a9ba7;
 }
+
+.loadMore {
+  background: #faf3fb;
+  color: #ab47bc;
+  padding: 15px 24px;
+  text-align: center;
+  cursor: pointer;
+}
