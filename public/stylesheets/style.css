@@ -176,6 +176,10 @@ a.btn-light {
   box-shadow: inset 0px -1px 0 0 #6a1b9a;
 }
 
+.materialize-tags input {
+  color: #6a1b9a;
+}
+
 /*Dropdown field*/
 label#options_label {
 	top: -18px;
