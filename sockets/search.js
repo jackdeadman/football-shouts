@@ -20,20 +20,27 @@ function findTransfers(player, club, sources,callback) {
     query: player + ' ' + club, // temp
     since: lastWeek, until: today
   };
-  console.log(sources);
+
   var useDatabase = sources.indexOf('database') > -1;
   var useTwitter = sources.indexOf('twitter') > -1;
+
   if (useDatabase) {
     Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
+      databaseTweets = databaseTweets.sort(function(t1, t2) {
+        return new Date(t1.createdAt) >= new Date(t2.createdAt) ? -1 : 1;
+      });
+
       databaseTweets = databaseTweets.map(function(tweet) {
         tweet.source = 'database';
         return tweet;
       });
 
-      var latest = databaseTweets[0];
+      console.log(databaseTweets)
 
+      var latest = databaseTweets[0];
       // Update if no tweets found or too old
-      if (!latest || (Date.now() - latest.createdAt) > threshold) {
+      //
+      if (!latest || ((today - new Date(latest.createdAt)) > threshold)) {
         if (latest) {
           query.since = latest.createdAt;
         }
@@ -49,6 +56,8 @@ function findTransfers(player, club, sources,callback) {
         } else {
           callback(null, databaseTweets);
         }
+      } else {
+        callback(null, databaseTweets);
       }
     });
     // Just using twitter
@@ -166,7 +175,7 @@ var handlers = {
             tweets.forEach(tweet => {
               var date = new Date(tweet.createdAt);
               var newDate = new Date(date.getFullYear(),
-                                      date.getMonth() + 1,
+                                      date.getMonth(),
                                       date.getDate());
               if (chartData[newDate.toString()]) {
                 chartData[newDate.toString()]++;
