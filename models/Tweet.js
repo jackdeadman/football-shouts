@@ -215,14 +215,8 @@ module.exports.getFromTwitter = function(query, callback){
       console.time('saving tweet');
       console.log('saving from twitter');
       saveTweet(tweet, query.player, query.club, author, hashtags)
-      .then(function(err){
+      .then( () => {
         console.log('saved from twitter');
-        console.log(err);
-        if(err){
-          console.error("error saving to db");
-          // may be able to recover from some errors
-          return;
-        }
       });
     });
   });
