@@ -64,7 +64,7 @@ div#search-container > .container {
 
 .parallax > img {
 	bottom: 0px;
-	min-width: 100%;
+	min-width: calc(100% + 1px);
 	min-height: calc(100% + 250px);
 	width: auto;
 	height: 100%;
