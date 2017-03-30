@@ -2,7 +2,7 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Author = sequelize.define('Author', {
-    handle: { 
+    twitterHandle: { 
       type: DataTypes.STRING(15), 
       allowNull: false, 
       unique: true 

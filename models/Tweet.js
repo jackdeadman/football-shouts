@@ -26,7 +26,7 @@ function makeTweetObject(tweet){
     hasMedia: !!tweet.entities.media,
     retweetCount: tweet.retweet_count,
     favouriteCount: tweet.favorite_count,
-    handle: tweet.user.screen_name,
+    twitterHandle: tweet.user.screen_name,
     name: tweet.user.name,
     profileImageUrl: tweet.user.profile_image_url
   };
@@ -44,7 +44,7 @@ function makeTweetObjectFromDb(databaseTweet){
     favouriteCount: databaseTweet.favouriteCount,
     updatedAt: databaseTweet.updatedAt,
     name: databaseTweet.Author.name,
-    handle: databaseTweet.Author.handle,
+    twitterHandle: databaseTweet.Author.twitterHandle,
     profileImageUrl: databaseTweet.Author.profileImageUrl
   };
   return tweetObject;
@@ -52,7 +52,7 @@ function makeTweetObjectFromDb(databaseTweet){
 
 function makeAuthorObject(tweetObject){
   var authorObject = {
-    handle: tweetObject.handle,
+    twitterHandle: tweetObject.twitterHandle,
     name: tweetObject.name,
     profileImageUrl: tweetObject.profileImageUrl
   };
@@ -101,7 +101,7 @@ function saveTweet(tweet, player, club, author, hashtags){
 
   var saveAuthor = dbAuthor.findOrCreate({
     where: {
-      handle: author.handle,
+      twitterHandle: author.twitterHandle,
       name: author.name,
       profileImageUrl: author.profileImageUrl
     }

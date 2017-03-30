@@ -30,7 +30,7 @@ function createTweetNode(tweet) {
                 .prepend('<span class = "black-text">' + tweetText + '</span>')
                 .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.name +
                          '</div><div class="tweetHandle"> ' +
-                         '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank">@' + tweet.handle + ' +' + tweet.source + '</a></div></div>');
+                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + ' +' + tweet.source + '</a></div></div>');
 
   var inner = innerdiv.append(image).append(content);
   var combined = div.append(inner);
