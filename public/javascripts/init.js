@@ -56,6 +56,16 @@ function checkEmpty(e, obj) {
   }
 }
 
+function validate() {
+  var tags1 = $('#players').materialtags('items').length > 0;
+  var tags2 = $('#clubs').materialtags('items').length > 0;
+  var checked = $('#options').val().length > 0;
+  if (tags1 && tags2 && checked)
+    $('#submit-button').prop('disabled', false);
+  else
+    $('#submit-button').prop('disabled', true);
+}
+
 $(document).ready(function() {
   //lol
   var delIsDown = false;
@@ -76,6 +86,11 @@ $(document).ready(function() {
 
   $inputs.on('itemRemoved', function() {
 	  $(this).parent().find('.materialize-tags input').focus();
+    validate();
+  });
+
+  $inputs.on('itemAdded', function() {
+    validate();
   });
 
   $inputs.on('beforeItemRemove', function(e) {
@@ -121,6 +136,11 @@ $(document).ready(function() {
 
   //Initialising the drop down menu component
   $('select').material_select();
+
+  $('#options').on('change', function(e) {
+    validate();
+  });
+
   //Checking whether at least one option is selected...
   $('#options').on('change', function(){
     console.log($('#options').val());

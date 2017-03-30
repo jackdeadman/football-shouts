@@ -149,10 +149,10 @@ function loadGraph(canvas, data, callback) {
 
     $canvas.hide();
     $tweetStats.hide();
-	$('#tweetData').hide();
-  $loadMoreTweets.hide();
+	  $('#tweetData').hide();
+    $loadMoreTweets.hide();
 
-	$('#app-container').show();
+	  $('#app-container').show();
     $chartHolder.show();
     $chartLoader.show();
 
