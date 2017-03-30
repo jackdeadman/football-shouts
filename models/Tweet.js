@@ -10,6 +10,7 @@ var dbPlayer = database.Player;
 var dbClub = database.Club;
 var dbHashtag = database.Hashtag;
 var utils = require('./_utils');
+var moment = require('moment');
 
 var client = new T({
   consumer_key: config.consumerKey,
@@ -22,7 +23,9 @@ function makeTweetObject(tweet){
   var tweetObject = {
     text: tweet.text,
     twitterId: tweet.id_str,
-    createdAt: tweet.created_at,
+    datePublished: moment(tweet.created_at, 
+                            "ddd MMM DD HH:mm:ss ZZ YYYY")
+                            .format().toString(),
     hasMedia: !!tweet.entities.media,
     retweetCount: tweet.retweet_count,
     favouriteCount: tweet.favorite_count,
@@ -38,7 +41,7 @@ function makeTweetObjectFromDb(databaseTweet){
   var tweetObject = {
     text: databaseTweet.text,
     twitterId: databaseTweet.twitterId,
-    createdAt: databaseTweet.createdAt,
+    datePublished: databaseTweet.datePublished,
     hasMedia: databaseTweet.hasMedia,
     retweetCount: databaseTweet.retweetCount,
     favouriteCount: databaseTweet.favouriteCount,
@@ -63,7 +66,7 @@ function makeTweetDbObject(tweetObject){
   var tweetDbObject = {
     text: tweetObject.text,
     twitterId: tweetObject.twitterId,
-    createdAt: tweetObject.createdAt,
+    datePublished: tweetObject.datePublished,
     hasMedia: tweetObject.hasMedia,
     retweetCount: tweetObject.retweetCount,
     favouriteCount: tweetObject.favouriteCount
@@ -92,7 +95,7 @@ function saveTweet(tweet, player, club, author, hashtags){
     where: {
       text: tweet.text,
       twitterId: tweet.twitterId,
-      createdAt: tweet.createdAt,
+      datePublished: tweet.datePublished,
       hasMedia: tweet.hasMedia,
       retweetCount: tweet.retweetCount,
       favouriteCount: tweet.favouriteCount
@@ -278,14 +281,15 @@ function makePlayerOrClubQuery(query){
 }
 
 function findTweets(player, club, since, until){
-
+  since = moment(since).format().toString();
+  until = moment(until).format().toString();
   var playerQuery = makePlayerOrClubQuery(player);
   var clubQuery = makePlayerOrClubQuery(club);
 
   if(isHashtag(player) && isHashtag(club)){
     return dbTweet.findAll({
       where: {
-        createdAt: {
+        datePublished: {
           $gte: since,
           $lte: until
         }
@@ -308,7 +312,7 @@ function findTweets(player, club, since, until){
   } else if(isHashtag(player)){
     return dbTweet.findAll({
       where: {
-        createdAt: {
+        datePublished: {
           $gte: since,
           $lte: until
         }
@@ -334,7 +338,7 @@ function findTweets(player, club, since, until){
   } else if(isHashtag(club)) {
     return dbTweet.findAll({
       where: {
-        createdAt: {
+        datePublished: {
           $gte: since,
           $lte: until
         }
@@ -361,7 +365,7 @@ function findTweets(player, club, since, until){
 
   return dbTweet.findAll({
     where: {
-      createdAt: {
+      datePublished: {
         $gte: since,
         $lte: until
       }
@@ -400,11 +404,11 @@ module.exports.getFromDatabase = function(query, callback){
       // formattedTweets = formattedTweets.concat([{
       //   text: "@waynerooney in rumoured transfer talks with #TruroFC",
       //   twitterId: 840208454560174080,
-      //   createdAt: new Date(2016, 1, 17, 14, 31, 20),
+      //   datePublished: new Date(2016, 1, 17, 14, 31, 20),
       //   hasMedia: false,
       //   retweetCount: 3,
       //   favouriteCount: 0,
-      //   handle: "@test",
+      //   twitterHandle: "@test",
       //   name: "T User"
       // }]);
     console.log("tweets from db length: ", tweets.length);
