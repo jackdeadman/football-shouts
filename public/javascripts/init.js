@@ -60,29 +60,53 @@ $(document).ready(function() {
   $('#clubs_label').click(function(){
     $('.n-tag:eq(1)').focus();
   })
+  
+  var $inputs = $('#players, #clubs');
+  
+  $inputs.on('itemRemoved', function() {
+	console.log(this);
+	$(this).parent().find('.materialize-tags input').focus();
+  });
+  
+  $inputs.on('beforeItemRemove', function(e) {
+	  console.log(this);
+	  console.log(this.value);
+	  var input = $(this).parent().find('.materialize-tags input');
+	  if (input.val() !== '') {
+		  e.cancel = true;
+		  input.empty();
+	  }
+	  console.log(e);
+  });
 
+  
   $('.n-tag').each(function(){
-
+	console.log(this)
+  
+  
     //If defocused, empty the text
     $(this).focusout(function(){
       $(this).val("");
     });
 
-    $(this).keyup(function(e){
-      if (e.which == 9) {
-        if ($('.n-tag:first').is(":focus"))
+    $(this).keydown(function(e){
+	  if (e.which === 9) {
+		if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
+		  $('.n-tag:first').focus();
+        else if ($('.n-tag:first').is(":focus"))
           $('.n-tag:eq(1)').focus();
       }
     });
 
     //If del is pressed, make sure box stays focused (not working? whyyyy)
-    // $(this).keyup(function(e){
-    //   if(e.keyCode == 8 || e.keyCode == 46) {
+    //$(this).keyup(function(e){
+      // if(e.keyCode == 8 || e.keyCode == 46) {
     //     console.log("Here");
     //     $(this).focus();
     //   }
     // });
   });
+  
 
   //Initialising the drop down menu component
   $('select').material_select();
@@ -97,10 +121,12 @@ $(document).ready(function() {
 
   //Back to top button stuff...
   var hiding = false;
+  	
+  var top = $('#back-to-top');
 
   $(window).scroll(function(){
     if ($(this).scrollTop() > 0) {
-      if (!hiding && $('#back-to-top').css('opacity') == 0)
+      if (!hiding && top.css('opacity') == 0)
         showButton();
     } else {
       hiding = false;

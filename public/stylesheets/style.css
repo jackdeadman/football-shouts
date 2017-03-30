@@ -94,7 +94,10 @@ td.info-name {
   box-shadow: 0 1px 0 0 #6a1b9a;
 }
 
-/*Dropdown field colours*/
+/*Dropdown field*/
+label#options_label {
+	top: -18px;
+}
 .input-field > .select-wrapper > ul.dropdown-content > li:not(.disabled) > span {
   color: #6a1b9a;
 }
