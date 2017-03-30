@@ -12,10 +12,6 @@ table.striped > tbody > tr:nth-child(odd) {
 	background-color: #fff;
 }
 
-a.btn-light {
-	background-color: white;
-}
-
 span.chip {
   background-color: #faf3fb;
   transition: .3s background-color;
@@ -43,7 +39,7 @@ div#search-container {
 div#search-container > .container {
 	width: 700px;
 	margin: 0px auto;
-	margin-top: 120px;
+	margin-top: 50px;
 }
 
 .parallax-container {
@@ -61,7 +57,7 @@ div#search-container > .container {
 .parallax > img {
 	bottom: 0px;
 	min-width: 100%;
-	min-height: calc(100% + 300px);
+	min-height: calc(100% + 250px);
 	width: auto;
 	height: 100%;
 }
@@ -124,11 +120,22 @@ td.info-name {
 }
 
 /*Modifications for button highlighting*/
+a.btn-light {
+	background-color: white;
+}
+.btn-light:hover {
+  opacity: 1;
+	background-color: #faf3fb;
+	/*I DON'T KNOW WHY I NEEDED TO RESTATE THIS*/
+	box-shadow: 0 16px 24px 2px rgba(0,0,0,0.14),
+	            0 6px 30px 5px rgba(0,0,0,0.12),
+							0 8px 10px -5px rgba(0,0,0,0.3);
+}
 .btn, .btn-large {
   overflow: hidden;
 }
 .btn:hover:before, .btn-large:hover:before {
-  opacity:1;
+  opacity: 1;
 }
 .btn:before, .btn-large:before {
   content: '';
@@ -182,6 +189,12 @@ label#options_label {
 }
 .input-field > .select-wrapper > span.caret {
   color: #fff;
+}
+.dropdown-content > li.active.selected {
+	background-color: #faf3fb;
+}
+.dropdown-content li:hover, .dropdown-content li.active, .dropdown-content li.selected {
+	background-color: #fff;
 }
 
 /*data guff*/

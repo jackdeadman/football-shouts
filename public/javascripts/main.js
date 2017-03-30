@@ -47,9 +47,7 @@ function displaySearchResults(node, results) {
 
   console.log(results);
   results.forEach(function(tweet) {
-
     var tweetNode = createTweetNode(tweet)
-
     node.append(tweetNode);
   });
 }
