@@ -35,8 +35,6 @@ function findTransfers(player, club, sources,callback) {
         return tweet;
       });
 
-      console.log(databaseTweets)
-
       var latest = databaseTweets[0];
       // Update if no tweets found or too old
       //
