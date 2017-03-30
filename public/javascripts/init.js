@@ -57,6 +57,9 @@ function checkEmpty(e, obj) {
 }
 
 $(document).ready(function() {
+  //lol
+  var delIsDown = false;
+
   //Initialising the inputs with some tags
   addDefaultTags();
 
@@ -80,12 +83,12 @@ $(document).ready(function() {
   });
 
   $inputs.on('beforeItemAdd', function(e) {
-    checkEmpty(e, $(this));
+    if (delIsDown)
+      checkEmpty(e, $(this));
   });
 
-
   $('.n-tag').each(function(){
-	console.log(this)
+	  console.log(this)
 
 
     //If defocused, empty the text
@@ -94,21 +97,23 @@ $(document).ready(function() {
     });
 
     $(this).keydown(function(e){
-	  if (e.which === 9) {
-		if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
-		  $('.n-tag:first').focus();
+      //I'M SORRY ABOUT THIS
+      if (e.which == 8 || e.which == 46)
+        delIsDown = true;
+
+	    if (e.which === 9) {
+		    if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
+		      $('.n-tag:first').focus();
         else if ($('.n-tag:first').is(":focus"))
           $('.n-tag:eq(1)').focus();
       }
     });
 
-    //If del is pressed, make sure box stays focused (not working? whyyyy)
-    //$(this).keyup(function(e){
-      // if(e.keyCode == 8 || e.keyCode == 46) {
-    //     console.log("Here");
-    //     $(this).focus();
-    //   }
-    // });
+    $(this).keyup(function(e){
+      if (e.which == 8 || e.which == 46)
+        delIsDown = false;
+    });
+
   });
 
   //Initialising the parallax background
