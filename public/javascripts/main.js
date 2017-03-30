@@ -6,8 +6,8 @@ function scrollTo(position, speed) {
 
 function parseTweet(text) {
   var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1" target = "_blank">$1</a>');
-  parsed = parsed.replace(/#(\S*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
-  parsed = parsed.replace(/@(\S*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
+  parsed = parsed.replace(/#([A-Za-z0-9]*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
+  parsed = parsed.replace(/@([A-Za-z0-9]*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
 
   return parsed;
 }
@@ -30,7 +30,7 @@ function createTweetNode(tweet) {
                 .prepend('<span class = "black-text">' + tweetText + '</span>')
                 .prepend('<div class="tweetTop"><div class="tweetName">' + tweet.name +
                          '</div><div class="tweetHandle"> ' +
-                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + ' +' + tweet.source + '</a></div></div>');
+                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + '</a></div></div>');
 
   var inner = innerdiv.append(image).append(content);
   var combined = div.append(inner);
