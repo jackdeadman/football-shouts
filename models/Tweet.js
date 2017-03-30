@@ -41,8 +41,9 @@ function makeTweetObjectFromDb(databaseTweet){
     hasMedia: databaseTweet.hasMedia,
     retweetCount: databaseTweet.retweetCount,
     favouriteCount: databaseTweet.favouriteCount,
-    authorName: databaseTweet.authorName,
-    authorHandle: databaseTweet.authorHandle
+    authorName: databaseTweet.Author.authorName,
+    authorHandle: databaseTweet.Author.authorHandle,
+    updatedAt: databaseTweet.updatedAt
   };
   return tweetObject;
 }
