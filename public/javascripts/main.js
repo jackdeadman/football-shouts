@@ -26,7 +26,7 @@ function createTweetNode(tweet) {
   var image =   $('<div>', {'class': 'col s2'})
                 .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
   var content = $('<div>', {'class': 'col s10'})
-                .prepend('<div class = "tweetDate">' + moment(tweet.createdAt).format('LLL') + '</div>')
+                .prepend('<div class = "tweetDate">' + moment(tweet.datePublished).format('LLL') + '</div>')
                 .prepend('<span class = "black-text">' + tweetText + '</span>')
                 .prepend('<div class="tweetTop"><div class="tweetName">' +
                          '<a href = "https://twitter.com/' + tweet.handle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +

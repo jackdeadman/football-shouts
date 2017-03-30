@@ -40,7 +40,7 @@ function findTransfers(player, club, sources,callback) {
       //
       if (!latest || ((today - new Date(latest.updatedAt)) > threshold)) {
         if (latest) {
-          query.since = latest.createdAt;
+          query.since = latest.datePublished;
         }
 
         if (useTwitter) {
@@ -143,9 +143,12 @@ var handlers = {
           }
           console.log(requests === responses);
           if (requests === responses) {
-            // Order by createdAt
+            // Order by datePublished
+
             allTweets = allTweets.sort(function(t1, t2) {
-              return new Date(t1.createdAt) >= new Date(t2.createdAt) ? -1 : 1;
+              var datePublished1 = new Date(t1.datePublished);
+              var datePublished2 = new Date(t2.datePublished);
+              return datePublished1 >= datePublished2 ? -1 : 1;
             });
 
             // Remove duplicate twitters
@@ -171,7 +174,7 @@ var handlers = {
 
             var chartData = {};
             tweets.forEach(tweet => {
-              var date = new Date(tweet.createdAt);
+              var date = new Date(tweet.datePublished);
               var newDate = new Date(date.getFullYear(),
                                       date.getMonth(),
                                       date.getDate());
@@ -190,7 +193,6 @@ var handlers = {
             array = array.sort((d1, d2) => {
               return new Date(d1.date) > new Date(d2.date) ? 1 : -1;
             });
-
 
             socket.emit('chart', array);
 
