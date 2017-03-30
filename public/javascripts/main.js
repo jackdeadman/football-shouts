@@ -116,9 +116,8 @@ function loadGraph(canvas, data, callback) {
   $chartHolder.hide();
 
   var $tweetStats = $('#js-tweet-stats');
+  $('#tweetData').hide();
   $tweetStats.hide();
-  var $tweetsFromTwitter = $($tweetStats).find('.js-twitter-stats')
-  var $tweetsFromDatabse = $($tweetStats).find('.js-database-stats')
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
@@ -148,6 +147,7 @@ function loadGraph(canvas, data, callback) {
 
     $canvas.hide();
     $tweetStats.hide();
+	$('#tweetData').hide();
 
     $chartHolder.show();
     $chartLoader.show();
@@ -183,6 +183,7 @@ function loadGraph(canvas, data, callback) {
     console.log(results);
     displaySearchResults(app, results.tweets);
     $tweetStats.show();
+	$('#tweetData').show();
     $('#tweetsFromTwitter').html(results.countFromTwitter);
     $('#tweetsFromDatabase').html(results.countFromDatabase);
   });

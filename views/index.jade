@@ -27,11 +27,11 @@ block input
             label(for="options", id="options_label") Where should we search?
         div.row.center-align
           div.input-field.col.s12
-            button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Submit
+            button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
 
 //The floating return to top button
 block overlay
-  a.btn-floating.btn-large.waves-effect.waves-light.purple.darken-3.z-depth-5#back-to-top
+  a.btn-floating.btn-large.btn-light.waves-effect.waves-light.z-depth-5#back-to-top
     i
       img(src="/images/top-arrow.svg")
 
@@ -40,13 +40,13 @@ block overlay
 block tweets
   div.row
     div.col.s5
-      div.card-panel.grey.lighten-5.z-depth-1.info#playerinfo
+      div.card-panel.z-depth-1.info#playerinfo
         div.info-top
           div.info-image#playerimage
             img.circle.responsive-img(src = "/images/manny.png")
           div.info-title#playername
             p Manny Calavera
-        table.striped
+        table.responsive-table.striped
           tbody
             tr
               td.info-name
@@ -110,7 +110,7 @@ block tweets
       div.row#js-tweet-chart-container
         div.col.s12
             div.card-panel
-              table#tweetData
+              table.responsive-table#tweetData
                 tbody
                   tr
                     td.info-name
