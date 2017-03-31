@@ -1,6 +1,8 @@
 # football-shouts
 ## Setting up the Project
 
+- Change directory into server ```cd server```
+
 - Install yarn ```$ npm install -g yarn```
 
 - Install the project dependencies ```$ yarn install ```
