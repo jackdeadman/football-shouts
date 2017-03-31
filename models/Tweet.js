@@ -105,6 +105,7 @@ function saveToDatabase(tweet, player, club, author, hashtags){
 function makeRelations(everythingSaved){
   return everythingSaved
   .then(results => {
+    console.log(results);
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
     var playerResult = results[2][0];
@@ -179,9 +180,9 @@ module.exports.getFromTwitter = function(query, callback){
 
     var tweetList = originalTweetList.map(utils.makeTweetObject);
     tweetList = tweetList.filter(utils.selectTransferTweet);
-    console.log("tweets from twitter: ", 
-                  tweetList.length, 
-                  " from this query: ", 
+    console.log("tweets from twitter: ",
+                  tweetList.length,
+                  " from this query: ",
                   twitterQuery);
     callback(null, tweetList);
 
@@ -190,10 +191,10 @@ module.exports.getFromTwitter = function(query, callback){
       hashtags = Hashtag.processHashtags(hashtags);
       var author = Author.makeAuthorObject(tweet);
       tweet = utils.makeTweetDbObject(tweet);
-      var everythingSaved = saveToDatabase(tweet, 
-                                            query.player, 
-                                            query.club, 
-                                            author, 
+      var everythingSaved = saveToDatabase(tweet,
+                                            query.player,
+                                            query.club,
+                                            author,
                                             hashtags);
       makeRelations(everythingSaved)
       .then(() => {
@@ -350,7 +351,7 @@ module.exports.getFromDatabase = function(query, callback){
   findTweets(player, club, since, until)
   .then(tweets => {
     tweets = tweets.map(utils.makeTweetObjectFromDb);
-   
+
     console.log("tweets from db length: ", tweets.length);
     callback(null, tweets);
   })

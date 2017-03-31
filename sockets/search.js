@@ -41,7 +41,7 @@ function findTransfers(player, club, sources,callback) {
       //
       if (!latest || ((today - new Date(latest.updatedAt)) > threshold)) {
         if (latest) {
-          query.since = latest.datePublished;
+          query.since = new Date(latest.datePublished);
         }
 
         if (useTwitter) {
@@ -159,10 +159,10 @@ var handlers = {
 
 
             var chartData = {};
-            tweets.forEach(tweet => {
+            allTweets.forEach(tweet => {
               var newDate = moment(tweet.datePublished).startOf('day').format();
+              console.log(newDate);
               if (chartData[newDate]) {
-
                 chartData[newDate]++;
               } else {
                 chartData[newDate] = 1;
@@ -170,6 +170,7 @@ var handlers = {
             });
 
             var array = [];
+
             for (var date in chartData) {
               array.push({ date: date, count: chartData[date] });
             }
@@ -178,7 +179,14 @@ var handlers = {
               return new Date(d1.date) > new Date(d2.date) ? 1 : -1;
             });
 
-            socket.emit('chart', array);
+            // array[0].diff(array[array.length - 1]);
+            // var newArray = [];
+            // for (var i=0; i<array.length; i++) {
+            //   newArray[i] =
+            // }
+
+
+            socket.emit('chart', allTweets);
 
             if (errors.length) {
               socket.emit(errorEvent, errors);

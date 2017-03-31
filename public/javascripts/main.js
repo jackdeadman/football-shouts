@@ -66,7 +66,8 @@ function loadGraph(canvas, data, callback) {
           borderColor:
               'rgba(153, 102, 255, 1)'
           ,
-          borderWidth: 1
+          borderWidth: 1,
+          fill: 'zero'
       }]
     },
     options: {
@@ -81,17 +82,6 @@ function loadGraph(canvas, data, callback) {
             xAxes: [{
             type: 'time',
             time: {
-              displayFormats: {
-                 'millisecond': 'MMM DD',
-                 'second': 'MMM DD',
-                 'minute': 'MMM DD',
-                 'hour': 'MMM DD',
-                 'day': 'MMM DD',
-                 'week': 'MMM DD',
-                 'month': 'MMM DD',
-                 'quarter': 'MMM DD',
-                 'year': 'MMM DD'
-              },
               ticks: {
                     stepSize: 2,
                     autoSkip: false
