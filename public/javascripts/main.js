@@ -169,6 +169,7 @@ function loadGraph(canvas, data, callback) {
   });
 
   search.on('chart', function(data) {
+    console.log('data', data);
     data = data.map(function(sample) {
       return { x: sample.date, y: sample.count };
     });
