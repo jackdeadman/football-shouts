@@ -147,15 +147,6 @@ $(document).ready(function() {
     validate();
   });
 
-  //Checking whether at least one option is selected...
-  $('#options').on('change', function(){
-    console.log($('#options').val());
-    if ($('#options').val().length === 0)
-      $('#submit-button').prop('disabled', true);
-    else
-      $('#submit-button').prop('disabled', false);
-  });
-
   //Back to top button stuff...
   var hiding = false;
 
