@@ -3,6 +3,7 @@
 var Tweet = require('../models/Tweet');
 var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
+var moment = require('moment');
 
 function findTransfers(player, club, sources,callback) {
   /**
@@ -103,22 +104,6 @@ var handlers = {
     var errors = [];
     var allTweets = [];
 
-    // mock graph data
-    // setTimeout(function() {
-    //   socket.emit('chart', [
-    //     { date: new Date(2017, 3, 1), count: 14},
-    //     { date: new Date(2017, 3, 3), count: 32},
-    //     { date: new Date(2017, 3, 5), count: 101},
-    //     { date: new Date(2017, 3, 7), count: 23},
-    //     { date: new Date(2017, 3, 11), count: 5},
-    //     { date: new Date(2017, 3, 13), count: 58},
-    //     { date: new Date(2017, 3, 20), count: 90},
-    //     { date: new Date(2017, 3, 21), count: 140},
-    //     { date: new Date(2017, 3, 25), count: 58},
-    //     { date: new Date(2017, 3, 27), count: 10}
-    //   ]);
-    // }, 3000);
-
     if (!req.sources) {
       errorMsg = 'Sources have not been defined.';
       socket.emit(errorEvent, generateErrorObj(errorMsg, req));
@@ -172,16 +157,15 @@ var handlers = {
 
             socket.emit(successEvent, resultObj);
 
+
             var chartData = {};
             tweets.forEach(tweet => {
-              var date = new Date(tweet.datePublished);
-              var newDate = new Date(date.getFullYear(),
-                                      date.getMonth(),
-                                      date.getDate());
-              if (chartData[newDate.toString()]) {
-                chartData[newDate.toString()]++;
+              var newDate = moment(tweet.datePublished).startOf('day').format();
+              if (chartData[newDate]) {
+
+                chartData[newDate]++;
               } else {
-                chartData[newDate.toString()] = 1;
+                chartData[newDate] = 1;
               }
             });
 
