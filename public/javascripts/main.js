@@ -91,7 +91,7 @@ function loadGraph(canvas, data, callback) {
 
   var $chartHolder = $('#js-tweet-chart-container');
   var $canvas = $chartHolder.find('canvas');
-  var $chartLoader = $chartHolder.find('#loader')
+  var $chartLoader = $chartHolder.find('#chartLoader')
   var $loadMoreTweets = $('#loadMoreTweets');
   var $tweetStats = $('#js-tweet-stats');
   var $tweetData = $('#tweetData');
@@ -143,7 +143,7 @@ function loadGraph(canvas, data, callback) {
         $appContainer.css('visibility', 'hidden');
       });
     }
-    
+
 
     // Setting up elements
     $app.empty();
@@ -198,7 +198,7 @@ function loadGraph(canvas, data, callback) {
         opacity: 1
       }, 100, 'swing');
     }
-    
+
     $sideInfo.show();
     $chartHolder.show();
     $chartLoader.show();
