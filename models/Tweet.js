@@ -378,6 +378,9 @@ module.exports.live = function(query){
     makeRelations(everythingSaved)
     .then(() => {
       console.log("Saved live tweet");
+    })
+    .catch(err => {
+      console.error(err);
     });
   });
   return liveTweetStream;
