@@ -73,6 +73,18 @@ function saveHashtags(hashtags){
 }
 
 function saveToDatabase(tweet, player, club, author, hashtags){
+  /**
+   * Takes several related objects - and saves them to the database.
+   * @param {TweetObject} tweet The tweet to be saved, 
+   * made by makeTweetDbObject;
+   * @param {String} player The player associated with the tweet;
+   * @param {String} club The club associated with the tweet;
+   * @param {AuthorObject} author The author of the tweet, 
+   * made by makeAuthorObject;
+   * @param {List} hashtags The list of hashtags (possibly an empty list)
+   * in the tweet, made by Hashtag.processHashtags.
+   * @return {Promise} Resolves when all the above are saved to the database.
+   */
   var tweetSaved = saveTweet(tweet);
   var playerSaved = savePlayer(player);
   var clubSaved = saveClub(club);
@@ -103,9 +115,13 @@ function saveToDatabase(tweet, player, club, author, hashtags){
 }
 
 function makeRelations(everythingSaved){
+  /**
+   * Makes the appropriate relations between saved objects.
+   * @param {Promise} everythingSaved Produced by saveToDatabase
+   * @return {Promise} Resolved when all the relations are set.
+   */
   return everythingSaved
   .then(results => {
-    console.log(results);
     var tweetResult = results[0][0];
     var authorResult = results[1][0];
     var playerResult = results[2][0];
@@ -159,6 +175,17 @@ function makeRelations(everythingSaved){
 }
 
 module.exports.getFromTwitter = function(query, callback){
+  /**
+   * Queries twitter based on a query object, saves tweets
+   * returned to the database.
+   * @param {Object} query The database query;
+   * @param {String} query.player The player to search for;
+   * @param {String} query.club The club to search for;
+   * @param {String} query.since The timestamp to search from;
+   * @param {String} query.until The timestamp to search up to.
+   * @param {Function} callback To be called when Twit returns
+   * tweets from Twitter.
+   */
 
   console.log("getting from twitter");
   var twitterQuery = buildQuery(query);
@@ -205,6 +232,15 @@ module.exports.getFromTwitter = function(query, callback){
 };
 
 function buildQuery(queryTerms){
+  /**
+   * Takes a query object and formats a string for the twitter query.
+   * @param {Object} query The database query;
+   * @param {String} query.player The player to search for;
+   * @param {String} query.club The club to search for;
+   * @param {String} query.since The timestamp to search from;
+   * @param {String} query.until The timestamp to search up to.
+   * @return A formatted string for searching Twitter.
+   */
   var player = queryTerms.player;
   var club = queryTerms.club;
   var sinceTimestamp = utils.formatDateForTwitter(queryTerms.since);
@@ -235,6 +271,14 @@ function makePlayerOrClubQuery(query){
 }
 
 function findTweets(player, club, since, until){
+  /**
+   * Searches for tweets related to hashtags, players or clubs.
+   * @param {String} player The player query term;
+   * @param {String} club The club query term;
+   * @param {String} since The timestamp to start the search at;
+   * @param {String} until The timestamp to end the search at.
+   * @return {Promise} Resolves when the query to MySQL returns.
+   */
   since = moment(since).format().toString();
   until = moment(until).format().toString();
   var playerQuery = makePlayerOrClubQuery(player);
@@ -341,6 +385,18 @@ function findTweets(player, club, since, until){
 }
 
 module.exports.getFromDatabase = function(query, callback){
+  /**
+   * Finds tweets from the database, makes objects in the same format
+   * as the ones made by getFromTwitter.
+   * @param {Object} query The database query;
+   * @param {String} query.player The player to search for;
+   * @param {String} query.club The club to search for;
+   * @param {String} query.since The timestamp to search from;
+   * @param {String} query.until The timestamp to search up to.
+   * 
+   * @param {Function} callback The function to be called when the database
+   * returns data.
+   */
   console.log("getting from database");
 
   var player = query.player;
@@ -362,6 +418,14 @@ module.exports.getFromDatabase = function(query, callback){
 };
 
 module.exports.live = function(query){
+  /**
+   * Connects to the streaming API, saves tweets coming in
+   * and returns the stream object.
+   * @param {Object} query The database query;
+   * @param {String} query.player The player to search for;
+   * @param {String} query.club The club to search for.
+   * @return {LiveTweet} A Twitter Streaming API stream.
+   */
   var player = query.player;
   var club = query.club;
   var queryObj = { track: player + " " + club };
@@ -371,7 +435,7 @@ module.exports.live = function(query){
     var processedTweet = utils.makeTweetObject(tweet);
     var author = Author.makeAuthorObject(processedTweet);
     var databaseTweet = utils.makeTweetDbObject(processedTweet);
-    var everythingSaved = saveTweet(databaseTweet,
+    var everythingSaved = saveToDatabase(databaseTweet,
                                       player,
                                       club,
                                       author,
