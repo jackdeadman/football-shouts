@@ -1,3 +1,4 @@
+//A list of useful keycodes
 var Key = {
   BACKSPACE: 8,
   DELETE: 46,
@@ -5,6 +6,7 @@ var Key = {
   ENTER: 13,
 };
 
+//Adds default tags to the input boxes
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
@@ -12,7 +14,8 @@ function addDefaultTags() {
   $('#clubs').materialtags('add', '@WestHamUtd');
 }
 
-function showButton() {
+//Animates and reveals the "back to top" button
+function showBackToTopButton() {
   $('#back-to-top').css('display', 'initial');
   $('#back-to-top').stop().animate({
     bottom: '20px',
@@ -24,7 +27,8 @@ function showButton() {
   });
 }
 
-function hideButton() {
+//Animates and hides the "back to top" button
+function hideBackToTopButton() {
   $('#back-to-top').stop().animate({
     bottom: '10px',
     opacity: '0'
@@ -37,9 +41,9 @@ function hideButton() {
   });
 }
 
+//Applies the suggestions to the input field
+//(WIP: CURRENTLY NOT WORKING)
 function applySuggestions(input, suggestions) {
-  // console.log(suggestions.get(1));
-
   input.materialtags({
     typeaheadjs: [
     {
@@ -55,6 +59,8 @@ function applySuggestions(input, suggestions) {
   console.log('Bloodhound initialised and applied!');
 }
 
+//Checks whether an input box is empty; if not, cancel
+//whatever event and empty the input
 function checkEmpty(e, obj) {
   var input = obj.parent().find('.materialize-tags input');
   if (input.val() !== '') {
@@ -63,7 +69,9 @@ function checkEmpty(e, obj) {
   }
 }
 
+//Validation for the form
 function validate() {
+  //Makes sure all fields have a value before allowing submission
   var tags1 = $('#players').materialtags('items').length > 0;
   var tags2 = $('#clubs').materialtags('items').length > 0;
   var checked = $('#options').val().length > 0;
@@ -74,23 +82,29 @@ function validate() {
 }
 
 $(document).ready(function() {
-  //lol
+  //Helper boolean for detecting whether del or backspace is down
+  //(NEEDS IMPROVING!)
   var delIsDown = false;
 
-  //Initialising the inputs with some tags
-  addDefaultTags();
+  //Getting stuff from the DOM
+  var $playersLabel = $('#players_label');
+  var $clubsLabel = $('#clubs_label');
+  var $inputs = $('#players, #clubs');
 
-  //Input guff
-  $('#players_label').click(function(){
+  //Initialising various things
+  addDefaultTags();
+  $('.parallax').parallax();
+  $('select').material_select();
+
+  //Making sure the labels can be clicked on to select the input boxes
+  $playersLabel.click(function(){
     $('.n-tag:first').focus();
   })
-
-  $('#clubs_label').click(function(){
+  $clubsLabel.click(function(){
     $('.n-tag:eq(1)').focus();
   })
 
-  var $inputs = $('#players, #clubs');
-
+  //Listeners for the input boxes
   $inputs.on('itemRemoved', function() {
 	  $(this).parent().find('.materialize-tags input').focus();
     validate();
@@ -109,19 +123,20 @@ $(document).ready(function() {
       checkEmpty(e, $(this));
   });
 
-  $('.n-tag').each(function(){
-	  console.log(this)
-
+  //For each tag, have the following listeners
+  $('.n-tag').each(function() {
 
     //If defocused, empty the text
-    $(this).focusout(function(){
+    $(this).focusout(function() {
       $(this).val("");
     });
-    $(this).keydown(function(e){
-      //I'M SORRY ABOUT THIS
+
+    $(this).keydown(function(e) {
+      //NEEDS IMPROVING
       if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
         delIsDown = true;
 
+      //Allowing tabbing between input boxes
 	    if (e.which === Key.TAB) {
 		    if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
 		      $('.n-tag:first').focus();
@@ -130,54 +145,49 @@ $(document).ready(function() {
       }
     });
 
-    $(this).keyup(function(e){
+    $(this).keyup(function(e) {
       if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
         delIsDown = false;
     });
 
   });
 
-  //Initialising the parallax background
-  $('.parallax').parallax();
-
-  //Initialising the drop down menu component
-  $('select').material_select();
-
+  //Making sure the options drop down is validated
   $('#options').on('change', function(e) {
     validate();
   });
 
   //Back to top button stuff...
-  var hiding = false;
-
-  var top = $('#back-to-top');
+  var hidingBackToTop = false;
+  var $top = $('#back-to-top');
 
   $(window).scroll(function(){
     if ($(this).scrollTop() > 0) {
-      if (!hiding && top.css('opacity') == 0)
-        showButton();
+      if (!hidingBackToTop && $top.css('opacity') == 0)
+        showBackToTopButton();
     } else {
-      hiding = false;
-      hideButton();
+      hidingBackToTop = false;
+      hideBackToTopButton();
     }
   });
-  $('#back-to-top').click(function(){
-    hiding = true;
-    hideButton();
+
+  $top.click(function(){
+    hidingBackToTop = true;
+    hideBackToTopButton();
     scrollTo($('html').offset().top, 500);
   });
 
+  //Initialising the Bloodhound stuff
+  //(WIP: CURRENTLY NOT WORKING)
   var playernames = $.getJSON('/data/players.json', function(data) {
-    console.log(data);
 
+    //Creating a new Bloodhound object
     var playername = new Bloodhound({
       local: data,
       // identify: function(obj) { return obj.id; },
       queryTokenizer: Bloodhound.tokenizers.whitespace,
       datumTokenizer: Bloodhound.tokenizers.obj.whitespace('name'),
     });
-
-    console.log(playername.get("Jim"));
 
     var bhpromise = playername.initialize();
 

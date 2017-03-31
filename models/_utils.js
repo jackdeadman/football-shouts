@@ -4,6 +4,13 @@ var classifier = require('../lib/tweet_processors/TweetClassifier')
 var moment = require('moment');
 
 module.exports.selectTransferTweet = tweet => {
+  /**
+   * Uses the classifier to determine if a tweet
+   * is to do with transfers or just general football.
+   * @param {Object} tweet The tweet object from Twitter
+   * @return {Boolean} True if the tweet is a transfer tweet,
+   * false otherwise.
+   */
   var threshold = 1.0;
   var probs = classifier.classify(tweet.text);
   var ratio = probs.transfers / probs.football;
@@ -16,6 +23,9 @@ module.exports.selectTransferTweet = tweet => {
 };
 
 module.exports.makeTweetObject = tweet => {
+  /**
+   * Makes an object made up of the fields needed for the frontend.
+   */
   var tweetObject = {
     text: tweet.text,
     twitterId: tweet.id_str,
@@ -34,6 +44,10 @@ module.exports.makeTweetObject = tweet => {
 };
 
 module.exports.makeTweetObjectFromDb = databaseTweet => {
+  /**
+   * Makes a tweet object based on the database fields, 
+   * in a format designed for the frontend.
+   */
   var tweetObject = {
     text: databaseTweet.text,
     twitterId: databaseTweet.twitterId,
@@ -50,6 +64,9 @@ module.exports.makeTweetObjectFromDb = databaseTweet => {
 };
 
 module.exports.makeTweetDbObject = tweetObject => {
+  /**
+   * Makes a tweet object with just the fields for the Tweets table.
+   */
   var tweetDbObject = {
     text: tweetObject.text,
     twitterId: tweetObject.twitterId,
@@ -63,6 +80,10 @@ module.exports.makeTweetDbObject = tweetObject => {
 };
 
 module.exports.formatDateForTwitter = date => {
+  /**
+   * Formats a date object in the way usable with Twitter's 
+   * search API.
+   */
   var year = date.getFullYear();
   var month = date.getMonth() + 1;
   var day = date.getDate();

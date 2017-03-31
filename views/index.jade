@@ -1,22 +1,23 @@
 extends layout
 
-//Materialize-tags: http://henrychavez.github.io/materialize-tags/examples/
-//TODO: fix bug where ctrl+a and delete does some weird shit. seems to be fixed by typeahead so do that at some point
-
-//TODO: Implement a loading bar? http://lab.hakim.se/ladda/
-
 //Form for search inputs
 block input
   form(id="search", method="", action="")
     div.disable-select.default-cursor
+      
+      //First input box
       div.row
         div.input-field.col.s12
           input(name="players", id="players", type="text", data-role="materialtags")
           label.white-text(for = "players", id="players_label") What is the player's name?
+          
+      //Second input box
       div.row
         div.input-field.col.s12
           input(name="clubs", id="clubs", type="text", data-role="materialtags")
           label.white-text(for = "clubs", id="clubs_label") What club are they rumoured with?
+          
+      //Options dropdown
       div.row.center-align
         div.input-field.col.s12
           select(name="options", id="options", multiple="multiple")
@@ -24,10 +25,14 @@ block input
             option(value="database", id="option1", selected="selected") Database
             option(value="twitter", id="option2", selected="selected") Twitter
           label.white-text(for="options", id="options_label") Where should we search?
+      
+      //Submit button and loading animation
       div.row.center-align
         div.input-field.col.s12
+          //Submit button
           div#submit-button-wrapper
             button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
+          //Loading animation
           div#loader-wrapper
             div.preloader-wrapper.big.active#loader
               div.spinner-layer.white-loader
@@ -38,16 +43,17 @@ block input
                 div.circle-clipper.right
                   div.circle
 
-//The floating return to top button
+//The "back to top" button
 block overlay
   a.btn-floating.btn-large.btn-light.waves-effect.waves-light.z-depth-5#back-to-top
     i
       img(src="/images/top-arrow.svg")
 
-
-//The returned tweets
+//Block containing content "below the fold"
 block tweets
   div.row
+    //The column to the left displaying player and club info
+    //(TEMPORARY)
     div.col.s5#side-info
       div.card-panel.z-depth-1.info#playerinfo
         div.info-top
@@ -115,7 +121,10 @@ block tweets
                 | League:
               td#league
                 span Liga MX
+    
+    //Right-hand section for graph and tweets
     div.col.s7#js-tweet-start
+      //The graph
       div.row#js-tweet-chart-container
         div.col.s12
             div.card-panel
@@ -131,8 +140,12 @@ block tweets
                       | Tweets from Database
                     td#tweetsFromDatabase
                       | 0
-              #loader Generating graph...
+              #chartLoader Generating graph...
               canvas#tweet-chart(width='400', height='200')
+      
+      //Button for loading more tweets
       .card-panel.loadMore#loadMoreTweets
         | View #[span(class='count') 0] new Tweets
+      
+      //ID used for displaying gathered tweets
       #app
