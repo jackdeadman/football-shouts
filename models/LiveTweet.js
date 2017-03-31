@@ -15,17 +15,22 @@ function LiveTweet(client, streamName, query) {
 util.inherits(LiveTweet, EventEmitter);
 
 LiveTweet.prototype.connect = function() {
+  /**
+   * Open connection to a LiveTweet stream
+   */
+  console.log(this);
   this.stream = this.client.stream(this.streamName, this.query);
-  var that = this;
   this.stream.on('tweet', tweet => {
     if(utils.selectTransferTweet(tweet)){
-      console.log('new tweet from stream');
-      that.emit('tweet', tweet);
+      this.emit('tweet', tweet);
     }
   });
 };
 
 LiveTweet.prototype.disconnect = function() {
+  /**
+   * Close connection to LiveTweet stream
+   */
   if (this.stream) {
     this.stream.stop();
   }
