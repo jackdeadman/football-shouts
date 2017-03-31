@@ -39,7 +39,6 @@ function createTweetNode(tweet) {
 }
 
 function loadGraph(canvas, data, callback) {
-
   var lineChart = new Chart(canvas, {
     type: 'line',
     data: {
@@ -56,6 +55,7 @@ function loadGraph(canvas, data, callback) {
       }]
     },
     options: {
+      responsive: false,
       tooltips: {
         callbacks: {
                       title: function(item) {
@@ -76,7 +76,6 @@ function loadGraph(canvas, data, callback) {
         }
       }
   });
-
   callback(lineChart);
 }
 

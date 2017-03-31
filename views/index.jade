@@ -4,19 +4,19 @@ extends layout
 block input
   form(id="search", method="", action="")
     div.disable-select.default-cursor
-      
+
       //First input box
       div.row
         div.input-field.col.s12
           input(name="players", id="players", type="text", data-role="materialtags")
           label.white-text(for = "players", id="players_label") What is the player's name?
-          
+
       //Second input box
       div.row
         div.input-field.col.s12
           input(name="clubs", id="clubs", type="text", data-role="materialtags")
           label.white-text(for = "clubs", id="clubs_label") What club are they rumoured with?
-          
+
       //Options dropdown
       div.row.center-align
         div.input-field.col.s12
@@ -25,7 +25,7 @@ block input
             option(value="database", id="option1", selected="selected") Database
             option(value="twitter", id="option2", selected="selected") Twitter
           label.white-text(for="options", id="options_label") Where should we search?
-      
+
       //Submit button and loading animation
       div.row.center-align
         div.input-field.col.s12
@@ -121,7 +121,7 @@ block tweets
                 | League:
               td#league
                 span Liga MX
-    
+
     //Right-hand section for graph and tweets
     div.col.s7#js-tweet-start
       //The graph
@@ -141,11 +141,11 @@ block tweets
                     td#tweetsFromDatabase
                       | 0
               #chartLoader Generating graph...
-              canvas#tweet-chart(width='400', height='200')
-      
+              canvas#tweet-chart(height='400', width='750' style='width: 100%')
+
       //Button for loading more tweets
       .card-panel.loadMore#loadMoreTweets
         | View #[span(class='count') 0] new Tweets
-      
+
       //ID used for displaying gathered tweets
       #app
