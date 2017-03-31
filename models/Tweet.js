@@ -112,6 +112,7 @@ function saveTweet(tweet, player, club, author, hashtags){
 
   var everythingSaved;
   if(hashtags.length === 0){
+    console.log("should be no hashtags: ", hashtags);
     everythingSaved = Promise.all([
       saveTweet,
       saveAuthor,
@@ -120,6 +121,7 @@ function saveTweet(tweet, player, club, author, hashtags){
     ]);
   }else{
     var hashtagSaves = [];
+    console.log("Should be some hashtags: ", hashtags);
     hashtags.forEach(function(hashtag){
       hashtagSaves.push(dbHashtag.findOrCreate({
         where: {
@@ -182,6 +184,7 @@ function saveTweet(tweet, player, club, author, hashtags){
     return allRelationsDone;
   })
   .catch(err => {
+    console.error(err);
     return Promise.reject(
       {
         message: 'problem saving the tweet, club, player, or author to db',
