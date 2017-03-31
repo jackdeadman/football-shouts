@@ -430,6 +430,6 @@ module.exports.live = function(query){
   var player = query.player;
   var club = query.club;
   var queryObj = { track: player + " " + club };
-  var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
+  var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);  
   return liveTweetStream;
 };

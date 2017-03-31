@@ -47,7 +47,7 @@ var handlers = {
 
 
     // Needs to be set here to remember which livetweets to disconnect
-    socket.on('disconnect', function(socket) {
+    socket.on('disconnect', function() {
       livetweets.disconnect();
     });
 

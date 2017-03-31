@@ -123,6 +123,7 @@ function loadGraph(canvas, data, callback) {
   $('#tweetData').hide();
   $tweetStats.hide();
   $('#app-container').hide();
+  var hiddenTweets = [];
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
@@ -130,6 +131,7 @@ function loadGraph(canvas, data, callback) {
   //Upon pressing the search button, send the entered data
   $('#search').submit(function(e){
     e.preventDefault();
+    hiddenTweets = [];
 
     //Setting up elements
     $('#app').empty();
@@ -185,7 +187,6 @@ function loadGraph(canvas, data, callback) {
   //   filter: { track: 'mango' }
   // });
 
-  var hiddenTweets = [];
   var title = document.title;
 
   liveTweets.on('tweet', function(tweet) {
