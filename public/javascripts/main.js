@@ -109,6 +109,7 @@ function loadGraph(canvas, data, callback) {
   var $tweetsFromDatabase = $('#tweetsFromDatabase');
   var $searchContainer = $('#search');
   var $appContainer = $('#app-container');
+  var $sideInfo = $('#side-info');
   var $submitButton = $('#submit-button');
   var $loader = $('#loader');
 
@@ -116,7 +117,7 @@ function loadGraph(canvas, data, callback) {
   $loadMoreTweets.hide();
   $chartHolder.hide();
   $tweetStats.hide();
-  $('#app-container').hide();
+  $appContainer.hide();
   var hiddenTweets = [];
   $tweetData.hide();
   $appContainer.hide();
@@ -144,11 +145,15 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
-    // Hide in case of searching again
-    $canvas.hide();
-    $tweetStats.hide();
-    $('#tweetData').hide();
-    $loadMoreTweets.hide();
+    // Set visibility to hidden so space is retained
+    if (!$appContainer.is(":hidden")) {
+      $appContainer.animate({
+        opacity: 0
+      }, 100, 'swing', function() {
+        $appContainer.css('visibility', 'hidden');
+      });
+    }
+    
 
     // Setting up elements
     $app.empty();
@@ -174,11 +179,6 @@ function loadGraph(canvas, data, callback) {
     // Send the queries
     search.emit('query', req);
 
-    // Show loading
-	  $('#app-container').show();
-    $chartHolder.show();
-    $chartLoader.show();
-
   });
 
   search.on('chart', function(data) {
@@ -199,6 +199,19 @@ function loadGraph(canvas, data, callback) {
     $tweetStats.show();
     $tweetData.show();
 
+    // Show loading
+    if ($appContainer.is(":hidden"))
+      $appContainer.show();
+    else {
+      $appContainer.css('visibility', 'visible');
+      $appContainer.animate({
+        opacity: 1
+      }, 100, 'swing');
+    }
+    
+    $sideInfo.show();
+    $chartHolder.show();
+    $chartLoader.show();
 
     // Finally scroll down the page
     scrollTo($appContainer.offset().top, 750, function() {
