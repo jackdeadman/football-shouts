@@ -157,7 +157,6 @@ var handlers = {
 
             socket.emit(successEvent, resultObj);
 
-
             var chartData = {};
             allTweets.forEach(tweet => {
               var newDate = moment(tweet.datePublished).startOf('day').format();
@@ -186,7 +185,7 @@ var handlers = {
             // }
 
 
-            socket.emit('chart', allTweets);
+            socket.emit('chart', array);
 
             if (errors.length) {
               socket.emit(errorEvent, errors);
