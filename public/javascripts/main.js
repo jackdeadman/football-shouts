@@ -145,6 +145,12 @@ function loadGraph(canvas, data, callback) {
       clubs: clubTags,
       sources: sources
     };
+
+    liveTweets.emit('subscribe', {
+      player: playerTags[0],
+      club: clubTags[0]
+    });
+
     search.emit('query', req);
 
     $canvas.hide();
@@ -179,15 +185,11 @@ function loadGraph(canvas, data, callback) {
   //   filter: { track: 'mango' }
   // });
 
-  liveTweets.emit('subscribe', {
-    player: 'hazard',
-    club: 'real madrid'
-  });
-
   var hiddenTweets = [];
   var title = document.title;
 
   liveTweets.on('tweet', function(tweet) {
+    console.log('new tweet');
     var node = createTweetNode(tweet);
     hiddenTweets.push(tweet);
     document.title = '(' + hiddenTweets.length + ') ' + title;

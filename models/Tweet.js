@@ -23,7 +23,7 @@ function makeTweetObject(tweet){
   var tweetObject = {
     text: tweet.text,
     twitterId: tweet.id_str,
-    datePublished: moment(tweet.created_at, 
+    datePublished: moment(tweet.created_at,
                             "ddd MMM DD HH:mm:ss ZZ YYYY")
                             .format().toString(),
     hasMedia: !!tweet.entities.media,
@@ -183,9 +183,9 @@ function saveTweet(tweet, player, club, author, hashtags){
   })
   .catch(err => {
     return Promise.reject(
-      { 
-        message: 'problem saving the tweet, club, player, or author to db', 
-        err 
+      {
+        message: 'problem saving the tweet, club, player, or author to db',
+        err: err
       }
     );
   });
@@ -307,7 +307,7 @@ function findTweets(player, club, since, until){
               $in: [stripHashtag(player), stripHashtag(club)]
             }
           }
-        }, 
+        },
         {
           model: dbAuthor
         }
@@ -333,7 +333,7 @@ function findTweets(player, club, since, until){
           where: {
             hashtag: stripHashtag(player)
           }
-        }, 
+        },
         {
           model: dbAuthor
         }
@@ -358,7 +358,7 @@ function findTweets(player, club, since, until){
           where: {
             hashtag: stripHashtag(club)
           }
-        }, 
+        },
         {
           model: dbAuthor
         }

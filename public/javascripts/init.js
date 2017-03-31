@@ -1,3 +1,10 @@
+var Key = {
+  BACKSPACE: 8,
+  DELETE: 46,
+  TAB: 9,
+  ENTER: 13,
+};
+
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
@@ -110,13 +117,12 @@ $(document).ready(function() {
     $(this).focusout(function(){
       $(this).val("");
     });
-
     $(this).keydown(function(e){
       //I'M SORRY ABOUT THIS
-      if (e.which == 8 || e.which == 46)
+      if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
         delIsDown = true;
 
-	    if (e.which === 9) {
+	    if (e.which === Key.TAB) {
 		    if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
 		      $('.n-tag:first').focus();
         else if ($('.n-tag:first').is(":focus"))
@@ -125,7 +131,7 @@ $(document).ready(function() {
     });
 
     $(this).keyup(function(e){
-      if (e.which == 8 || e.which == 46)
+      if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
         delIsDown = false;
     });
 
