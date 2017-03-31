@@ -6,8 +6,8 @@ function scrollTo(position, speed, callback) {
 
 function parseTweet(text) {
   var parsed = text.replace(/(https?:\/\/(bit\.ly|t\.co|lnkd\.in|tcrn\.ch)\S*)\b/gi, '<a href = "$1" target = "_blank">$1</a>');
-  parsed = parsed.replace(/#([A-Za-z0-9]*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
-  parsed = parsed.replace(/@([A-Za-z0-9]*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
+  parsed = parsed.replace(/#([A-Za-z0-9_]*)/g,'<a href="http://twitter.com/#!/search/$1" target = "_blank">#$1</a>');
+  parsed = parsed.replace(/@([A-Za-z0-9_]*)/g,'<a href="https://twitter.com/$1" target = "_blank">@$1</a>');
 
   return parsed;
 }
@@ -39,7 +39,6 @@ function createTweetNode(tweet) {
 }
 
 function loadGraph(canvas, data, callback) {
-
   var lineChart = new Chart(canvas, {
     type: 'line',
     data: {
@@ -56,6 +55,7 @@ function loadGraph(canvas, data, callback) {
       }]
     },
     options: {
+      responsive: false,
       tooltips: {
         callbacks: {
                       title: function(item) {
@@ -76,7 +76,6 @@ function loadGraph(canvas, data, callback) {
         }
       }
   });
-
   callback(lineChart);
 }
 

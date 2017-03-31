@@ -5,12 +5,12 @@ var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
 var moment = require('moment');
 
-function findTransfers(player, club, sources,callback) {
+var findTransfers = (player, club, sources, callback) => {
   /**
    * Finds tweets between players and clubs using database and twitter
-   * @param player: String of the player
-   * @param club: String of the club
-   * @param callback: fn(err, tweets)
+   * @param {String} player: Player name
+   * @param {String} club: club name
+   * @param {Function} callback: fn(err, tweets)
    */
   var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   var today = new Date(Date.now());
@@ -18,35 +18,35 @@ function findTransfers(player, club, sources,callback) {
   var query = {
     player: player,
     club: club,
-    query: player + ' ' + club, // temp
     since: lastWeek, until: today
   };
 
+  // Helper boolean
   var useDatabase = sources.indexOf('database') > -1;
   var useTwitter = sources.indexOf('twitter') > -1;
 
   if (useDatabase) {
-    Tweet.getFromDatabase(query, function(databaseErr, databaseTweets) {
-      databaseTweets = databaseTweets.sort(function(t1, t2) {
+    Tweet.getFromDatabase(query, (databaseErr, databaseTweets) => {
+      // Ensure the Tweets are in order in order to get the latest
+      databaseTweets = databaseTweets.sort((t1, t2) => {
         return new Date(t1.updatedAt) >= new Date(t2.updatedAt) ? -1 : 1;
       });
 
-      databaseTweets = databaseTweets.map(function(tweet) {
+      databaseTweets = databaseTweets.map(tweet => {
         tweet.source = 'database';
         return tweet;
       });
 
       var latest = databaseTweets[0];
       // Update if no tweets found or too old
-      //
       if (!latest || ((today - new Date(latest.updatedAt)) > threshold)) {
         if (latest) {
           query.since = new Date(latest.datePublished);
         }
 
         if (useTwitter) {
-          Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-            twitterTweets = twitterTweets.map(function(tweet) {
+          Tweet.getFromTwitter(query, (twitterErr, twitterTweets) => {
+            twitterTweets = twitterTweets.map(tweet => {
               tweet.source = 'twitter';
               return tweet;
             });
@@ -61,8 +61,8 @@ function findTransfers(player, club, sources,callback) {
     });
     // Just using twitter
   } else if (useTwitter) {
-    Tweet.getFromTwitter(query, function(twitterErr, twitterTweets) {
-      twitterTweets = twitterTweets.map(function(tweet) {
+    Tweet.getFromTwitter(query, (twitterErr, twitterTweets) => {
+      twitterTweets = twitterTweets.map(tweet => {
         tweet.source = 'twitter';
         return tweet;
       });
@@ -72,127 +72,156 @@ function findTransfers(player, club, sources,callback) {
   } else {
     callback(new Error('No sources found.'));
   }
-}
+};
 
+var findAllTweets = (req, callback) => {
+  /**
+   * Finds all the tweets for a list of player and clubs from different sources
+   * using all the combinations of the players and clubs.
+   * @param {Object} req: query and sources
+   * @param {Object} req.players: list of player names
+   * @param {Object} req.clubs: list of clubs names
+   * @param {Object} req.sources: list of sources from set {'twitter, database'}
+   * @param {Function} callback: fn(err, list of tweets)
+   */
+  // Holding variables
+  var requests = req.players.length * req.clubs.length;
+  var responses = 0;
+  var errors = [];
+  var allTweets = [];
+
+  // Search using all combinations
+  req.players.forEach(player => {
+    req.clubs.forEach(club => {
+      findTransfers(player, club, req.sources, (err, tweets) => {
+        // response has been received
+        responses ++;
+
+        // Accumulate the errors, then tell the client when all requests
+        // have been made
+        if (err) {
+          var msg = 'Failed to get the tweets for this query.';
+          errors.push(generateErrorObj(msg, req));
+        }
+        else {
+          allTweets = allTweets.concat(tweets);
+        }
+
+        // All responses finished
+        if (requests === responses) {
+          // Order by datePublished
+          allTweets = allTweets.sort(function(t1, t2) {
+            var datePublished1 = new Date(t1.datePublished);
+            var datePublished2 = new Date(t2.datePublished);
+            return datePublished1 >= datePublished2 ? -1 : 1;
+          });
+
+          // Remove duplicate twitters
+          var prev = { twitterId: null };
+          allTweets = allTweets.filter(function(t) {
+            var different = prev.twitterId !== t.twitterId;
+            prev = t;
+            return different;
+          });
+
+          if (errors.length) {
+            callback(errors, allTweets);
+          } else {
+            callback(null, allTweets);
+          }
+        }
+      });
+    });
+  });
+};
+
+var groupByDay = (tweets) => {
+  /**
+   * Group a list of tweets by the day they were published
+   * @type {Object[]} tweets: list of tweet objects
+   * @type {String} tweets.datePublished: date string of when a tweet was made
+   */
+  var chartData = {};
+  // Create an object where the key is the date and the value is the count
+  tweets.forEach(tweet => {
+    var newDate = moment(tweet.datePublished).startOf('day').format();
+    if (chartData[newDate]) {
+      chartData[newDate]++;
+    } else {
+      chartData[newDate] = 1;
+    }
+  });
+
+  // Convert this object into an array of {date, count} objects ordered
+  // by datePublished
+  var finalChartData = [];
+  for (var date in chartData) {
+    finalChartData.push({ date: date, count: chartData[date] });
+  }
+  finalChartData = finalChartData.sort((d1, d2) => {
+    return new Date(d1.date) > new Date(d2.date) ? 1 : -1;
+  });
+
+  return finalChartData;
+};
+
+/**
+ * Handler Start for /search
+ * To connect on client: io('/search');
+ */
 var handlers = {
+  // socket.on('query', req);
+  query: (socket, req) => {
+    /**
+     * @param {socketIO} socket: Connection to a client.
+     * @param {Object} req: request from the client.
+     * @param {String[]} req.players: List of player names
+     * @param {String[]} req.clubs: List of club names
+     * @param {String[]} req.sources: List of sources
+     *                                 from the set {'twitter', 'database'}
+     */
 
-  query: function(socket, req) {
-    // Events
+    // Events to be emitted
     var errorEvent = 'error';
-    var successEvent = 'result';
+    var resultEvent = 'result';
+    var chartEvent = 'chart';
 
     // Validate user has given correct fieds
-    var hasRequiredFields = req && req.players && req.clubs;
+    var hasRequiredFields = req && req.players && req.clubs && req.sources;
     var errorMsg = null;
 
     if (!hasRequiredFields) {
-      errorMsg = 'Please provide players and a club names.';
+      errorMsg = 'Please provide players and a club names and the sources.';
       socket.emit(errorEvent, generateErrorObj(errorMsg, req));
       return;
     }
 
     // Validate that they are arrays
-    if (!Array.isArray(req.players) || !Array.isArray(req.clubs)) {
+    if (!Array.isArray(req.players) || !Array.isArray(req.clubs)
+        || !Array.isArray(req.sources)) {
       errorMsg = 'Players and a club names must be arrays.';
       socket.emit(errorEvent, generateErrorObj(errorMsg, req));
       return;
     }
 
-    // Holding variables
-    var requests = req.players.length * req.clubs.length;
-    var responses = 0;
-    var errors = [];
-    var allTweets = [];
+    findAllTweets(req, (err, allTweets) => {
+      // Squash into a final results object
+      var resultObj = allTweets.reduce((acc, tweet) => {
+        return {
+          tweets: acc.tweets.concat([tweet]),
+          countFromTwitter: acc.countFromTwitter
+                                + (tweet.source === 'twitter'),
+          countFromDatabase: acc.countFromDatabase
+                                + (tweet.source === 'database'),
+        };
+      }, { tweets: [], countFromDatabase: 0, countFromTwitter: 0 });
 
-    if (!req.sources) {
-      errorMsg = 'Sources have not been defined.';
-      socket.emit(errorEvent, generateErrorObj(errorMsg, req));
-      return;
-    }
+      // Group tweets for the chart
+      var chartData = groupByDay(allTweets);
 
-    // Search using all combinations
-    req.players.forEach(function(player) {
-      req.clubs.forEach(function(club) {
-        findTransfers(player, club, req.sources, function(err, tweets) {
-          // response has been received
-          responses ++;
-
-          // Accumulate the errors, then tell the client when all requests
-          // have been made
-          if (err) {
-            var msg = 'Failed to get the tweets for this query.';
-            errors.push(generateErrorObj(msg, req));
-          }
-          else {
-            allTweets = allTweets.concat(tweets);
-          }
-          console.log(requests === responses);
-          if (requests === responses) {
-            // Order by datePublished
-
-            allTweets = allTweets.sort(function(t1, t2) {
-              var datePublished1 = new Date(t1.datePublished);
-              var datePublished2 = new Date(t2.datePublished);
-              return datePublished1 >= datePublished2 ? -1 : 1;
-            });
-
-            // Remove duplicate twitters
-            var prev = { twitterId: null };
-            allTweets = allTweets.filter(function(t) {
-              var different = prev.twitterId !== t.twitterId;
-              prev = t;
-              return different;
-            });
-
-            // Squash into a final results object
-            var resultObj = allTweets.reduce(function(acc, tweet) {
-              return {
-                tweets: acc.tweets.concat([tweet]),
-                countFromTwitter: acc.countFromTwitter
-                                      + (tweet.source === 'twitter'),
-                countFromDatabase: acc.countFromDatabase
-                                      + (tweet.source === 'database'),
-              };
-            }, { tweets: [], countFromDatabase: 0, countFromTwitter: 0 });
-
-            socket.emit(successEvent, resultObj);
-
-            var chartData = {};
-            allTweets.forEach(tweet => {
-              var newDate = moment(tweet.datePublished).startOf('day').format();
-              console.log(newDate);
-              if (chartData[newDate]) {
-                chartData[newDate]++;
-              } else {
-                chartData[newDate] = 1;
-              }
-            });
-
-            var array = [];
-
-            for (var date in chartData) {
-              array.push({ date: date, count: chartData[date] });
-            }
-
-            array = array.sort((d1, d2) => {
-              return new Date(d1.date) > new Date(d2.date) ? 1 : -1;
-            });
-
-            // array[0].diff(array[array.length - 1]);
-            // var newArray = [];
-            // for (var i=0; i<array.length; i++) {
-            //   newArray[i] =
-            // }
-
-
-            socket.emit('chart', array);
-
-            if (errors.length) {
-              socket.emit(errorEvent, errors);
-            }
-          }
-        });
-      });
+      // Send the results to the user
+      socket.emit(resultEvent, resultObj);
+      socket.emit(chartEvent, chartData);
     });
   }
 };
