@@ -13,8 +13,13 @@ table.striped > tbody > tr:nth-child(odd) {
 }
 
 span.chip {
+  margin-top: 5px;
   background-color: #faf3fb;
   transition: .3s background-color;
+}
+
+.input-field label:not(.label-icon).active {
+  top: 0px;
 }
 
 /*.active ~ label {
@@ -40,14 +45,14 @@ div#app-container {
 
 /*hero stuff*/
 div#search-container {
-  padding-top: 100px;
+  padding-top: 6%;
   padding-bottom: 100px;
 }
 
 div#search-container > .container {
 	width: 700px;
 	margin: 0px auto;
-	margin-top: 3%;
+	margin-top: 50px;
 }
 
 .parallax-container {
@@ -175,9 +180,27 @@ a.btn-light {
   border-bottom-color: #6a1b9a;
   box-shadow: inset 0px -1px 0 0 #6a1b9a;
 }
-
 .materialize-tags input {
   color: #6a1b9a;
+}
+.spinner-layer.white-loader {
+  border-color: #fff;
+}
+#loader-wrapper {
+  position: absolute;
+  left: 50%;
+}
+#loader {
+  position: relative;
+  left: -50%;
+}
+#submit-button-wrapper {
+  position: absolute;
+  left: 50%;
+}
+#submit-button {
+  position: relative;
+  left: -50%;
 }
 
 /*Dropdown field*/

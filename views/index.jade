@@ -24,9 +24,20 @@ block input
             option(value="database", id="option1", selected="selected") Database
             option(value="twitter", id="option2", selected="selected") Twitter
           label.white-text(for="options", id="options_label") Where should we search?
-      div.center-align
+      div.row.center-align
         div.input-field.col.s12
-          button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
+          div#submit-button-wrapper
+            button.btn-large.waves-effect.waves-light.purple.darken-3#submit-button(type='submit') Find Transfers!
+          div#loader-wrapper
+            div.preloader-wrapper.big.active#loader
+              div.spinner-layer.white-loader
+                div.circle-clipper.left
+                  div.circle
+                div.gap-patch
+                  div.circle
+                div.circle-clipper.right
+                  div.circle
+
 //The floating return to top button
 block overlay
   a.btn-floating.btn-large.btn-light.waves-effect.waves-light.z-depth-5#back-to-top
@@ -37,7 +48,7 @@ block overlay
 //The returned tweets
 block tweets
   div.row
-    div.col.s5
+    div.col.s5#side-info
       div.card-panel.z-depth-1.info#playerinfo
         div.info-top
           div.info-image#playerimage

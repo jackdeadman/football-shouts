@@ -1,7 +1,7 @@
-function scrollTo(position, speed) {
+function scrollTo(position, speed, callback) {
   $('html, body').animate({
       scrollTop: position
-  }, speed);
+  }, speed, 'swing', callback);
 }
 
 function parseTweet(text) {
@@ -36,21 +36,6 @@ function createTweetNode(tweet) {
   var inner = innerdiv.append(image).append(content);
   var combined = div.append(inner);
   return combined;
-}
-
-function displaySearchResults(node, results) {
-  // TODO: Do fancy stuff here
-  // if (results.tweets.length) {
-  //     alert(results.tweets[0].text)
-  // }
-
-  // console.log(parseTweet('Report claims West Ham ready to pay £150,000-a-week to 31-year-old #WHU #COYI #Rooney #MUFC https://t.co/ilxANjgIAT'));
-
-  console.log(results);
-  results.forEach(function(tweet) {
-    var tweetNode = createTweetNode(tweet)
-    node.append(tweetNode);
-  });
 }
 
 function loadGraph(canvas, data, callback) {
@@ -97,38 +82,75 @@ function loadGraph(canvas, data, callback) {
 
 
 (function(io) {
-  // Connections
-  // var suggestions = io('/suggestions');
+  // Connections with sockets
   var search = io('/search');
   var liveTweets = io('/liveTweets');
+
+  // Cache the DOM
+  var $app = $('#app');
 
   var $chartHolder = $('#js-tweet-chart-container');
   var $canvas = $chartHolder.find('canvas');
   var $chartLoader = $chartHolder.find('#loader')
   var $loadMoreTweets = $('#loadMoreTweets');
+  var $tweetStats = $('#js-tweet-stats');
+  var $tweetData = $('#tweetData');
+  var $tweetsFromTwitter = $('#tweetsFromTwitter');
+  var $tweetsFromDatabase = $('#tweetsFromDatabase');
+  var $searchContainer = $('#search');
+  var $appContainer = $('#app-container');
+  var $sideInfo = $('#side-info');
+  var $submitButton = $('#submit-button');
+  var $loader = $('#loader');
+
+  // Hide components
   $loadMoreTweets.hide();
   $chartHolder.hide();
-
-  var $tweetStats = $('#js-tweet-stats');
-  $('#tweetData').hide();
   $tweetStats.hide();
-  $('#app-container').hide();
+  $appContainer.hide();
   var hiddenTweets = [];
+  $tweetData.hide();
+  $appContainer.hide();
+  $loader.hide();
+
+  function displaySearchResults(results) {
+    results.forEach(function(tweet) {
+      var tweetNode = createTweetNode(tweet)
+      $app.append(tweetNode);
+    });
+  }
 
   // Setup Socket listeners
   search.on('error', handleSearchError);
 
+
+  // Setup DOM listeners
+
   //Upon pressing the search button, send the entered data
-  $('#search').submit(function(e){
+  $searchContainer.on('submit', function(e){
     e.preventDefault();
     hiddenTweets = [];
 
-    //Setting up elements
-    $('#app').empty();
+    // Swapping the button with the loading animation
+    $submitButton.fadeOut(200);
+    $loader.fadeIn(200);
+
+    // Set visibility to hidden so space is retained
+    if (!$appContainer.is(":hidden")) {
+      $appContainer.animate({
+        opacity: 0
+      }, 100, 'swing', function() {
+        $appContainer.css('visibility', 'hidden');
+      });
+    }
+    
+
+    // Setting up elements
+    $app.empty();
     $('#playerinfo').css('display', 'block');
     $('#clubinfo').css('display', 'block');
 
-    //Getting tags for search
+    //Getting form data
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var sources = $('#options').val();
@@ -138,24 +160,15 @@ function loadGraph(canvas, data, callback) {
       sources: sources
     };
 
+    // Setup livetweets
     liveTweets.emit('subscribe', {
       player: playerTags[0],
       club: clubTags[0]
     });
 
+    // Send the queries
     search.emit('query', req);
 
-    $canvas.hide();
-    $tweetStats.hide();
-	  $('#tweetData').hide();
-    $loadMoreTweets.hide();
-
-	  $('#app-container').show();
-    $chartHolder.show();
-    $chartLoader.show();
-
-	//Scroll down the page
-    scrollTo($("#app-container").offset().top, 1000);
   });
 
   search.on('chart', function(data) {
@@ -166,6 +179,35 @@ function loadGraph(canvas, data, callback) {
     loadGraph($canvas, data, function() {
       $chartLoader.hide();
       $canvas.show();
+    });
+  });
+
+  search.on('result', function(results) {
+    displaySearchResults(results.tweets);
+    $tweetsFromTwitter.html(results.countFromTwitter);
+    $tweetsFromDatabase.html(results.countFromDatabase);
+    $tweetStats.show();
+    $tweetData.show();
+
+    // Show loading
+    if ($appContainer.is(":hidden"))
+      $appContainer.show();
+    else {
+      $appContainer.css('visibility', 'visible');
+      $appContainer.animate({
+        opacity: 1
+      }, 100, 'swing');
+    }
+    
+    $sideInfo.show();
+    $chartHolder.show();
+    $chartLoader.show();
+
+    // Finally scroll down the page
+    scrollTo($appContainer.offset().top, 750, function() {
+      //Swapping the loader with the button again
+      $loader.hide();
+      $submitButton.show();
     });
   });
 
@@ -191,21 +233,13 @@ function loadGraph(canvas, data, callback) {
 
   $loadMoreTweets.on('click', function() {
     while (hiddenTweets.length !== 0) {
-      app.prepend(createTweetNode(hiddenTweets.pop()));
+      $app.prepend(createTweetNode(hiddenTweets.pop()));
     }
     document.title = title;
     $(this).hide();
   });
 
 
-  var app = $('#app');
-  search.on('result', function(results) {
-    console.log(results);
-    displaySearchResults(app, results.tweets);
-    $tweetStats.show();
-	$('#tweetData').show();
-    $('#tweetsFromTwitter').html(results.countFromTwitter);
-    $('#tweetsFromDatabase').html(results.countFromDatabase);
-  });
+
 
 })(io);
