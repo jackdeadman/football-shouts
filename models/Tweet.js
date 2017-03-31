@@ -41,6 +41,8 @@ function saveAuthor(author){
   return dbAuthor.findOrCreate({
     where: {
       twitterHandle: author.twitterHandle,
+    },
+    defaults: {
       name: author.name,
       profileImageUrl: author.profileImageUrl
     }
