@@ -15,10 +15,10 @@ module.exports.selectTransferTweet = tweet => {
   var probs = classifier.classify(tweet.text);
   var ratio = probs.transfers / probs.football;
   var isTransfer = ratio > threshold;
-  if(isTransfer){
-    console.log(ratio);
-    console.log(tweet.text);
-  }
+  // if(isTransfer){
+  //   console.log(ratio);
+  //   console.log(tweet.text);
+  // }
   return isTransfer;
 };
 
