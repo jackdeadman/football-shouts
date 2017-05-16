@@ -13,6 +13,8 @@ var utils = require('./_utils');
 var moment = require('moment');
 var Hashtag = require('./Hashtag');
 var Author = require('./Author');
+var dbpediaClient = require('dbpediaclient');
+dbpediaClient.replyFormat('application/json');
 
 var client = new T({
   consumer_key: config.consumerKey,
@@ -21,12 +23,28 @@ var client = new T({
   access_token_secret: config.accessTokenSecret
 });
 
-function savePlayer(player){
-  return dbPlayer.findOrCreate({
-    where: {
-      name: player
-    }
+function findPlayerMetadata(player){
+  return new Promise((resolve, reject) => {
+    dbpediaClient.keywordSearch(player, "soccer player", function (results) {
+      results = JSON.parse(results);
+      var name = results.results[0].label;
+      resolve(name);
+    });
   });
+ 
+}
+
+function savePlayer(player){
+  return new Promise((resolve, reject) => {
+    findPlayerMetadata(player).then((dbpediaName) => {
+      resolve(dbPlayer.findOrCreate({
+        where: {
+          name: dbpediaName
+        }
+      }));
+    });
+  });
+
 }
 
 function saveClub(club){
@@ -87,31 +105,32 @@ function saveToDatabase(tweet, player, club, author, hashtags){
    * in the tweet, made by Hashtag.processHashtags.
    * @return {Promise} Resolves when all the above are saved to the database.
    */
+  var everything = [];
   var tweetSaved = saveTweet(tweet);
-  var playerSaved = savePlayer(player);
-  var clubSaved = saveClub(club);
-  var authorSaved = saveAuthor(author);
-
-  var everythingSaved;
-  if(hashtags.length === 0){
-    everythingSaved = Promise.all([
-      tweetSaved,
-      authorSaved,
-      playerSaved,
-      clubSaved
-    ]);
-  }else{
-    var hashtagSaves = saveHashtags(hashtags);
-
-    var hashtagsSaved = Promise.all(hashtagSaves);
-    everythingSaved = Promise.all([
-      tweetSaved,
-      authorSaved,
-      playerSaved,
-      clubSaved,
-      hashtagsSaved
-    ]);
+  everything.push(tweetSaved);
+  // console.log("pushed tweet");
+  if (player !== "") {
+    var playerSaved = savePlayer(player);
+    everything.push(playerSaved);
+    // console.log("pushed player");
   }
+  if (club !== "") {
+    var clubSaved = saveClub(club);
+    everything.push(clubSaved);
+    // console.log("pushed club");
+  }
+  var authorSaved = saveAuthor(author);
+  everything.push(authorSaved);
+  // console.log("pushed author");
+
+  if (hashtags.length !== 0) {
+    var hashtagSaves = saveHashtags(hashtags);
+    var hashtagsSaved = Promise.all(hashtagSaves);
+    everything.push(hashtagsSaved);
+    // console.log("pushed hashtags");
+  }
+
+  var everythingSaved = Promise.all(everything);
 
   return everythingSaved;
 }
@@ -124,49 +143,45 @@ function makeRelations(everythingSaved){
    */
   return everythingSaved
   .then(results => {
+    // console.log(results);
     var tweetResult = results[0][0];
-    var authorResult = results[1][0];
-    var playerResult = results[2][0];
-    var clubResult = results[3][0];
+    var authorResult = results[3][0];
+    var allRelations = [];
+    if (results.length === 4) {
+      var playerResult = results[1][0];
+      var clubResult = results[2][0];
+      
+      var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
+      var setTweetRelationToClub = tweetResult.setClub(clubResult);
+      var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
+      var setClubRelationToTweet = clubResult.addTweet(tweetResult);
+      allRelations.push(setTweetRelationToPlayer, setTweetRelationToClub, 
+                        setPlayerRelationToTweet, setClubRelationToTweet);
+    }
 
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
-    var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
-    var setTweetRelationToClub = tweetResult.setClub(clubResult);
-    var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
-    var setClubRelationToTweet = clubResult.addTweet(tweetResult);
+    allRelations.push(setAuthorRelation);
+
 
     var allRelationsDone;
     if(results.length === 5){
       var hashtagResults = results[4][0];
+      console.log("hashtag results: ", hashtagResults.length);
       var hashtagRelations = [];
       hashtagResults.forEach(hashtag => {
-        hashtagRelations.push(tweetResult.addHashtag(hashtag,
-          { through: 'TweetHashtags' }
-        ));
+        hashtagRelations.push(tweetResult.addHashtag(hashtag, 
+          {through: { hashtagId: hashtag.id, tweetId: tweetResult.id }}
+        )); // { through: 'TweetHashtags' }
       });
       var setHashtagRelation = Promise.all(hashtagRelations);
-      allRelationsDone = Promise.all([
-        setAuthorRelation,
-        setHashtagRelation,
-        setTweetRelationToPlayer,
-        setTweetRelationToClub,
-        setPlayerRelationToTweet,
-        setClubRelationToTweet
-      ]);
-    }else{
-      allRelationsDone = Promise.all([
-        setAuthorRelation,
-        setTweetRelationToPlayer,
-        setTweetRelationToClub,
-        setPlayerRelationToTweet,
-        setClubRelationToTweet
-      ]);
+      allRelations.push(setHashtagRelation);
     }
+    allRelationsDone = Promise.all(allRelations);
 
     return allRelationsDone;
   })
   .catch(err => {
-    console.error(err);
+    console.error(err.message);
     return Promise.reject(
       {
         message: 'problem saving the tweet, club, player, or author to db',
@@ -414,7 +429,7 @@ module.exports.getFromDatabase = function(query, callback){
     callback(null, tweets);
   })
   .catch(err => {
-    console.error("Can't find tweets from db.", err);
+    console.error("Can't find tweets from db.");
     callback(null, []);
   });
 };
