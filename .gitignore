@@ -1,6 +1,6 @@
-node_modules
+server/node_modules
 npm-debug.log
 .DS_STORE
-config.json
-config.js
+server/config.js
 yarn-error.log
+.vscode/
