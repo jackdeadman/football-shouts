@@ -27,7 +27,7 @@ var server = http.createServer(app);
  * Create Socket.io object
  */
 
-var io = require('../sockets/index').listen(server);
+var io = require('../sockets/index').listen(server, { origins: '*:*'});
 
 /**
  * Listen on provided port, on all network interfaces.
