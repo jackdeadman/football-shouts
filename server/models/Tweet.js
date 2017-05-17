@@ -27,7 +27,12 @@ function findPlayerMetadata(player){
   return new Promise((resolve, reject) => {
     dbpediaClient.keywordSearch(player, "soccer player", function (results) {
       results = JSON.parse(results);
-      var name = results.results[0].label;
+      var name = player;
+      if (results.results.length > 0) {
+        name = results.results[0].label;
+        console.log("name: #####", name);
+      }
+      
       resolve(name);
     });
   });
@@ -82,11 +87,17 @@ function saveTweet(tweet){
 
 function saveHashtags(hashtags){
   var hashtagSaves = [];
-  hashtags.forEach(function(hashtag){
-    hashtagSaves.push(dbHashtag.findOrCreate({
-      where: {
-        hashtag: hashtag
-      }
+  hashtags.forEach((hashtag) => {
+    hashtagSaves.push(new Promise((resolve, reject) => {
+      var hashtagSave = dbHashtag.findOrCreate({
+        where: {
+          hashtag: hashtag
+        }
+      });
+      hashtagSave.catch((err) => {
+        reject({err, hashtag});
+      });
+      resolve(hashtagSave);
     }));
   });
   return hashtagSaves;
@@ -143,21 +154,19 @@ function makeRelations(everythingSaved){
    */
   return everythingSaved
   .then(results => {
-    // console.log(results);
+
     var tweetResult = results[0][0];
+    var playerResult = results[1][0];
+    var clubResult = results[2][0];
     var authorResult = results[3][0];
     var allRelations = [];
-    if (results.length === 4) {
-      var playerResult = results[1][0];
-      var clubResult = results[2][0];
-      
-      var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
-      var setTweetRelationToClub = tweetResult.setClub(clubResult);
-      var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
-      var setClubRelationToTweet = clubResult.addTweet(tweetResult);
-      allRelations.push(setTweetRelationToPlayer, setTweetRelationToClub, 
-                        setPlayerRelationToTweet, setClubRelationToTweet);
-    }
+
+    var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
+    var setTweetRelationToClub = tweetResult.setClub(clubResult);
+    var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
+    var setClubRelationToTweet = clubResult.addTweet(tweetResult);
+    allRelations.push(setTweetRelationToPlayer, setTweetRelationToClub, 
+                      setPlayerRelationToTweet, setClubRelationToTweet);
 
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
     allRelations.push(setAuthorRelation);
@@ -165,23 +174,39 @@ function makeRelations(everythingSaved){
 
     var allRelationsDone;
     if(results.length === 5){
-      var hashtagResults = results[4][0];
-      console.log("hashtag results: ", hashtagResults.length);
+      var hashtagResults = results[4].map(result => result[0]);
       var hashtagRelations = [];
       hashtagResults.forEach(hashtag => {
-        hashtagRelations.push(tweetResult.addHashtag(hashtag, 
-          {through: { hashtagId: hashtag.id, tweetId: tweetResult.id }}
-        )); // { through: 'TweetHashtags' }
+        // hashtag = hashtag.get({
+        //   plain: true
+        // });
+        hashtagRelations.push(new Promise((resolve, reject) => {
+          var setRelation = tweetResult.addHashtag(hashtag, {
+            through: { hashtagId: hashtag.id, tweetId: tweetResult.id }
+          });
+          setRelation
+          .catch((err) => {
+            console.log("#####", hashtag);
+            reject({err, hashtag});
+          });
+          resolve(setRelation);
+        })); // { through: 'TweetHashtags' }
       });
       var setHashtagRelation = Promise.all(hashtagRelations);
+      setHashtagRelation.catch(err => {
+        // console.error(err);
+      });
       allRelations.push(setHashtagRelation);
     }
     allRelationsDone = Promise.all(allRelations);
+    // allRelationsDone.catch((err) => {
+    //   console.log(results);
+    // });
 
     return allRelationsDone;
   })
   .catch(err => {
-    console.error(err.message);
+    // console.error(err.message);
     return Promise.reject(
       {
         message: 'problem saving the tweet, club, player, or author to db',
@@ -298,59 +323,87 @@ function findTweets(player, club, since, until){
    */
   since = moment(since).format().toString();
   until = moment(until).format().toString();
-  var playerQuery = makePlayerOrClubQuery(player);
-  var clubQuery = makePlayerOrClubQuery(club);
+  var playerMetadataFound = findPlayerMetadata(player);
+  return playerMetadataFound.then((playerName) => {
+    var playerQuery = makePlayerOrClubQuery(playerName);
+    var clubQuery = makePlayerOrClubQuery(club);
 
-  if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
-    return dbTweet.findAll({
-      where: {
-        datePublished: {
-          $gte: since,
-          $lte: until
-        }
-      },
-      include: [
-        {
-          model: dbHashtag,
-          as: 'Hashtags',
-          where: {
-            hashtag: {
-              $in: [Hashtag.stripHashtag(player), Hashtag.stripHashtag(club)]
+    if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
+      return dbTweet.findAll({
+        where: {
+          datePublished: {
+            $gte: since,
+            $lte: until
+          }
+        },
+        include: [
+          {
+            model: dbHashtag,
+            as: 'Hashtags',
+            where: {
+              hashtag: {
+                $in: [Hashtag.stripHashtag(player), Hashtag.stripHashtag(club)]
+              }
             }
+          },
+          {
+            model: dbAuthor
+          }
+        ]
+      });
+    } else if(Hashtag.isHashtag(player)){
+      return dbTweet.findAll({
+        where: {
+          datePublished: {
+            $gte: since,
+            $lte: until
           }
         },
-        {
-          model: dbAuthor
-        }
-      ]
-    });
-  } else if(Hashtag.isHashtag(player)){
-    return dbTweet.findAll({
-      where: {
-        datePublished: {
-          $gte: since,
-          $lte: until
-        }
-      },
-      include: [
-        {
-          model: dbClub,
-          where: clubQuery,
-          foreignKey: 'transferClubId'
-        },
-        {
-          model: dbHashtag,
-          as: 'Hashtags',
-          where: {
-            hashtag: Hashtag.stripHashtag(player)
+        include: [
+          {
+            model: dbClub,
+            where: clubQuery,
+            foreignKey: 'transferClubId'
+          },
+          {
+            model: dbHashtag,
+            as: 'Hashtags',
+            where: {
+              hashtag: Hashtag.stripHashtag(player)
+            }
+          },
+          {
+            model: dbAuthor
+          }
+        ]
+      });
+    } else if(Hashtag.isHashtag(club)) {
+      return dbTweet.findAll({
+        where: {
+          datePublished: {
+            $gte: since,
+            $lte: until
           }
         },
-        {
-          model: dbAuthor
-        }
-      ]
-    });
-  } else if(Hashtag.isHashtag(club)) {
+        include: [
+          {
+            model: dbPlayer,
+            where: playerQuery
+          },
+          {
+            model: dbHashtag,
+            as: 'Hashtags',
+            where: {
+              hashtag: Hashtag.stripHashtag(club)
+            }
+          },
+          {
+            model: dbAuthor
+          }
+        ]
+      });
+    }
+
     return dbTweet.findAll({
       where: {
         datePublished: {
@@ -364,41 +417,17 @@ function findTweets(player, club, since, until){
           where: playerQuery
         },
         {
-          model: dbHashtag,
-          as: 'Hashtags',
-          where: {
-            hashtag: Hashtag.stripHashtag(club)
-          }
+          model: dbClub,
+          where: clubQuery,
+          foreignKey: 'transferClubId'
         },
         {
           model: dbAuthor
         }
       ]
     });
-  }
-
-  return dbTweet.findAll({
-    where: {
-      datePublished: {
-        $gte: since,
-        $lte: until
-      }
-    },
-    include: [
-      {
-        model: dbPlayer,
-        where: playerQuery
-      },
-      {
-        model: dbClub,
-        where: clubQuery,
-        foreignKey: 'transferClubId'
-      },
-      {
-        model: dbAuthor
-      }
-    ]
   });
+  
 }
 
 module.exports.getFromDatabase = function(query, callback){

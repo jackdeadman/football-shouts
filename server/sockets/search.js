@@ -12,7 +12,7 @@ var findTransfers = (player, club, sources, callback) => {
    * @param {String} club: club name
    * @param {Function} callback: fn(err, tweets)
    */
-  var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+  var lastWeek = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
   var today = new Date(Date.now());
 
   var query = {
