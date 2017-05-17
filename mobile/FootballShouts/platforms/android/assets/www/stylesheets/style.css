@@ -1,0 +1,251 @@
+/*General*/
+body {
+	background-color: #f5f8fa;
+}
+a {
+	color: #ab47bc;
+}
+table.striped > tbody > tr:nth-child(even) {
+	background-color: #faf3fb;
+}
+table.striped > tbody > tr:nth-child(odd) {
+	background-color: #fff;
+}
+
+span.chip {
+  margin-top: 5px;
+  background-color: #faf3fb;
+  transition: .3s background-color;
+}
+
+.input-field label:not(.label-icon).active {
+  top: 0px;
+}
+
+/*.active ~ label {
+  color: #6a1b9a !important;
+}*/
+
+.active .chip {
+  background-color: #6a1b9a;
+  color: #fff;
+}
+
+div#app-container {
+  padding-top: 15px;
+}
+
+/*Text highlighting*/
+::selection {
+  background: #ce93d8;
+}
+::-moz-selection {
+  background: #ce93d8;
+}
+
+/*hero stuff*/
+div#search-container {
+  padding-top: 6%;
+  padding-bottom: 100px;
+}
+
+div#search-container > .container {
+	width: 700px;
+	margin: 0px auto;
+	margin-top: 50px;
+}
+
+.parallax-container {
+	height: 100vh;
+}
+
+.parallax-container > .container {
+	max-width: 700px;
+}
+
+.parallax {
+	height: 100%;
+}
+
+.parallax > img {
+	bottom: 0px;
+	min-width: calc(100% + 1px);
+	min-height: calc(100% + 250px);
+	width: auto;
+	height: 100%;
+}
+
+/*Back to top button*/
+a#back-to-top {
+  display: none;
+  opacity: 0;
+  position: fixed;
+  bottom: 10px;
+  right: 20px;
+}
+
+/*data stuff*/
+#tweetData {
+  margin-bottom: 5px;
+}
+
+#chartLoader {
+  text-align: center;
+}
+
+/*info stuff*/
+div.info {
+  display: none;
+  padding: 0px !important;
+  margin-bottom: 20px;
+}
+div.info > table {
+  margin-bottom: 20px;
+}
+div.info-top {
+  border-top-left-radius: 3px;
+  border-top-right-radius: 3px;
+  padding-top: 20px;
+  padding-bottom: 20px;
+  background-color: #ffffff;
+}
+div.info-image {
+  width: 150px;
+  margin: 0px auto;
+}
+div.info-image > img {
+  min-width: 150px;
+  min-height: 150px;
+  max-width: 150px;
+  max-height: 150px;
+}
+div.info-title > p {
+  width: 100%;
+  font-size: x-large;
+  font-weight: bold;
+  text-align: center;
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+td.info-name {
+  padding-left: 15px;
+  font-weight: bold;
+}
+
+/*Modifications for button highlighting*/
+a.btn-light {
+	background-color: white;
+}
+.btn-light:hover {
+  opacity: 1;
+	background-color: #faf3fb;
+	/*I DON'T KNOW WHY I NEEDED TO RESTATE THIS*/
+	box-shadow: 0 16px 24px 2px rgba(0,0,0,0.14),
+	            0 6px 30px 5px rgba(0,0,0,0.12),
+							0 8px 10px -5px rgba(0,0,0,0.3);
+}
+.btn, .btn-large {
+  overflow: hidden;
+}
+.btn:hover:before, .btn-large:hover:before {
+  opacity: 1;
+}
+.btn:before, .btn-large:before {
+  content: '';
+  opacity: 0;
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  left: 0;
+  top: 0;
+  transition: opacity .2s;
+  z-index: -1;
+}
+.btn.purple:before, .btn-large.purple:before {
+  background-color: #6f30ad;
+}
+
+/*Input field colours*/
+.input-field input[type=text]:focus + label {
+  color: #6a1b9a;
+}
+.input-field input[type=text]:focus {
+  border-bottom: 1px solid #6a1b9a;
+  box-shadow: inset 0px -1px 0 0 #6a1b9a;
+}
+.materialize-tags {
+	border-bottom-color: #fff;
+}
+.materialize-tags.active {
+  border-bottom-color: #6a1b9a;
+  box-shadow: inset 0px -1px 0 0 #6a1b9a;
+}
+.materialize-tags input {
+  color: #6a1b9a;
+}
+.spinner-layer.white-loader {
+  border-color: #fff;
+}
+#loader-wrapper {
+  position: absolute;
+  left: 50%;
+}
+#loader {
+  position: relative;
+  left: -50%;
+}
+#submit-button-wrapper {
+  position: absolute;
+  left: 50%;
+}
+#submit-button {
+  position: relative;
+  left: -50%;
+}
+
+/*Dropdown field*/
+label#options_label {
+	top: -18px;
+}
+.input-field > .select-wrapper > ul.dropdown-content > li:not(.disabled) > span {
+  color: #6a1b9a;
+}
+.input-field > .select-wrapper > ul.dropdown-content > li:not(.disabled).active > span > label::before {
+  border-right-color: #6a1b9a;
+  border-bottom-color: #6a1b9a;
+}
+.input-field > .select-wrapper > ul.dropdown-content > li:not(.disabled) > span > label::before {
+  border-right-color: #5a5a5a;
+  border-bottom-color: #5a5a5a;
+}
+.input-field > .select-wrapper > input.select-dropdown {
+  color: #faf3fb;
+  border-bottom-color: #fff;
+}
+.input-field > .select-wrapper > span.caret {
+  color: #fff;
+}
+.dropdown-content > li.active.selected {
+	background-color: #faf3fb;
+}
+.dropdown-content li:hover, .dropdown-content li.active, .dropdown-content li.selected {
+	background-color: #fff;
+}
+
+/*data guff*/
+div#js-tweet-chart-container {
+	margin-bottom: 0px;
+}
+
+/*Style for using the default mouse cursor*/
+span.chip, label, .default-cursor {
+  cursor: default;
+}
+
+/*Style for disabling the selection of text*/
+.disable-select {
+  -webkit-user-select: none;
+  -moz-user-select: none;
+  -ms-user-select: none;
+  user-select: none;
+}#
