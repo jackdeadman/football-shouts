@@ -1,0 +1,34 @@
+doctype html
+html
+  head
+    title= title
+    link(rel="stylesheet", href="https://fonts.googleapis.com/icon?family=Material+Icons")
+    link(rel="stylesheet", href="/stylesheets/materialize.min.css")
+    link(rel="stylesheet", href="/stylesheets/materialize-tags.min.css")
+    link(rel='stylesheet', href='/stylesheets/style.css')
+    link(rel='stylesheet', href='/stylesheets/tweet.css')
+    meta(name='viewport', content='width=device-width, initial-scale=1')
+  body
+    #search-container.parallax-container
+      div.container
+        block input
+      div.parallax
+        img(src = "/images/background.jpg")
+    div.container#app-container
+      block overlay
+      block tweets
+
+  //JS scripts
+  script(src="cordova.js")
+  script(src="javascripts/index.js")
+  script(src="javascripts/jquery-3.2.0.min.js")
+  script(src="javascripts/jquery-3.2.0.min.js")
+  script(src="javascripts/typeahead.min.js")
+  script(src="javascripts/bloodhound.min.js")
+  script(src="javascripts/materialize.min.js")
+  script(src="javascripts/materialize-tags.min.js")
+  script(src="javascripts/moment.min.js")
+  script(src="javascripts/Chart.min.js")
+  script(src="http://cdn.socket.io/socket.io-1.0.3.js")
+  script(src="javascripts/main.js")
+  script(src="javascripts/init.js")
