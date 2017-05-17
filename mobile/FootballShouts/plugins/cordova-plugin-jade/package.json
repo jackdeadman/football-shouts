@@ -1,0 +1,47 @@
+{
+  "name": "cordova-plugin-jade",
+  "version": "0.0.1",
+  "description": "Jade Cordova Plugin",
+  "cordova": {
+    "id": "cordova-plugin-jade",
+    "platforms": [
+      "firefoxos",
+      "tizen",
+      "android",
+      "amazon-fireos",
+      "ubuntu",
+      "ios",
+      "blackberry10",
+      "wp7",
+      "wp8",
+      "windows8",
+      "windows",
+      "browser",
+      "osx"
+    ]
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/DrMoriarty/cordova-plugin-jade"
+  },
+  "keywords": [
+    "cordova",
+    "jade",
+    "ecosystem:cordova",
+    "cordova-firefoxos",
+    "cordova-tizen",
+    "cordova-android",
+    "cordova-amazon-fireos",
+    "cordova-ubuntu",
+    "cordova-ios",
+    "cordova-blackberry10",
+    "cordova-wp7",
+    "cordova-wp8",
+    "cordova-windows8",
+    "cordova-windows",
+    "cordova-browser",
+    "cordova-osx"
+  ],
+  "author": "DrMoriarty",
+  "license": "MIT License"
+}
