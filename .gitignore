@@ -4,3 +4,6 @@ npm-debug.log
 server/config.js
 yarn-error.log
 .vscode/
+mobile/FootballShouts/node_modules/
+mobile/platforms/android/
+mobile/FootballShouts/platforms/android/
