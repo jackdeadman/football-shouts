@@ -11,6 +11,7 @@ function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
   $('#clubs').materialtags('add', 'Man U');
+  $('#authors').materialtags('add', '@D_M15TRY');
 }
 
 //Animates and reveals the "back to top" button
@@ -73,8 +74,9 @@ function validate() {
   //Makes sure all fields have a value before allowing submission
   var tags1 = $('#players').materialtags('items').length > 0;
   var tags2 = $('#clubs').materialtags('items').length > 0;
+  var tags3 = $('#authors').materialtags('items').length > 0;
   var checked = $('#options').val().length > 0;
-  if (tags1 && tags2 && checked)
+  if ((tags1 || tags2 || tags3) && checked)
     $('#submit-button').prop('disabled', false);
   else
     $('#submit-button').prop('disabled', true);

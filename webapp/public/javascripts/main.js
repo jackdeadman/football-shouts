@@ -81,8 +81,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('http://192.168.0.13:3000/search');
-  var liveTweets = io('http://192.168.0.13:3000/liveTweets');
+  var search = io('http://164.132.47.12:3000/search');
+  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
@@ -151,17 +151,20 @@ function loadGraph(canvas, data, callback) {
     //Getting form data
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
+    var authorTags = $('#authors').materialtags('items');
     var sources = $('#options').val();
     var req = {
       players: playerTags,
       clubs: clubTags,
+      authors: authorTags,
       sources: sources
     };
 
     // Setup livetweets
     liveTweets.emit('subscribe', {
       player: playerTags[0],
-      club: clubTags[0]
+      club: clubTags[0],
+      author: authorTags[0]
     });
 
     // Send the queries
