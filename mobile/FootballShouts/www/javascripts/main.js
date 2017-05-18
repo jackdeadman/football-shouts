@@ -23,9 +23,9 @@ function createTweetNode(tweet) {
 
   var div =     $('<div>', {'class': 'card-panel z-depth-1'});
   var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
-  var image =   $('<div>', {'class': 'col s2'})
+  var image =   $('<div>', {'class': 'col s3 xl2'})
                 .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
-  var content = $('<div>', {'class': 'col s10'})
+  var content = $('<div>', {'class': 'col s9 xl10'})
                 .prepend('<div class = "tweetDate">' + moment(tweet.datePublished).format('LLL') + '</div>')
                 .prepend('<span class = "black-text">' + tweetText + '</span>')
                 .prepend('<div class="tweetTop"><div class="tweetName">' +
@@ -55,7 +55,7 @@ function loadGraph(canvas, data, callback) {
       }]
     },
     options: {
-      responsive: false,
+      responsive: true,
       tooltips: {
         callbacks: {
                       title: function(item) {
@@ -68,7 +68,6 @@ function loadGraph(canvas, data, callback) {
             type: 'time',
             time: {
               ticks: {
-                    stepSize: 2,
                     autoSkip: false
                 }
             }

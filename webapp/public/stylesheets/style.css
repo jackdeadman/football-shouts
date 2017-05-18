@@ -62,6 +62,10 @@ div#search-container > .container {
 	max-width: 700px;
 }
 
+.mobile-background {
+	background-image: url("../images/background.jpg");
+}
+
 .parallax {
 	height: 100%;
 }

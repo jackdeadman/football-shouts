@@ -10,8 +10,7 @@ var Key = {
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
-  $('#clubs').materialtags('add', 'West Ham');
-  $('#clubs').materialtags('add', '@WestHamUtd');
+  $('#clubs').materialtags('add', 'Man U');
 }
 
 //Animates and reveals the "back to top" button
@@ -179,7 +178,7 @@ $(document).ready(function() {
 
   //Initialising the Bloodhound stuff
   //(WIP: CURRENTLY NOT WORKING)
-  var playernames = $.getJSON('/data/players.json', function(data) {
+  var playernames = $.getJSON('data/players.json', function(data) {
 
     //Creating a new Bloodhound object
     var playername = new Bloodhound({

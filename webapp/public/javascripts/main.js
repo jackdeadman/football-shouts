@@ -22,15 +22,15 @@ function createTweetNode(tweet) {
   var tweetText = parseTweet(tweet.text);
 
   var div =     $('<div>', {'class': 'card-panel z-depth-1'});
-  var innerdiv = $('<div>', {'class': 'row valign-wrapper tweet'});
-  var image =   $('<div>', {'class': 'col s3 xl2'})
+  var innerdiv = $('<div>', {'class': 'row tweet'});
+  var image =   $('<div>', {'class': 'col s3 xl2 avatar-wrapper'})
                 .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
   var content = $('<div>', {'class': 'col s9 xl10'})
                 .prepend('<div class = "tweetDate">' + moment(tweet.datePublished).format('LLL') + '</div>')
                 .prepend('<span class = "black-text">' + tweetText + '</span>')
                 .prepend('<div class="tweetTop"><div class="tweetName">' +
                          '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +
-                         '</div><div class="tweetHandle"> ' +
+                         '</div><div class="tweetHandle">' +
                          '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + '</a></div></div>');
 
   var inner = innerdiv.append(image).append(content);
@@ -81,8 +81,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('/search');
-  var liveTweets = io('/liveTweets');
+  var search = io('http://164.132.47.12:3000/search');
+  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
@@ -151,17 +151,20 @@ function loadGraph(canvas, data, callback) {
     //Getting form data
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
+    var authorTags = $('#authors').materialtags('items');
     var sources = $('#options').val();
     var req = {
       players: playerTags,
       clubs: clubTags,
+      authors: authorTags,
       sources: sources
     };
 
     // Setup livetweets
     liveTweets.emit('subscribe', {
       player: playerTags[0],
-      club: clubTags[0]
+      club: clubTags[0],
+      author: authorTags[0]
     });
 
     // Send the queries
