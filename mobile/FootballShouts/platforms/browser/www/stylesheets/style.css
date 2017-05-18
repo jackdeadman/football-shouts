@@ -50,7 +50,6 @@ div#search-container {
 }
 
 div#search-container > .container {
-	width: 700px;
 	margin: 0px auto;
 	margin-top: 50px;
 }
@@ -61,6 +60,11 @@ div#search-container > .container {
 
 .parallax-container > .container {
 	max-width: 700px;
+}
+
+.mobile-background {
+	background-image: url("../images/background.jpg");
+	background-size: auto 100%;
 }
 
 .parallax {
@@ -199,6 +203,7 @@ a.btn-light {
   left: 50%;
 }
 #submit-button {
+	min-width: 180px;
   position: relative;
   left: -50%;
 }

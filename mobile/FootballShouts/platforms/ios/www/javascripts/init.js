@@ -10,8 +10,8 @@ var Key = {
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
-  $('#clubs').materialtags('add', 'West Ham');
-  $('#clubs').materialtags('add', '@WestHamUtd');
+  $('#clubs').materialtags('add', 'Man U');
+  $('#authors').materialtags('add', '@D_M15TRY');
 }
 
 //Animates and reveals the "back to top" button
@@ -74,8 +74,9 @@ function validate() {
   //Makes sure all fields have a value before allowing submission
   var tags1 = $('#players').materialtags('items').length > 0;
   var tags2 = $('#clubs').materialtags('items').length > 0;
+  var tags3 = $('#authors').materialtags('items').length > 0;
   var checked = $('#options').val().length > 0;
-  if (tags1 && tags2 && checked)
+  if ((tags1 || tags2 || tags3) && checked)
     $('#submit-button').prop('disabled', false);
   else
     $('#submit-button').prop('disabled', true);
@@ -86,7 +87,7 @@ $(document).ready(function() {
   //(NEEDS IMPROVING!)
   var delIsDown = false;
 
-  //Getting stuff from the DOM
+  //Getting stuff from the DO
   var $playersLabel = $('#players_label');
   var $clubsLabel = $('#clubs_label');
   var $inputs = $('#players, #clubs');
@@ -99,10 +100,10 @@ $(document).ready(function() {
   //Making sure the labels can be clicked on to select the input boxes
   $playersLabel.click(function(){
     $('.n-tag:first').focus();
-  })
+  });
   $clubsLabel.click(function(){
     $('.n-tag:eq(1)').focus();
-  })
+  });
 
   //Listeners for the input boxes
   $inputs.on('itemRemoved', function() {
@@ -160,11 +161,19 @@ $(document).ready(function() {
   //Back to top button stuff...
   var hidingBackToTop = false;
   var $top = $('#back-to-top');
+  var backToTopTimer = null;
 
   $(window).scroll(function(){
     if ($(this).scrollTop() > 0) {
-      if (!hidingBackToTop && $top.css('opacity') == 0)
-        showBackToTopButton();
+      if (!hidingBackToTop) {
+        if (backToTopTimer != null)
+          clearTimeout(backToTopTimer);
+        backToTopTimer = setTimeout(function() {
+          hideBackToTopButton();
+        }, 2000);
+        if ($top.css('opacity') == 0)
+          showBackToTopButton();
+      }
     } else {
       hidingBackToTop = false;
       hideBackToTopButton();
@@ -179,7 +188,7 @@ $(document).ready(function() {
 
   //Initialising the Bloodhound stuff
   //(WIP: CURRENTLY NOT WORKING)
-  var playernames = $.getJSON('/data/players.json', function(data) {
+  var playernames = $.getJSON('data/players.json', function(data) {
 
     //Creating a new Bloodhound object
     var playername = new Bloodhound({

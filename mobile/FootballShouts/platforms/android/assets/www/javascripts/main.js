@@ -80,9 +80,20 @@ function loadGraph(canvas, data, callback) {
 
 
 (function(io) {
+
+
+
   // Connections with sockets
-  var search = io('http://164.132.47.12:3000/search');
-  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
+  try {
+    var search = io('http://164.132.47.12:3000/search');
+    var liveTweets = io('http://164.132.47.12:3000/liveTweets');
+  }
+  catch (err) {
+    console.log(err.message);
+    alert("Unable to connect to server T.T");
+    return;
+  }
+
 
   // Cache the DOM
   var $app = $('#app');
