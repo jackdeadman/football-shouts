@@ -54,14 +54,14 @@ block tweets
   div.row
     //The column to the left displaying player and club info
     //(TEMPORARY)
-    div.col.s5#side-info
+    div.col.s12.l5
       div.card-panel.z-depth-1.info#playerinfo
         div.info-top
           div.info-image#playerimage
             img.circle.responsive-img(src = "/images/manny.png")
           div.info-title#playername
             p Manny Calavera
-        table.responsive-table.striped
+        table.striped
           tbody
             tr
               td.info-name
@@ -123,8 +123,7 @@ block tweets
                 span Liga MX
 
     //Right-hand section for graph and tweets
-    div.col.s7#js-tweet-start
-      //The graph
+    div.col.s12.l7#js-tweet-start
       #tweet-stats
 
       //Button for loading more tweets
@@ -134,20 +133,20 @@ block tweets
       //ID used for displaying gathered tweets
       #app
 
-  script#tweet-stat-template(type='text/x-handlebars-template').
-    <div id="js-tweet-chart-container">
+  script#tweet-stats-template(type='text/x-handlebars-template').
+    <div id="js-tweet-chart-container" class="row">
       <div class="col s12">
         <div class="card-panel">
           <table class="responsive-table" id="tweetData">
             <tbody>
               <tr>
                 <td class="info-name">Tweets from Twitter</td>
-                <td>{{ tweetsFromTwitter }}</td>
+                <td>{{ countFromTwitter }}</td>
               </tr>
 
               <tr>
                 <td class="info-name">Tweets from Database</td>
-                <td>{{ tweetsFromDatabase }}</td>
+                <td>{{ countFromDatabase }}</td>
               </tr>
             </tbody>
           </table>

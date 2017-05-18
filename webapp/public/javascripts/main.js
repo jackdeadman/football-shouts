@@ -85,11 +85,10 @@ function loadGraph(canvas, data, callback) {
   // var $tweetData = $('#tweetData');
   // var $tweetsFromTwitter = $('#tweetsFromTwitter');
   // var $tweetsFromDatabase = $('#tweetsFromDatabase');
-  // var $sideInfo = $('#side-info');
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
-  var tweetStateTemplate = Handlebars.compile($("#tweet-stat-template").html());
+  var tweetStateTemplate = Handlebars.compile($("#tweet-stats-template").html());
 
   // HANDLERS
   function handleSearchError(err) {
@@ -98,9 +97,14 @@ function loadGraph(canvas, data, callback) {
   }
 
   function handleChartResult(data) {
-    data = data.map(function(sample) {
+    var stats = renderTweetStats(data, true);
+    $tweetStats.html(stats);
+
+    var data = data.data;
+    var data = data.map(function(sample) {
       return { x: sample.date, y: sample.count };
     });
+
     var $canvas = $('canvas');
     loadGraph($canvas, data, function() {
       // $chartLoader.hide();
@@ -108,24 +112,19 @@ function loadGraph(canvas, data, callback) {
     });
   }
 
+  var countFromTwitter = 0;
+  var countFromDatabase = 0;
+
   function handleSearchResult(results) {
     displaySearchResults(results.tweets);
+    countFromTwitter = results.countFromTwitter;
+    countFromDatabase = results.countFromDatabase;
     var stats = renderTweetStats({
-      countFromDatabase: results.countFromDatabase,
-      countFromTwitter: results.countFromTwitter
+      countFromDatabase: countFromDatabase,
+      countFromTwitter: countFromTwitter
     }, false);
-    console.log(stats);
-    $tweetStats.html(stats);
 
-    // Show loading
-    // if ($appContainer.is(":hidden"))
-    //   $appContainer.show();
-    // else {
-    //   $appContainer.css('visibility', 'visible');
-    //   $appContainer.animate({
-    //     opacity: 1
-    //   }, 100, 'swing');
-    // }
+    $tweetStats.html(stats);
 
     // Finally scroll down the page
     scrollTo($appContainer.offset().top, 750, function() {
@@ -155,6 +154,7 @@ function loadGraph(canvas, data, callback) {
       var tweetNode = renderTweet(tweet)
       $app.append(tweetNode);
     });
+    showApp();
   }
 
   hiddenTweets = []
@@ -188,7 +188,13 @@ function loadGraph(canvas, data, callback) {
   // Setup Socket listeners
   // SEARCH
   search.on('error', handleSearchError);
-  search.on('chart', handleChartResult);
+  search.on('chart', function(data) {
+    handleChartResult({
+      data: data,
+      countFromDatabase: countFromDatabase,
+      countFromTwitter: countFromTwitter
+    });
+  });
   search.on('result', handleSearchResult);
   liveTweets.on('tweet', handleNewLiveTweet);
 
@@ -214,20 +220,21 @@ function loadGraph(canvas, data, callback) {
       clubs: clubTags,
       sources: sources
     });
-    $app.show();
+    // showApp();
   });
 
   $loadMoreTweets.on('click', loadLiveTweets);
 
   // On load hide things
   function hideApp() {
-    $app.hide();
+
     $loader.hide();
     $loadMoreTweets.hide();
+    $appContainer.hide();
   }
 
   function showApp() {
-    $app.show();
+    $appContainer.show();
   }
 
   hideApp();
