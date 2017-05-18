@@ -5,19 +5,22 @@ var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
 var moment = require('moment');
 
-var findTransfers = (player, club, sources, callback) => {
+var findTransfers = (player, club, authors, sources, callback) => {
   /**
    * Finds tweets between players and clubs using database and twitter
    * @param {String} player: Player name
    * @param {String} club: club name
+   * @param {[String]} authors: author names
    * @param {Function} callback: fn(err, tweets)
    */
   var lastWeek = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
   var today = new Date(Date.now());
 
+  // Build query object
   var query = {
-    player: player,
-    club: club,
+    player,
+    club,
+    authors,
     since: lastWeek, until: today
   };
 
@@ -81,9 +84,11 @@ var findAllTweets = (req, callback) => {
    * @param {Object} req: query and sources
    * @param {Object} req.players: list of player names
    * @param {Object} req.clubs: list of clubs names
+   * @param {Object} req.authors: list of author names
    * @param {Object} req.sources: list of sources from set {'twitter, database'}
    * @param {Function} callback: fn(err, list of tweets)
    */
+
   // Holding variables
   var requests = req.players.length * req.clubs.length;
   var responses = 0;
@@ -93,7 +98,7 @@ var findAllTweets = (req, callback) => {
   // Search using all combinations
   req.players.forEach(player => {
     req.clubs.forEach(club => {
-      findTransfers(player, club, req.sources, (err, tweets) => {
+      findTransfers(player, club, req.authors, req.sources, (err, tweets) => {
         // response has been received
         responses ++;
 
@@ -110,7 +115,7 @@ var findAllTweets = (req, callback) => {
         // All responses finished
         if (requests === responses) {
           // Order by datePublished
-          allTweets = allTweets.sort(function(t1, t2) {
+          allTweets = allTweets.sort((t1, t2) => {
             var datePublished1 = new Date(t1.datePublished);
             var datePublished2 = new Date(t2.datePublished);
             return datePublished1 >= datePublished2 ? -1 : 1;
@@ -118,7 +123,7 @@ var findAllTweets = (req, callback) => {
 
           // Remove duplicate twitters
           var prev = { twitterId: null };
-          allTweets = allTweets.filter(function(t) {
+          allTweets = allTweets.filter(t => {
             var different = prev.twitterId !== t.twitterId;
             prev = t;
             return different;
@@ -177,6 +182,7 @@ var handlers = {
      * @param {Object} req: request from the client.
      * @param {String[]} req.players: List of player names
      * @param {String[]} req.clubs: List of club names
+     * @param {String[]} req.authors: List of author names
      * @param {String[]} req.sources: List of sources
      *                                 from the set {'twitter', 'database'}
      */
@@ -191,7 +197,7 @@ var handlers = {
     var errorMsg = null;
 
     if (!hasRequiredFields) {
-      errorMsg = 'Please provide players and a club names and the sources.';
+      errorMsg = 'Please provide players, clubs and author names and the sources.';
       socket.emit(errorEvent, generateErrorObj(errorMsg, req));
       return;
     }
@@ -208,7 +214,9 @@ var handlers = {
       // Squash into a final results object
       var resultObj = allTweets.reduce((acc, tweet) => {
         return {
+          // Combine tweets by concatenation
           tweets: acc.tweets.concat([tweet]),
+          // Add the totals together
           countFromTwitter: acc.countFromTwitter
                                 + (tweet.source === 'twitter'),
           countFromDatabase: acc.countFromDatabase

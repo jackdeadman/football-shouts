@@ -12,6 +12,9 @@
         },
         "cordova-plugin-jade": {
             "PACKAGE_NAME": "io.cordova.hellocordova"
+        },
+        "cordova-sqlite-storage": {
+            "PACKAGE_NAME": "io.cordova.football.shouts"
         }
     },
     "dependent_plugins": {}

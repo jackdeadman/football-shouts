@@ -28,6 +28,10 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
+
+        window.sqlitePlugin.echoTest(function() {
+          console.log('ECHO test OK');
+        });
     },
 
     // Update DOM on a Received Event
