@@ -11,7 +11,7 @@
         }
     },
     "dependencies": {
-        "cordova-android": "~6.2.3",
+        "cordova-android": "^6.2.3",
         "cordova-plugin-whitelist": "1"
     }
 }

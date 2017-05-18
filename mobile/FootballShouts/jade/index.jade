@@ -47,21 +47,21 @@ block input
 block overlay
   a.btn-floating.btn-large.btn-light.waves-effect.waves-light.z-depth-5#back-to-top
     i
-      img(src="/images/top-arrow.svg")
+      img(src="images/top-arrow.svg")
 
 //Block containing content "below the fold"
 block tweets
   div.row
     //The column to the left displaying player and club info
     //(TEMPORARY)
-    div.col.s5#side-info
+    div.col.s12.l5#side-info
       div.card-panel.z-depth-1.info#playerinfo
         div.info-top
           div.info-image#playerimage
-            img.circle.responsive-img(src = "/images/manny.png")
+            img.circle.responsive-img(src = "images/manny.png")
           div.info-title#playername
             p Manny Calavera
-        table.responsive-table.striped
+        table.striped
           tbody
             tr
               td.info-name
@@ -111,7 +111,7 @@ block tweets
       div.card-panel.grey.lighten-5.z-depth-1.info#clubinfo
         div.info-top
           div.info-image#playerimage
-            img.responsive-img(src = "/images/club.png")
+            img.responsive-img(src = "images/club.png")
           div.info-title#playername
             p Club Universidad Nacional
         table.striped
@@ -123,7 +123,7 @@ block tweets
                 span Liga MX
 
     //Right-hand section for graph and tweets
-    div.col.s7#js-tweet-start
+    div.col.s12.l7#js-tweet-start
       //The graph
       div.row#js-tweet-chart-container
         div.col.s12

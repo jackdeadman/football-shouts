@@ -85,7 +85,7 @@ $(document).ready(function() {
   //(NEEDS IMPROVING!)
   var delIsDown = false;
 
-  //Getting stuff from the DOM
+  //Getting stuff from the DO
   var $playersLabel = $('#players_label');
   var $clubsLabel = $('#clubs_label');
   var $inputs = $('#players, #clubs');
@@ -98,10 +98,10 @@ $(document).ready(function() {
   //Making sure the labels can be clicked on to select the input boxes
   $playersLabel.click(function(){
     $('.n-tag:first').focus();
-  })
+  });
   $clubsLabel.click(function(){
     $('.n-tag:eq(1)').focus();
-  })
+  });
 
   //Listeners for the input boxes
   $inputs.on('itemRemoved', function() {
@@ -159,11 +159,19 @@ $(document).ready(function() {
   //Back to top button stuff...
   var hidingBackToTop = false;
   var $top = $('#back-to-top');
+  var backToTopTimer = null;
 
   $(window).scroll(function(){
     if ($(this).scrollTop() > 0) {
-      if (!hidingBackToTop && $top.css('opacity') == 0)
-        showBackToTopButton();
+      if (!hidingBackToTop) {
+        if (backToTopTimer != null)
+          clearTimeout(backToTopTimer);
+        backToTopTimer = setTimeout(function() {
+          hideBackToTopButton();
+        }, 2000);
+        if ($top.css('opacity') == 0)
+          showBackToTopButton();
+      }
     } else {
       hidingBackToTop = false;
       hideBackToTopButton();
@@ -178,7 +186,7 @@ $(document).ready(function() {
 
   //Initialising the Bloodhound stuff
   //(WIP: CURRENTLY NOT WORKING)
-  var playernames = $.getJSON('/data/players.json', function(data) {
+  var playernames = $.getJSON('data/players.json', function(data) {
 
     //Creating a new Bloodhound object
     var playername = new Bloodhound({
