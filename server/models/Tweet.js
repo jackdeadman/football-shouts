@@ -347,7 +347,7 @@ function makePlayerOrClubQuery(query){
   return queryObj;
 }
 
-function findTweets(player, club, since, until){
+function findTweets(player, club, author, since, until){
   /**
    * Searches for tweets related to hashtags, players or clubs.
    * @param {String} player The player query term;
@@ -358,6 +358,7 @@ function findTweets(player, club, since, until){
    */
   since = moment(since).format().toString();
   until = moment(until).format().toString();
+
   var playerMetadataFound = findPlayerMetadata(player);
   var clubMetadataFound = findClubMetadata(club);
 
@@ -366,6 +367,7 @@ function findTweets(player, club, since, until){
     var [playerName, clubName] = playerAndClub;
     var playerQuery = makePlayerOrClubQuery(playerName);
     var clubQuery = makePlayerOrClubQuery(clubName);
+    var authorQuery = makePlayerOrClubQuery(author);
 
     if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
       return dbTweet.findAll({
@@ -386,7 +388,8 @@ function findTweets(player, club, since, until){
             }
           },
           {
-            model: dbAuthor
+            model: dbAuthor,
+            where: authorQuery
           }
         ]
       });
@@ -412,7 +415,8 @@ function findTweets(player, club, since, until){
             }
           },
           {
-            model: dbAuthor
+            model: dbAuthor,
+            where: authorQuery
           }
         ]
       });
@@ -437,7 +441,8 @@ function findTweets(player, club, since, until){
             }
           },
           {
-            model: dbAuthor
+            model: dbAuthor,
+            where: authorQuery
           }
         ]
       });
@@ -461,7 +466,8 @@ function findTweets(player, club, since, until){
           foreignKey: 'transferClubId'
         },
         {
-          model: dbAuthor
+          model: dbAuthor, 
+          where: authorQuery
         }
       ]
     });
@@ -476,6 +482,7 @@ module.exports.getFromDatabase = function(query, callback){
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
    * @param {String} query.club The club to search for;
+   * @param {String} query.author The author to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * 
@@ -484,12 +491,13 @@ module.exports.getFromDatabase = function(query, callback){
    */
   console.log("getting from database");
 
-  var player = query.player;
-  var club = query.club;
+  var player = query.player === undefined ? "" : query.player;
+  var club = query.club === undefined ? "" : query.club;
+  var author = query.author === undefined ? "" : query.author;
   var since = query.since;
   var until = query.until;
 
-  findTweets(player, club, since, until)
+  findTweets(player, club, author, since, until)
   .then(tweets => {
     tweets = tweets.map(utils.makeTweetObjectFromDb);
 
