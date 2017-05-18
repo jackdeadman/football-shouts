@@ -16,6 +16,12 @@ block input
         div.input-field.col.s12
           input(name="clubs", id="clubs", type="text", data-role="materialtags")
           label.white-text(for = "clubs", id="clubs_label") What club are they rumoured with?
+      
+      //Third input box
+      div.row
+        div.input-field.col.s12
+          input(name="authors", id="authors", type="text", data-role="materialtags")
+          label.white-text(for = "authors", id="authors_label") Which Twitter accounts should be searched?
 
       //Options dropdown
       div.row.center-align
@@ -128,7 +134,7 @@ block tweets
       div.row#js-tweet-chart-container
         div.col.s12
             div.card-panel
-              table.responsive-table#tweetData
+              table#tweetData
                 tbody
                   tr
                     td.info-name

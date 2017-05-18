@@ -202,6 +202,7 @@ a.btn-light {
   left: 50%;
 }
 #submit-button {
+	min-width: 180px;
   position: relative;
   left: -50%;
 }
