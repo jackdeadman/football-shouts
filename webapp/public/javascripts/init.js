@@ -10,8 +10,7 @@ var Key = {
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
   $('#players').materialtags('add', '@waynerooney');
-  $('#clubs').materialtags('add', 'West Ham');
-  $('#clubs').materialtags('add', '@WestHamUtd');
+  $('#clubs').materialtags('add', 'Man U');
 }
 
 //Animates and reveals the "back to top" button
