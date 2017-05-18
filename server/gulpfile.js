@@ -2,10 +2,9 @@
 
 var gulp = require('gulp');
 var eslint = require('gulp-eslint');
-var argv = require('yargs')
-            .usage('Usage: $0 -ios to run ios app, -android to run android app.')
-            .argv;
+var argv = require('yargs').argv; //  .usage('Usage: $0 -ios to run ios app, -android to run android app.')
 var exec = require('exec-chainable');
+var path = require('path');
 
 gulp.task('lint', function () {
   var files = [
@@ -21,9 +20,19 @@ gulp.task('lint', function () {
 
 gulp.task('deploy', ['copy-jade', 'copy-public'], function () {
   if (argv.ios) {
-    exec('cordova run ios');
+    console.log("Deploying to ios.");
+    process.chdir(path.join('..','mobile','FootballShouts'));
+    exec('cordova run ios')
+    .done((stdout) => {
+      console.log(stdout);
+    });
   } else if (argv.android) {
-    exec('cordova run android');
+    console.log("Deploying to Android.");
+    process.chdir(path.join('..','mobile','FootballShouts'));
+    exec('cordova run android')
+    .done((stdout) => {
+      console.log(stdout);
+    });
   }
 });
 
@@ -34,7 +43,7 @@ gulp.task('copy-public', () => {
   var outputPath = 'mobile/FootballShouts/www/';
   return gulp
     .src(files)
-    .dest(outputPath);
+    .pipe(gulp.dest(outputPath));
 });
 
 gulp.task('copy-jade', () => {
@@ -44,5 +53,5 @@ gulp.task('copy-jade', () => {
   var outputPath = 'mobile/FootballShouts/jade';
   return gulp
     .src(jadeFiles)
-    .dest(outputPath);
+    .pipe(gulp.dest(outputPath));
 });
