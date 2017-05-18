@@ -12,32 +12,6 @@ function parseTweet(text) {
   return parsed;
 }
 
-function handleSearchError(err) {
-  // TODO: Add error handling
-  alert('Error');
-  console.log(err);
-}
-
-function createTweetNode(tweet) {
-  var tweetText = parseTweet(tweet.text);
-
-  var div =     $('<div>', {'class': 'card-panel z-depth-1'});
-  var innerdiv = $('<div>', {'class': 'row tweet'});
-  var image =   $('<div>', {'class': 'col s3 xl2 avatar-wrapper'})
-                .prepend('<img src="' + tweet.profileImageUrl + '" alt="" class="circle responsive-img avatar"/>');
-  var content = $('<div>', {'class': 'col s9 xl10'})
-                .prepend('<div class = "tweetDate">' + moment(tweet.datePublished).format('LLL') + '</div>')
-                .prepend('<span class = "black-text">' + tweetText + '</span>')
-                .prepend('<div class="tweetTop"><div class="tweetName">' +
-                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank" class = "black-text">' + tweet.name + '</a>' +
-                         '</div><div class="tweetHandle">' +
-                         '<a href = "https://twitter.com/' + tweet.twitterHandle + '" target = "_blank">@' + tweet.twitterHandle + '</a></div></div>');
-
-  var inner = innerdiv.append(image).append(content);
-  var combined = div.append(inner);
-  return combined;
-}
-
 function loadGraph(canvas, data, callback) {
   var lineChart = new Chart(canvas, {
     type: 'line',
@@ -68,6 +42,7 @@ function loadGraph(canvas, data, callback) {
             type: 'time',
             time: {
               ticks: {
+                    stepSize: 2,
                     autoSkip: false
                 }
             }
@@ -78,131 +53,70 @@ function loadGraph(canvas, data, callback) {
   callback(lineChart);
 }
 
-
 (function(io) {
   // Connections with sockets
-  var search = io('http://164.132.47.12:3000/search');
-  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
+  var search = io('/search');
+  var liveTweets = io('/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
-
-  var $chartHolder = $('#js-tweet-chart-container');
-  var $canvas = $chartHolder.find('canvas');
-  var $chartLoader = $chartHolder.find('#chartLoader')
-  var $loadMoreTweets = $('#loadMoreTweets');
-  var $tweetStats = $('#js-tweet-stats');
-  var $tweetData = $('#tweetData');
-  var $tweetsFromTwitter = $('#tweetsFromTwitter');
-  var $tweetsFromDatabase = $('#tweetsFromDatabase');
   var $searchContainer = $('#search');
-  var $appContainer = $('#app-container');
-  var $sideInfo = $('#side-info');
   var $submitButton = $('#submit-button');
   var $loader = $('#loader');
+  var $loadMoreTweets = $('#loadMoreTweets');
+  var $appContainer = $('#app-container');
+  var $tweetStats = $('#tweet-stats');
 
-  // Hide components
-  $loadMoreTweets.hide();
-  $chartHolder.hide();
-  $tweetStats.hide();
-  $appContainer.hide();
-  var hiddenTweets = [];
-  $tweetData.hide();
-  $appContainer.hide();
-  $loader.hide();
+  function handleSearch(req) {
+  // Setup livetweets
+  liveTweets.emit('subscribe', {
+    player: req.players[0],
+    club: req.clubs[0]
+  });
 
-  function displaySearchResults(results) {
-    results.forEach(function(tweet) {
-      var tweetNode = createTweetNode(tweet)
-      $app.append(tweetNode);
+  // Send the queries
+  search.emit('query', req);
+};
+
+  // Cache templates
+  var tweetTemplate = Handlebars.compile($("#tweet-template").html());
+  var tweetStatTemplate = Handlebars.compile($("#tweet-stats-template").html());
+
+  // HANDLERS
+  function handleSearchError(err) {
+    alert('Error');
+    console.log(err);
+  }
+
+  function handleChartResult(data) {
+    var stats = renderTweetStats(data, true);
+    $tweetStats.html(stats);
+
+    var data = data.data;
+    var data = data.map(function(sample) {
+      return { x: sample.date, y: sample.count };
+    });
+
+    var $canvas = $('canvas');
+    loadGraph($canvas, data, function() {
+      // $chartLoader.hide();
+      $canvas.show();
     });
   }
 
-  // Setup Socket listeners
-  search.on('error', handleSearchError);
+  var countFromTwitter = 0;
+  var countFromDatabase = 0;
 
-
-  // Setup DOM listeners
-
-  //Upon pressing the search button, send the entered data
-  $searchContainer.on('submit', function(e){
-    e.preventDefault();
-    hiddenTweets = [];
-
-    // Swapping the button with the loading animation
-    $submitButton.fadeOut(200);
-    $loader.fadeIn(200);
-
-    // Set visibility to hidden so space is retained
-    if (!$appContainer.is(":hidden")) {
-      $appContainer.animate({
-        opacity: 0
-      }, 100, 'swing', function() {
-        $appContainer.css('visibility', 'hidden');
-      });
-    }
-
-
-    // Setting up elements
-    $app.empty();
-    $('#playerinfo').css('display', 'block');
-    $('#clubinfo').css('display', 'block');
-
-    //Getting form data
-    var playerTags = $('#players').materialtags('items');
-    var clubTags = $('#clubs').materialtags('items');
-    var authorTags = $('#authors').materialtags('items');
-    var sources = $('#options').val();
-    var req = {
-      players: playerTags,
-      clubs: clubTags,
-      authors: authorTags,
-      sources: sources
-    };
-
-    // Setup livetweets
-    liveTweets.emit('subscribe', {
-      player: playerTags[0],
-      club: clubTags[0],
-      author: authorTags[0]
-    });
-
-    // Send the queries
-    search.emit('query', req);
-
-  });
-
-  search.on('chart', function(data) {
-    console.log('data', data);
-    data = data.map(function(sample) {
-      return { x: sample.date, y: sample.count };
-    });
-    loadGraph($canvas, data, function() {
-      $chartLoader.hide();
-      $canvas.show();
-    });
-  });
-
-  search.on('result', function(results) {
+  function handleSearchResult(results) {
     displaySearchResults(results.tweets);
-    $tweetsFromTwitter.html(results.countFromTwitter);
-    $tweetsFromDatabase.html(results.countFromDatabase);
-    $tweetStats.show();
-    $tweetData.show();
+    countFromTwitter = results.countFromTwitter;
+    countFromDatabase = results.countFromDatabase;
+    var stats = renderTweetStats({
+      countFromDatabase: countFromDatabase,
+      countFromTwitter: countFromTwitter
+    }, false);
 
-    // Show loading
-    if ($appContainer.is(":hidden"))
-      $appContainer.show();
-    else {
-      $appContainer.css('visibility', 'visible');
-      $appContainer.animate({
-        opacity: 1
-      }, 100, 'swing');
-    }
-
-    $sideInfo.show();
-    $chartHolder.show();
-    $chartLoader.show();
+    $tweetStats.html(stats);
 
     // Finally scroll down the page
     scrollTo($appContainer.offset().top, 750, function() {
@@ -210,21 +124,52 @@ function loadGraph(canvas, data, callback) {
       $loader.hide();
       $submitButton.show();
     });
-  });
+  }
 
-  // Send some data to the server to test
-  // var req = { players: ['Wayne Rooney', '@waynerooney'], clubs: ['Brighton', '@brighton'] };
-  // search.emit('query', req);
+  // Render functions
+  function renderTweet(tweet) {
+    tweet.text = parseTweet(tweet.text);
+    tweet.datePublished = moment(tweet.datePublished).format('LLL')
+    return tweetTemplate(tweet);
+  }
 
-  // liveTweets.emit('subscribe', {
-  //   path: 'statuses/filter',
-  //   filter: { track: 'mango' }
-  // });
+  function renderTweetStats(counts, renderGraph) {
+    return tweetStatTemplate({
+      countFromTwitter: counts.countFromTwitter,
+      countFromDatabase: counts.countFromDatabase,
+      renderGraph: renderGraph
+    });
+  }
+
+  function displaySearchResults(results) {
+    results.forEach(function(tweet) {
+      var tweetNode = renderTweet(tweet)
+      $app.append(tweetNode);
+    });
+    showApp();
+  }
+
+  hiddenTweets = []
+  function handleNewLiveTweet(tweet) {
+    var node = renderTweet(tweet);
+    hiddenTweets.push(tweet);
+    document.title = '(' + hiddenTweets.length + ') ' + title;
+    $loadMoreTweets.find('.count').html(hiddenTweets.length);
+    $loadMoreTweets.show();
+  }
+
+  function loadLiveTweets() {
+    // Add new tweets to the page one-by-one
+    while (hiddenTweets.length !== 0) {
+      $app.prepend(renderTweet(hiddenTweets.pop()));
+    }
+    document.title = title;
+    $(this).hide();
+  }
 
   var title = document.title;
 
   liveTweets.on('tweet', function(tweet) {
-    console.log('new tweet');
     var node = createTweetNode(tweet);
     hiddenTweets.push(tweet);
     document.title = '(' + hiddenTweets.length + ') ' + title;
@@ -232,15 +177,57 @@ function loadGraph(canvas, data, callback) {
     $loadMoreTweets.find('.count').html(hiddenTweets.length);
   });
 
-  $loadMoreTweets.on('click', function() {
-    while (hiddenTweets.length !== 0) {
-      $app.prepend(createTweetNode(hiddenTweets.pop()));
-    }
-    document.title = title;
-    $(this).hide();
+  // Setup Socket listeners
+  // SEARCH
+  search.on('error', handleSearchError);
+  search.on('chart', function(data) {
+    handleChartResult({
+      data: data,
+      countFromDatabase: countFromDatabase,
+      countFromTwitter: countFromTwitter
+    });
+  });
+  search.on('result', handleSearchResult);
+  liveTweets.on('tweet', handleNewLiveTweet);
+
+  // Setup DOM listeners
+
+  //Upon pressing the search button, send the entered data
+  $searchContainer.on('submit', function(e) {
+    hideApp();
+    e.preventDefault();
+    // Empty livetweets not shown
+    hiddenTweets = [];
+
+    // Swapping the button with the loading animation
+    $submitButton.fadeOut(200);
+    $loader.fadeIn(200);
+
+    var playerTags = $('#players').materialtags('items');
+    var clubTags = $('#clubs').materialtags('items');
+    var sources = $('#options').val();
+
+    handleSearch({
+      players: playerTags,
+      clubs: clubTags,
+      sources: sources
+    });
+    // showApp();
   });
 
+  $loadMoreTweets.on('click', loadLiveTweets);
 
+  // On load hide things
+  function hideApp() {
 
+    $loader.hide();
+    $loadMoreTweets.hide();
+    $appContainer.hide();
+  }
 
+  function showApp() {
+    $appContainer.show();
+  }
+
+  hideApp();
 })(io);
