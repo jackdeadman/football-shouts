@@ -52,11 +52,30 @@ function savePlayer(player){
 
 }
 
+function findClubMetadata(club){
+  return new Promise((resolve, reject) => {
+    dbpediaClient.keywordSearch(club, "soccer club", function (results) {
+      results = JSON.parse(results);
+      var name = club;
+      if (results.results.length > 0) {
+        name = results.results[0].label;
+        console.log("club: #####", name);
+      }
+      
+      resolve(name);
+    });
+  });
+}
+
 function saveClub(club){
-  return dbClub.findOrCreate({
-    where: {
-      name: club
-    }
+  return new Promise((resolve, reject) => {
+    findClubMetadata(club).then((dbpediaName) => {
+      resolve(dbClub.findOrCreate({
+        where: {
+          name: dbpediaName
+        }
+      }));
+    });
   });
 }
 
