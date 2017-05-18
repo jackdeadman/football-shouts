@@ -71,6 +71,7 @@ function loadGraph(canvas, data, callback) {
   // Setup livetweets
   liveTweets.emit('subscribe', {
     player: req.players[0],
+    author: req.authors[0],
     club: req.clubs[0]
   });
 
@@ -205,11 +206,13 @@ function loadGraph(canvas, data, callback) {
 
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
+    var authors = $('#authors').materialtags('items');
     var sources = $('#options').val();
 
     handleSearch({
       players: playerTags,
       clubs: clubTags,
+      authors: authors,
       sources: sources
     });
     // showApp();
