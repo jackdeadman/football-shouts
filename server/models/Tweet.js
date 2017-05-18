@@ -239,11 +239,24 @@ module.exports.getFromTwitter = function(query, callback){
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
    * @param {String} query.club The club to search for;
+   * @param {String} query.author The author to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @param {Function} callback To be called when Twit returns
    * tweets from Twitter.
    */
+
+  if (query.player === undefined) {
+    query.player = "";
+  }
+
+  if (query.club === undefined) {
+    query.club = "";
+  }
+
+  if (query.author === undefined) {
+    query.author = "";
+  }
 
   console.log("getting from twitter");
   var twitterQuery = buildQuery(query);
@@ -295,17 +308,23 @@ function buildQuery(queryTerms){
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
    * @param {String} query.club The club to search for;
+   * @param {String} query.author The author to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @return A formatted string for searching Twitter.
    */
   var player = queryTerms.player;
   var club = queryTerms.club;
+  var author = queryTerms.author;
   var sinceTimestamp = utils.formatDateForTwitter(queryTerms.since);
   var untilTimestamp = utils.formatDateForTwitter(queryTerms.until);
   var timeLimits = " since:" + sinceTimestamp + " until:" + untilTimestamp;
   var filterRetweetsAndReplies = " AND -filter:retweets AND -filter:replies";
-  var searchTerms = player + " " + club + timeLimits + filterRetweetsAndReplies;
+  var authorFilter = author === "" ? "" : "from: " + author;
+  var playerClubAuthorTerms = [player, club, authorFilter].filter(term => term !== "");
+  var playerClubAuthorString = playerClubAuthorTerms.join(" ");
+
+  var searchTerms = playerClubAuthorString + timeLimits + filterRetweetsAndReplies;
   console.log("search terms:", searchTerms);
   return searchTerms;
 }
@@ -340,9 +359,13 @@ function findTweets(player, club, since, until){
   since = moment(since).format().toString();
   until = moment(until).format().toString();
   var playerMetadataFound = findPlayerMetadata(player);
-  return playerMetadataFound.then((playerName) => {
+  var clubMetadataFound = findClubMetadata(club);
+
+  return Promise.all([playerMetadataFound, clubMetadataFound]).then((playerAndClub) => {
+    console.log(playerAndClub);
+    var [playerName, clubName] = playerAndClub;
     var playerQuery = makePlayerOrClubQuery(playerName);
-    var clubQuery = makePlayerOrClubQuery(club);
+    var clubQuery = makePlayerOrClubQuery(clubName);
 
     if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
       return dbTweet.findAll({
