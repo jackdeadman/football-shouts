@@ -138,20 +138,18 @@ function saveToDatabase(tweet, player, club, author, hashtags){
   var everything = [];
   var tweetSaved = saveTweet(tweet);
   everything.push(tweetSaved);
-  // console.log("pushed tweet");
+
+  var authorSaved = saveAuthor(author);
+  everything.push(authorSaved);
+
   if (player !== "") {
     var playerSaved = savePlayer(player);
     everything.push(playerSaved);
-    // console.log("pushed player");
   }
   if (club !== "") {
     var clubSaved = saveClub(club);
     everything.push(clubSaved);
-    // console.log("pushed club");
   }
-  var authorSaved = saveAuthor(author);
-  everything.push(authorSaved);
-  // console.log("pushed author");
 
   if (hashtags.length !== 0) {
     var hashtagSaves = saveHashtags(hashtags);
@@ -173,23 +171,25 @@ function makeRelations(everythingSaved){
    */
   return everythingSaved
   .then(results => {
-
-    var tweetResult = results[0][0];
-    var playerResult = results[1][0];
-    var clubResult = results[2][0];
-    var authorResult = results[3][0];
     var allRelations = [];
 
-    var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
-    var setTweetRelationToClub = tweetResult.setClub(clubResult);
-    var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
-    var setClubRelationToTweet = clubResult.addTweet(tweetResult);
-    allRelations.push(setTweetRelationToPlayer, setTweetRelationToClub, 
-                      setPlayerRelationToTweet, setClubRelationToTweet);
+    var tweetResult = results[0][0];
+    var authorResult = results[1][0];
 
+    if (results.length > 2) {
+      var playerResult = results[2][0];
+      var clubResult = results[3][0];
+
+      var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
+      var setTweetRelationToClub = tweetResult.setClub(clubResult);
+      var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
+      var setClubRelationToTweet = clubResult.addTweet(tweetResult);
+      allRelations.push(setTweetRelationToPlayer, setTweetRelationToClub, 
+                        setPlayerRelationToTweet, setClubRelationToTweet);
+    }
+    
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
     allRelations.push(setAuthorRelation);
-
 
     var allRelationsDone;
     if(results.length === 5){
@@ -212,9 +212,6 @@ function makeRelations(everythingSaved){
         })); // { through: 'TweetHashtags' }
       });
       var setHashtagRelation = Promise.all(hashtagRelations);
-      setHashtagRelation.catch(err => {
-        // console.error(err);
-      });
       allRelations.push(setHashtagRelation);
     }
     allRelationsDone = Promise.all(allRelations);
