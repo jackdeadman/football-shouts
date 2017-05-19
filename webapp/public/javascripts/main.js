@@ -91,9 +91,10 @@ function loadGraph(canvas, data, callback) {
     operator: req.operator,
   });
 
-  // Send the queries
-  search.emit('query', req);
-};
+    localResults = handleLocalQuery(req);
+    // Send the queries
+    search.emit('query', req);
+  }
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
