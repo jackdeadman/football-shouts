@@ -30,7 +30,7 @@ var app = {
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
 
-        console.log('Here');
+        console.log("Device ready, starting connection with local db...");
 
         // var db = window.sqlitePlugin.openDatabase({name: 'test.db', location: 'default'});
         // db.transaction(function(tr) {

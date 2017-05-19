@@ -9,7 +9,6 @@ var Key = {
 //Adds default tags to the input boxes
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
-  $('#players').materialtags('add', '@waynerooney');
   $('#clubs').materialtags('add', 'Man U');
   $('#authors').materialtags('add', '@D_M15TRY');
 }
