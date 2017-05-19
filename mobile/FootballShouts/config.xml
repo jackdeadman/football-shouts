@@ -24,5 +24,5 @@
     </platform>
     <engine name="android" spec="^6.2.3" />
     <plugin name="cordova-plugin-whitelist" spec="1" />
-    <plugin name="cordova-sqlite-storage" spec="^2.0.4" />
+    <plugin name="cordova-sqlite-ext" spec="^0.10.4" />
 </widget>

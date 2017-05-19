@@ -1,0 +1,103 @@
+{
+  "_args": [
+    [
+      {
+        "raw": "cordova-sqlite-ext",
+        "scope": null,
+        "escapedName": "cordova-sqlite-ext",
+        "name": "cordova-sqlite-ext",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "C:\\Users\\George\\Documents\\football-shouts\\mobile\\FootballShouts\\node_modules"
+    ]
+  ],
+  "_from": "cordova-sqlite-ext@latest",
+  "_id": "cordova-sqlite-ext@0.10.4",
+  "_inCache": true,
+  "_location": "/cordova-sqlite-ext",
+  "_nodeVersion": "6.9.2",
+  "_npmOperationalInternal": {
+    "host": "packages-12-west.internal.npmjs.com",
+    "tmp": "tmp/cordova-sqlite-ext-0.10.4.tgz_1483708218927_0.3687126284930855"
+  },
+  "_npmUser": {
+    "name": "brodybits",
+    "email": "brodybits@litehelpers.net"
+  },
+  "_npmVersion": "3.10.9",
+  "_phantomChildren": {},
+  "_requested": {
+    "raw": "cordova-sqlite-ext",
+    "scope": null,
+    "escapedName": "cordova-sqlite-ext",
+    "name": "cordova-sqlite-ext",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER",
+    "/"
+  ],
+  "_resolved": "https://registry.npmjs.org/cordova-sqlite-ext/-/cordova-sqlite-ext-0.10.4.tgz",
+  "_shasum": "e872347de7e4554dbb43ef2c2421ef621bfc4349",
+  "_shrinkwrap": null,
+  "_spec": "cordova-sqlite-ext",
+  "_where": "C:\\Users\\George\\Documents\\football-shouts\\mobile\\FootballShouts\\node_modules",
+  "author": {
+    "name": "various"
+  },
+  "bugs": {
+    "url": "https://github.com/litehelpers/cordova-sqlite-ext/issues"
+  },
+  "cordova": {
+    "id": "cordova-sqlite-ext",
+    "platforms": [
+      "android",
+      "ios",
+      "windows"
+    ]
+  },
+  "dependencies": {
+    "cordova-sqlite-ext-deps": "0.4.1"
+  },
+  "description": "Native interface to SQLite for PhoneGap/Cordova with extra features",
+  "devDependencies": {
+    "shelljs": "^0.7.4"
+  },
+  "directories": {},
+  "dist": {
+    "shasum": "e872347de7e4554dbb43ef2c2421ef621bfc4349",
+    "tarball": "https://registry.npmjs.org/cordova-sqlite-ext/-/cordova-sqlite-ext-0.10.4.tgz"
+  },
+  "engines": {},
+  "gitHead": "51da4df6a913736aa7ba155ddbc65f6e96eb4f00",
+  "homepage": "https://github.com/litehelpers/cordova-sqlite-ext",
+  "keywords": [
+    "sqlite",
+    "ecosystem:cordova",
+    "cordova-android",
+    "cordova-ios",
+    "cordova-windows"
+  ],
+  "license": "MIT",
+  "maintainers": [
+    {
+      "name": "brodybits",
+      "email": "brodybits@litehelpers.net"
+    }
+  ],
+  "name": "cordova-sqlite-ext",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/litehelpers/cordova-sqlite-ext.git"
+  },
+  "scripts": {
+    "start": "node scripts/prepareSpec.js"
+  },
+  "version": "0.10.4"
+}
