@@ -126,7 +126,7 @@ $(document).ready(function() {
 
   //For each tag, have the following listeners
   $('.n-tag').each(function() {
-
+    $(this).attr('size', 3);
     //If defocused, empty the text
     $(this).focusout(function() {
       $(this).val("");
