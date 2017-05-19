@@ -18,9 +18,11 @@ LiveTweet.prototype.connect = function() {
   /**
    * Open connection to a LiveTweet stream
    */
-  console.log(this);
+  console.log('!@£$%^&*(): ndjnx');
+  console.log(this.streamName, this.query);
   this.stream = this.client.stream(this.streamName, this.query);
   this.stream.on('tweet', tweet => {
+    console.log('tweet', tweet)
     if(utils.selectTransferTweet(tweet)){
       this.emit('tweet', tweet);
     }

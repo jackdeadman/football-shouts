@@ -4,7 +4,8 @@
   "private": true,
   "scripts": {
     "start": "nodemon ./bin/www",
-    "lint": "gulp lint"
+    "lint": "gulp lint",
+    "test": "node_modules/mocha/bin/mocha"
   },
   "dependencies": {
     "body-parser": "~1.16.0",
@@ -27,11 +28,9 @@
     "socket.io": "^1.7.3",
     "twit": "^2.2.5"
   },
-  "pre-commit": [
-    "lint"
-  ],
   "devDependencies": {
     "exec-chainable": "^0.0.3",
+    "mocha": "^3.4.1",
     "yargs": "^8.0.1"
   }
 }

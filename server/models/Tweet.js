@@ -14,6 +14,7 @@ var moment = require('moment');
 var Hashtag = require('./Hashtag');
 var Author = require('./Author');
 var dbpediaClient = require('dbpediaclient');
+
 dbpediaClient.replyFormat('application/json');
 
 var client = new T({
@@ -515,30 +516,40 @@ module.exports.live = function(query){
    * Connects to the streaming API, saves tweets coming in
    * and returns the stream object.
    * @param {Object} query The database query;
-   * @param {String} query.player The player to search for;
-   * @param {String} query.club The club to search for.
+   * @param {String} query.players The players to search for;
+   * @param {String} query.clubs The clubs to search for.
    * @return {LiveTweet} A Twitter Streaming API stream.
    */
-  var player = query.player;
-  var club = query.club;
-  var queryObj = { track: player + " " + club };
+  var players = query.players;
+  var clubs = query.clubs;
+  console.log(players, clubs);
+  console.log('TRACKING: ', utils.createTwitterQuery({players, clubs}));
+
+  var queryObj = { track: utils.createTwitterQuery({players, clubs}) };
+
   var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
-  liveTweetStream.on('tweet', function(tweet){
+  liveTweetStream.on('tweet', tweet => {
+    console.log('New tweet: xsmkmkxmxks');
     var hashtags = Hashtag.processHashtags(tweet.entities.hashtags);
     var processedTweet = utils.makeTweetObject(tweet);
     var author = Author.makeAuthorObject(processedTweet);
     var databaseTweet = utils.makeTweetDbObject(processedTweet);
-    var everythingSaved = saveToDatabase(databaseTweet,
+    
+    players.forEach(player => {
+      clubs.forEach(club => {
+        var everythingSaved = saveToDatabase(databaseTweet,
                                       player,
                                       club,
                                       author,
                                       hashtags);
-    makeRelations(everythingSaved)
-    .then(() => {
-      console.log("Saved live tweet");
-    })
-    .catch(err => {
-      console.error(err);
+        makeRelations(everythingSaved)
+        .then(() => {
+          console.log("Saved live tweet");
+        })
+        .catch(err => {
+          console.error(err);
+        });
+      });
     });
   });
   return liveTweetStream;
