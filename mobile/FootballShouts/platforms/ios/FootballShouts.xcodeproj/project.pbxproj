@@ -13,8 +13,11 @@
 		302D95F114D2391D003F00A1 /* MainViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 302D95EF14D2391D003F00A1 /* MainViewController.m */; };
 		302D95F214D2391D003F00A1 /* MainViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 302D95F014D2391D003F00A1 /* MainViewController.xib */; };
 		6AFF5BF91D6E424B00AB3073 /* CDVLaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 6AFF5BF81D6E424B00AB3073 /* CDVLaunchScreen.storyboard */; };
-		18BEF4F968024A08BC79A2F3 /* SQLitePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = FFA3169A64E6404FA05BB5B3 /* SQLitePlugin.m */; };
-		DD5B35335D624E14B350CEBF /* sqlite3.c in Resources */ = {isa = PBXBuildFile; fileRef = 9023ABEC3CA84C06885C607F /* sqlite3.c */; settings = {COMPILER_FLAGS = "-DSQLITE_THREADSAFE=1 -DSQLITE_DEFAULT_MEMSTATUS=0 -DSQLITE_OMIT_DECLTYPE -DSQLITE_OMIT_DEPRECATED -DSQLITE_OMIT_PROGRESS_CALLBACK -DSQLITE_OMIT_SHARED_CACHE -DSQLITE_TEMP_STORE=2 -DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE -DSQLITE_DEFAULT_PAGE_SIZE=1024 -DSQLITE_DEFAULT_CACHE_SIZE=2000"; }; };
+		65020265EE3A429C8C2D4715 /* SQLitePlugin.m in Sources */ = {isa = PBXBuildFile; fileRef = 5EF733A4F5A149C7821ED5D9 /* SQLitePlugin.m */; };
+		CBCA26FEAB47476BB060A938 /* sqlite3_regexp.c in Resources */ = {isa = PBXBuildFile; fileRef = F42C8A876CF74CCAACE9EED6 /* sqlite3_regexp.c */; };
+		0E7CBDE7E5454E8CBC67CB23 /* sqlite3_base64.c in Resources */ = {isa = PBXBuildFile; fileRef = 294C25EDBC264271B7D34F40 /* sqlite3_base64.c */; };
+		149EE16BBC2F4B02BC78486F /* cencode.c in Resources */ = {isa = PBXBuildFile; fileRef = 9F7A77D15E17456EA410DFE5 /* cencode.c */; };
+		4331E95B4DA841B196451102 /* sqlite3.c in Resources */ = {isa = PBXBuildFile; fileRef = 0B423603693341AF989A1723 /* sqlite3.c */; settings = {COMPILER_FLAGS = "-DSQLITE_TEMP_STORE=2 -DSQLITE_THREADSAFE=1 -DSQLITE_ENABLE_FTS3 -DSQLITE_ENABLE_FTS3_PARENTHESIS -DSQLITE_ENABLE_FTS4 -DSQLITE_ENABLE_RTREE  -DSQLITE_OMIT_BUILTIN_TEST -DSQLITE_OMIT_LOAD_EXTENSION -DSQLITE_DEFAULT_PAGE_SIZE=1024 -DSQLITE_DEFAULT_CACHE_SIZE=2000"; }; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -55,10 +58,16 @@
 		EB87FDF41871DAF40020F90C /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = ../../config.xml; sourceTree = "<group>"; };
 		ED33DF2A687741AEAF9F8254 /* Bridging-Header.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "Bridging-Header.h"; sourceTree = "<group>"; };
 		F840E1F0165FE0F500CFE078 /* config.xml */ = {isa = PBXFileReference; lastKnownFileType = text.xml; name = config.xml; path = FootballShouts/config.xml; sourceTree = "<group>"; };
-		FFA3169A64E6404FA05BB5B3 /* SQLitePlugin.m */ = {isa = PBXFileReference; name = "SQLitePlugin.m"; path = "cordova-sqlite-storage/SQLitePlugin.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
-		9023ABEC3CA84C06885C607F /* sqlite3.c */ = {isa = PBXFileReference; name = "sqlite3.c"; path = "cordova-sqlite-storage/sqlite3.c"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
-		ED64ECF51A77493B9FAA8522 /* SQLitePlugin.h */ = {isa = PBXFileReference; name = "SQLitePlugin.h"; path = "cordova-sqlite-storage/SQLitePlugin.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
-		5D7DF7B68F0C489B8308FBBC /* sqlite3.h */ = {isa = PBXFileReference; name = "sqlite3.h"; path = "cordova-sqlite-storage/sqlite3.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		5EF733A4F5A149C7821ED5D9 /* SQLitePlugin.m */ = {isa = PBXFileReference; name = "SQLitePlugin.m"; path = "cordova-sqlite-ext/SQLitePlugin.m"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; explicitFileType = undefined; includeInIndex = 0; };
+		F42C8A876CF74CCAACE9EED6 /* sqlite3_regexp.c */ = {isa = PBXFileReference; name = "sqlite3_regexp.c"; path = "cordova-sqlite-ext/sqlite3_regexp.c"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		294C25EDBC264271B7D34F40 /* sqlite3_base64.c */ = {isa = PBXFileReference; name = "sqlite3_base64.c"; path = "cordova-sqlite-ext/sqlite3_base64.c"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		9F7A77D15E17456EA410DFE5 /* cencode.c */ = {isa = PBXFileReference; name = "cencode.c"; path = "cordova-sqlite-ext/cencode.c"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		0B423603693341AF989A1723 /* sqlite3.c */ = {isa = PBXFileReference; name = "sqlite3.c"; path = "cordova-sqlite-ext/sqlite3.c"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = unknown; explicitFileType = undefined; includeInIndex = 0; };
+		AEA7B47761334737B80F5C56 /* SQLitePlugin.h */ = {isa = PBXFileReference; name = "SQLitePlugin.h"; path = "cordova-sqlite-ext/SQLitePlugin.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		7836933FAC23470CAF343D36 /* sqlite3_regexp.h */ = {isa = PBXFileReference; name = "sqlite3_regexp.h"; path = "cordova-sqlite-ext/sqlite3_regexp.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		BB517786B80A4F9E9054333A /* sqlite3_base64.h */ = {isa = PBXFileReference; name = "sqlite3_base64.h"; path = "cordova-sqlite-ext/sqlite3_base64.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		5785130484E04BCEBC9DF307 /* cencode.h */ = {isa = PBXFileReference; name = "cencode.h"; path = "cordova-sqlite-ext/cencode.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
+		9E34667F24544D739F69461F /* sqlite3.h */ = {isa = PBXFileReference; name = "sqlite3.h"; path = "cordova-sqlite-ext/sqlite3.h"; sourceTree = "<group>"; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -162,10 +171,16 @@
 		307C750510C5A3420062BCA9 /* Plugins */ = {
 			isa = PBXGroup;
 			children = (
-				FFA3169A64E6404FA05BB5B3 /* SQLitePlugin.m */,
-				9023ABEC3CA84C06885C607F /* sqlite3.c */,
-				ED64ECF51A77493B9FAA8522 /* SQLitePlugin.h */,
-				5D7DF7B68F0C489B8308FBBC /* sqlite3.h */,
+				5EF733A4F5A149C7821ED5D9 /* SQLitePlugin.m */,
+				F42C8A876CF74CCAACE9EED6 /* sqlite3_regexp.c */,
+				294C25EDBC264271B7D34F40 /* sqlite3_base64.c */,
+				9F7A77D15E17456EA410DFE5 /* cencode.c */,
+				0B423603693341AF989A1723 /* sqlite3.c */,
+				AEA7B47761334737B80F5C56 /* SQLitePlugin.h */,
+				7836933FAC23470CAF343D36 /* sqlite3_regexp.h */,
+				BB517786B80A4F9E9054333A /* sqlite3_base64.h */,
+				5785130484E04BCEBC9DF307 /* cencode.h */,
+				9E34667F24544D739F69461F /* sqlite3.h */,
 			);
 			name = Plugins;
 			path = FootballShouts/Plugins;
@@ -286,8 +301,11 @@
 				1D60589B0D05DD56006BFB54 /* main.m in Sources */,
 				1D3623260D0F684500981E51 /* AppDelegate.m in Sources */,
 				302D95F114D2391D003F00A1 /* MainViewController.m in Sources */,
-				18BEF4F968024A08BC79A2F3 /* SQLitePlugin.m in Sources */,
-				DD5B35335D624E14B350CEBF /* sqlite3.c in Resources */,
+				65020265EE3A429C8C2D4715 /* SQLitePlugin.m in Sources */,
+				CBCA26FEAB47476BB060A938 /* sqlite3_regexp.c in Resources */,
+				0E7CBDE7E5454E8CBC67CB23 /* sqlite3_base64.c in Resources */,
+				149EE16BBC2F4B02BC78486F /* cencode.c in Resources */,
+				4331E95B4DA841B196451102 /* sqlite3.c in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

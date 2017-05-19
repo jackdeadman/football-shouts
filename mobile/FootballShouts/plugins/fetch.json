@@ -16,10 +16,10 @@
         "is_top_level": true,
         "variables": {}
     },
-    "cordova-sqlite-storage": {
+    "cordova-sqlite-ext": {
         "source": {
             "type": "registry",
-            "id": "cordova-sqlite-storage"
+            "id": "cordova-sqlite-ext@^0.10.4"
         },
         "is_top_level": true,
         "variables": {}

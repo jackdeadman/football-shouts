@@ -19,6 +19,7 @@
 var app = {
     // Application Constructor
     initialize: function() {
+        console.log('Initialising...');
         document.addEventListener('deviceready', this.onDeviceReady.bind(this), false);
     },
 
@@ -28,18 +29,32 @@ var app = {
     // 'pause', 'resume', etc.
     onDeviceReady: function() {
         this.receivedEvent('deviceready');
+
+        console.log('Here');
+
+        // var db = window.sqlitePlugin.openDatabase({name: 'test.db', location: 'default'});
+        // db.transaction(function(tr) {
+        //   tr.executeSql("SELECT upper('Test string') AS upperString", [], function(tr, rs) {
+        //     console.log('Got upperString result: ' + rs.rows.item(0).upperString);
+        //   });
+        // });
+
+        var db = window.sqlitePlugin.openDatabase({name: 'local.db', location: 'default', createFromLocation: 1});
+        console.log(db);
+        db.transaction(function(tr) {
+          tr.executeSql("SELECT upper('Test string') AS upperString", [], function(tr, rs) {
+            console.log('Results: ' + rs.rows.item(0).upperString);
+          });
+        });
+
+        // window.sqlitePlugin.echoTest(function() {
+        //   console.log('ECHO test OK');
+        // });
     },
 
     // Update DOM on a Received Event
     receivedEvent: function(id) {
-        var parentElement = document.getElementById(id);
-        var listeningElement = parentElement.querySelector('.listening');
-        var receivedElement = parentElement.querySelector('.received');
 
-        listeningElement.setAttribute('style', 'display:none;');
-        receivedElement.setAttribute('style', 'display:block;');
-
-        console.log('Received Event: ' + id);
     }
 };
 

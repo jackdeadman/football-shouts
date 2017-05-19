@@ -1,9 +1,9 @@
 cordova.define('cordova/plugin_list', function(require, exports, module) {
 module.exports = [
     {
-        "file": "plugins/cordova-sqlite-storage/www/SQLitePlugin.js",
-        "id": "cordova-sqlite-storage.SQLitePlugin",
-        "pluginId": "cordova-sqlite-storage",
+        "file": "plugins/cordova-sqlite-ext/www/SQLitePlugin.js",
+        "id": "cordova-sqlite-ext.SQLitePlugin",
+        "pluginId": "cordova-sqlite-ext",
         "clobbers": [
             "SQLitePlugin"
         ]
@@ -14,7 +14,7 @@ module.exports.metadata =
 {
     "cordova-plugin-whitelist": "1.3.2",
     "cordova-plugin-jade": "0.0.1",
-    "cordova-sqlite-storage": "2.0.4"
+    "cordova-sqlite-ext": "0.10.4"
 }
 // BOTTOM OF METADATA
 });

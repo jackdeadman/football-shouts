@@ -8,12 +8,12 @@
         ],
         "plugins": {
             "cordova-plugin-whitelist": {},
-            "cordova-sqlite-storage": {}
+            "cordova-sqlite-ext": {}
         }
     },
     "dependencies": {
         "cordova-android": "^6.2.3",
         "cordova-plugin-whitelist": "1",
-        "cordova-sqlite-storage": "^2.0.4"
+        "cordova-sqlite-ext": "^0.10.4"
     }
 }
