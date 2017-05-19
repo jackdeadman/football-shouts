@@ -68,16 +68,17 @@ function loadGraph(canvas, data, callback) {
   var $tweetStats = $('#tweet-stats');
 
   function handleSearch(req) {
-  // Setup livetweets
-  liveTweets.emit('subscribe', {
-    player: req.players[0],
-    author: req.authors[0],
-    club: req.clubs[0]
-  });
+    // Setup livetweets
+    liveTweets.emit('subscribe', {
+      player: req.players[0],
+      author: req.authors[0],
+      club: req.clubs[0]
+    });
 
-  // Send the queries
-  search.emit('query', req);
-};
+    localResults = handleLocalQuery(req);
+    // Send the queries
+    search.emit('query', req);
+  }
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
