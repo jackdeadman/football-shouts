@@ -82,6 +82,9 @@ function loadGraph(canvas, data, callback) {
   var $operatorSelector = $('#operator-switcher');
   var $playerDataLocation = $('#player-data-location');
 
+  var localResults = [];
+  var localChartData = {};
+
   function handleSearch(req) {
   // Setup livetweets
   liveTweets.emit('subscribe', {
@@ -91,8 +94,23 @@ function loadGraph(canvas, data, callback) {
     operator: req.operator,
   });
 
-    localResults = handleLocalQuery(req);
-    // Send the queries
+    //Gather all tweets from local database
+    allTweets = handleLocalQuery(req);
+
+    //Get the results
+    localResults = allTweets.reduce((acc, tweet) => {
+      return {
+        // Combine tweets by concatenation
+        tweets: acc.tweets.concat([tweet]),
+        // Add the totals
+        countFromLocal: acc.countFromLocal + (tweet.source === 'local');
+      };
+    }, { tweets: [], countFromLocal: 0 });
+
+    //Get the chart data
+    localChartData = groupByDay(allTweets);
+
+    // Send the queries to the server
     search.emit('query', req);
   }
 
@@ -103,6 +121,9 @@ function loadGraph(canvas, data, callback) {
 
   // HANDLERS
   function handleSearchError(err) {
+
+    // TODO: show local results still
+
     alert('Error');
     console.log(err);
   }
