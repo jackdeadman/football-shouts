@@ -55,8 +55,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('/search');
-  var liveTweets = io('/liveTweets');
+  var search = io('http://164.132.47.12:3000/search');
+  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
@@ -67,36 +67,17 @@ function loadGraph(canvas, data, callback) {
   var $appContainer = $('#app-container');
   var $tweetStats = $('#tweet-stats');
 
-  var localResults = [];
-  var localChartData = {};
-
   function handleSearch(req) {
-    // Setup livetweets
-    liveTweets.emit('subscribe', {
-      player: req.players[0],
-      author: req.authors[0],
-      club: req.clubs[0]
-    });
+  // Setup livetweets
+  liveTweets.emit('subscribe', {
+    player: req.players[0],
+    author: req.authors[0],
+    club: req.clubs[0]
+  });
 
-    //Gather all tweets from local database
-    allTweets = handleLocalQuery(req);
-
-    //Get the results
-    localResults = allTweets.reduce((acc, tweet) => {
-      return {
-        // Combine tweets by concatenation
-        tweets: acc.tweets.concat([tweet]),
-        // Add the totals
-        countFromLocal: acc.countFromLocal + (tweet.source === 'local');
-      };
-    }, { tweets: [], countFromLocal: 0 });
-
-    //Get the chart data
-    localChartData = groupByDay(allTweets);
-
-    // Send the queries to the server
-    search.emit('query', req);
-  }
+  // Send the queries
+  search.emit('query', req);
+};
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
@@ -104,9 +85,6 @@ function loadGraph(canvas, data, callback) {
 
   // HANDLERS
   function handleSearchError(err) {
-
-    // TODO: show local results still
-
     alert('Error');
     console.log(err);
   }
@@ -131,9 +109,6 @@ function loadGraph(canvas, data, callback) {
   var countFromDatabase = 0;
 
   function handleSearchResult(results) {
-
-    // TODO: Merge local results with server results before displaying
-
     displaySearchResults(results.tweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
