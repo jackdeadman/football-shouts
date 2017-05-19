@@ -82,17 +82,37 @@ function loadGraph(canvas, data, callback) {
   var $operatorSelector = $('#operator-switcher');
   var $playerDataLocation = $('#player-data-location');
 
-  function handleSearch(req) {
-  // Setup livetweets
-  liveTweets.emit('subscribe', {
-    players: req.players,
-    authors: req.authors,
-    clubs: req.clubs
-  });
+  var localResults = [];
+  var localChartData = {};
 
-  // Send the queries
-  search.emit('query', req);
-};
+  function handleSearch(req) {
+    // Setup livetweets
+    liveTweets.emit('subscribe', {
+      player: req.players[0],
+      author: req.authors[0],
+      club: req.clubs[0]
+    });
+
+    //Gather all tweets from local database
+    allTweets = handleLocalQuery(req);
+
+    //Get the results
+    localResults = allTweets.reduce((acc, tweet) => {
+      return {
+        // Combine tweets by concatenation
+        tweets: acc.tweets.concat([tweet]),
+        // Add the totals
+        countFromLocal: acc.countFromLocal + (tweet.source === 'local');
+      };
+    }, { tweets: [], countFromLocal: 0 });
+
+    //Get the chart data
+    localChartData = groupByDay(allTweets);
+
+    // Send the queries to the server
+    search.emit('query', req);
+
+  }
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
@@ -101,6 +121,9 @@ function loadGraph(canvas, data, callback) {
 
   // HANDLERS
   function handleSearchError(err) {
+
+    // TODO: show local results still
+
     alert('Error');
     console.log(err);
   }
@@ -125,7 +148,9 @@ function loadGraph(canvas, data, callback) {
   var countFromDatabase = 0;
 
   function handleSearchResult(results) {
+
     clearSearchResults();
+
     displaySearchResults(results.tweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
@@ -190,6 +215,7 @@ function loadGraph(canvas, data, callback) {
 
   hiddenTweets = []
   function handleNewLiveTweet(tweet) {
+    var node = renderTweet(tweet);
     hiddenTweets.push(tweet);
     document.title = '(' + hiddenTweets.length + ') ' + title;
     $loadMoreTweets.find('.count').html(hiddenTweets.length);
@@ -238,7 +264,6 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
-    // TODO: THESE SHOULD BE CACHED
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var authors = $('#authors').materialtags('items');
@@ -246,6 +271,7 @@ function loadGraph(canvas, data, callback) {
 
     var operator = $operatorSelector.find('input')[0].checked ? 'AND' : 'OR'
     console.log(operator);
+
     handleSearch({
       players: playerTags,
       clubs: clubTags,
