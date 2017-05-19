@@ -17,14 +17,10 @@ var handlers = {
       socket.livetweets = null;
     }
 
-    var player = req.player;
-    var club = req.club;
+    var players = req.players;
+    var clubs = req.clubs;
 
-    var livetweets = Tweet.live({
-      player: player,
-      club: club
-    });
-
+    var livetweets = Tweet.live({ players, clubs });
     livetweets.connect();
 
     // emit the normalised version of a tweet to the client
