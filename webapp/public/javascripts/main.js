@@ -68,8 +68,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('/search');
-  var liveTweets = io('/liveTweets');
+  var search = io('http://164.132.47.12:3000/search');
+  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
@@ -81,9 +81,6 @@ function loadGraph(canvas, data, callback) {
   var $tweetStats = $('#tweet-stats');
   var $operatorSelector = $('#operator-switcher');
   var $playerDataLocation = $('#player-data-location');
-
-  var localResults = [];
-  var localChartData = {};
 
   function handleSearch(req) {
   // Setup livetweets
@@ -107,12 +104,9 @@ function loadGraph(canvas, data, callback) {
       };
     }, { tweets: [], countFromLocal: 0 });
 
-    //Get the chart data
-    localChartData = groupByDay(allTweets);
-
-    // Send the queries to the server
-    search.emit('query', req);
-  }
+  // Send the queries
+  search.emit('query', req);
+};
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
@@ -121,9 +115,6 @@ function loadGraph(canvas, data, callback) {
 
   // HANDLERS
   function handleSearchError(err) {
-
-    // TODO: show local results still
-
     alert('Error');
     console.log(err);
   }
