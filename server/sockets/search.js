@@ -192,8 +192,9 @@ var handlers = {
     var resultEvent = 'result';
     var chartEvent = 'chart';
 
-    // Validate user has given correct fieds
-    var hasRequiredFields = req && req.players && req.clubs && req.sources;
+    // Validate user has given correct fields
+    var hasRequiredFields = req && req.players && req.clubs && req.sources
+                              && req.authors;
     var errorMsg = null;
 
     if (!hasRequiredFields) {
@@ -204,7 +205,7 @@ var handlers = {
 
     // Validate that they are arrays
     if (!Array.isArray(req.players) || !Array.isArray(req.clubs)
-        || !Array.isArray(req.sources)) {
+        || !Array.isArray(req.sources) || !Array.isArray(req.authors)) {
       errorMsg = 'Players and a club names must be arrays.';
       socket.emit(errorEvent, generateErrorObj(errorMsg, req));
       return;

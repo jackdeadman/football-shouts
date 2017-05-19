@@ -24,7 +24,7 @@ gulp.task('deploy', ['copy-jade', 'copy-public'], function () {
     process.chdir(path.join('..','mobile','FootballShouts'));
     exec('cordova run ios')
     .done((stdout) => {
-      console.log(stdout);
+      //console.log(stdout);
     });
   } else if (argv.android) {
     console.log("Deploying to Android.");
