@@ -158,16 +158,17 @@ function loadGraph(canvas, data, callback) {
     $loadMoreTweets.show();
   }
 
+  var title = document.title;
   function loadLiveTweets() {
     // Add new tweets to the page one-by-one
     while (hiddenTweets.length !== 0) {
       $app.prepend(renderTweet(hiddenTweets.pop()));
     }
+
     document.title = title;
     $(this).hide();
   }
 
-  var title = document.title;
   // Setup Socket listeners
   // SEARCH
   search.on('error', handleSearchError);
@@ -185,6 +186,7 @@ function loadGraph(canvas, data, callback) {
 
   //Upon pressing the search button, send the entered data
   $searchContainer.on('submit', function(e) {
+    document.title = title;
     hideApp();
     e.preventDefault();
     // Empty livetweets not shown
