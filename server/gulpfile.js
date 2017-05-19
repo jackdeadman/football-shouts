@@ -38,9 +38,9 @@ gulp.task('deploy', ['copy-jade', 'copy-public'], function () {
 
 gulp.task('copy-public', () => {
   var files = [
-    'webapp/public/**/**/*',
+    '../webapp/public/**/**/*',
   ];
-  var outputPath = 'mobile/FootballShouts/www/';
+  var outputPath = '../mobile/FootballShouts/www/';
   return gulp
     .src(files)
     .pipe(gulp.dest(outputPath));
@@ -48,9 +48,9 @@ gulp.task('copy-public', () => {
 
 gulp.task('copy-jade', () => {
   var jadeFiles = [
-    'webapp/views/index.jade'
+    '../webapp/views/index.jade'
   ];
-  var outputPath = 'mobile/FootballShouts/jade';
+  var outputPath = '../mobile/FootballShouts/jade';
   return gulp
     .src(jadeFiles)
     .pipe(gulp.dest(outputPath));
