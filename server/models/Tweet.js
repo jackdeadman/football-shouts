@@ -309,19 +309,19 @@ function buildQuery(queryTerms){
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
    * @param {String} query.club The club to search for;
-   * @param {String} query.author The author to filter by;
+   * @param {String} query.authors The author to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @return A formatted string for searching Twitter.
    */
   var player = queryTerms.player;
   var club = queryTerms.club;
-  var author = queryTerms.author;
+  var authors = queryTerms.authors.map(Hashtag.stripHashtag);
   var sinceTimestamp = utils.formatDateForTwitter(queryTerms.since);
   var untilTimestamp = utils.formatDateForTwitter(queryTerms.until);
   var timeLimits = " since:" + sinceTimestamp + " until:" + untilTimestamp;
   var filterRetweetsAndReplies = " AND -filter:retweets AND -filter:replies";
-  var authorFilter = author === "" ? "" : "from: " + author;
+  var authorFilter = authors.map(a => `from:${a}`).join(' OR ');
   var playerClubAuthorTerms = [player, club, authorFilter].filter(term => term !== "");
   var playerClubAuthorString = playerClubAuthorTerms.join(" ");
 
@@ -369,6 +369,8 @@ function findTweets(player, club, authors, since, until){
     var [playerName, clubName] = playerAndClub;
     var playerQuery = makePlayerOrClubQuery(playerName);
     var clubQuery = makePlayerOrClubQuery(clubName);
+
+    // TODO: Currently a hack, the function should be renamed
     authors = authors.map(Hashtag.stripHashtag);
     // var authorQuery = makePlayerOrClubQuery(authors);
     var authorQuery = {};
