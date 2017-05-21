@@ -12,11 +12,11 @@ block input
           label.white-text(for = "players", id="players_label") What is the player's name?
 
       // Operator Switcher
-      .row.operator-switcher
+      .row.operator-switcher#operator-switcher
         .switch
           label
             | OR
-            input(type='checkbox')
+            input(type='checkbox', name='operator')
             span.lever
             | AND
         

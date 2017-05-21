@@ -66,6 +66,7 @@ function loadGraph(canvas, data, callback) {
   var $loadMoreTweets = $('#loadMoreTweets');
   var $appContainer = $('#app-container');
   var $tweetStats = $('#tweet-stats');
+  var $operatorSelector = $('#operator-switcher');
 
   function handleSearch(req) {
   // Setup livetweets
@@ -202,16 +203,20 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
+    // TODO: THESE SHOULD BE CACHED
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var authors = $('#authors').materialtags('items');
     var sources = $('#options').val();
 
+    var operator = $operatorSelector.find('input')[0].checked ? 'AND' : 'OR'
+    console.log(operator);
     handleSearch({
       players: playerTags,
       clubs: clubTags,
       authors: authors,
-      sources: sources
+      sources: sources,
+      operator: operator
     });
     // showApp();
   });
