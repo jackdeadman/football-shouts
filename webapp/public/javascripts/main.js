@@ -109,6 +109,7 @@ function loadGraph(canvas, data, callback) {
   var countFromDatabase = 0;
 
   function handleSearchResult(results) {
+    clearSearchResults();
     displaySearchResults(results.tweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
@@ -150,6 +151,10 @@ function loadGraph(canvas, data, callback) {
     showApp();
   }
 
+  function clearSearchResults() {
+    $app.empty();
+  }
+
   hiddenTweets = []
   function handleNewLiveTweet(tweet) {
     hiddenTweets.push(tweet);
@@ -186,6 +191,7 @@ function loadGraph(canvas, data, callback) {
 
   //Upon pressing the search button, send the entered data
   $searchContainer.on('submit', function(e) {
+    liveTweets.emit('unsubscribe');
     document.title = title;
     hideApp();
     e.preventDefault();

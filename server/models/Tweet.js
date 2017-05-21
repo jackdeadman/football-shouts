@@ -348,11 +348,12 @@ function makePlayerOrClubQuery(query){
   return queryObj;
 }
 
-function findTweets(player, club, author, since, until){
+function findTweets(player, club, authors, since, until){
   /**
    * Searches for tweets related to hashtags, players or clubs.
    * @param {String} player The player query term;
    * @param {String} club The club query term;
+   * @param {String} authors The authors query term;
    * @param {String} since The timestamp to start the search at;
    * @param {String} until The timestamp to end the search at.
    * @return {Promise} Resolves when the query to MySQL returns.
@@ -368,7 +369,25 @@ function findTweets(player, club, author, since, until){
     var [playerName, clubName] = playerAndClub;
     var playerQuery = makePlayerOrClubQuery(playerName);
     var clubQuery = makePlayerOrClubQuery(clubName);
-    var authorQuery = makePlayerOrClubQuery(author);
+    authors = authors.map(Hashtag.stripHashtag);
+    // var authorQuery = makePlayerOrClubQuery(authors);
+    var authorQuery = {};
+    if (authors.length) {
+      authorQuery = {
+        $or: [
+          {
+            twitterHandle: {
+              $in: authors
+            }
+          },
+          {
+            name: {
+              $in: authors
+            }
+          }
+        ]
+      };
+    }
 
     if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
       return dbTweet.findAll({
@@ -494,11 +513,11 @@ module.exports.getFromDatabase = function(query, callback){
 
   var player = query.player === undefined ? "" : query.player;
   var club = query.club === undefined ? "" : query.club;
-  var author = query.author === undefined ? "" : query.author;
+  var authors = query.authors === undefined ? [] : query.authors;
   var since = query.since;
   var until = query.until;
 
-  findTweets(player, club, author, since, until)
+  findTweets(player, club, authors, since, until)
   .then(tweets => {
     tweets = tweets.map(utils.makeTweetObjectFromDb);
 

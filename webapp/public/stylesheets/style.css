@@ -251,4 +251,28 @@ span.chip, label, .default-cursor {
   -moz-user-select: none;
   -ms-user-select: none;
   user-select: none;
-}#
+}
+
+.operator-switcher {
+  text-align: center;
+}
+
+.switch label {
+  color: #fff;
+}
+
+.switch label input[type=checkbox]:checked+.lever {
+  background-color: #9c27b0;
+}
+
+.switch label input[type=checkbox]:checked+.lever:after {
+  background-color: #6a1b9a;
+}
+
+.switch label input[type=checkbox]+.lever {
+  background-color: #9c27b0;
+}
+
+.switch label input[type=checkbox]+.lever:after {
+  background-color: #6a1b9a;
+}

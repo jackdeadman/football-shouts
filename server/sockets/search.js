@@ -186,7 +186,7 @@ var handlers = {
      * @param {String[]} req.sources: List of sources
      *                                 from the set {'twitter', 'database'}
      */
-
+    console.log(req);
     // Events to be emitted
     var errorEvent = 'error';
     var resultEvent = 'result';
