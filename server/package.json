@@ -27,7 +27,8 @@
     "serve-favicon": "~2.3.2",
     "socket.io": "^1.7.3",
     "sparql-client": "^0.2.0",
-    "twit": "^2.2.5"
+    "twit": "^2.2.5",
+    "xml2js": "^0.4.17"
   },
   "devDependencies": {
     "exec-chainable": "^0.0.3",
