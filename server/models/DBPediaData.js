@@ -21,14 +21,16 @@ module.exports.getPlayerClubWikidata = (playerName) => {
                   '?player wdt:P413 ?position. ' +
                   '?team rdfs:label ?teamLabel FILTER (LANG(?teamLabel) = "en"). ' +
                   '?position rdfs:label ?positionLabel FILTER (LANG(?positionLabel) = "en"). ' +
-              '} LIMIT 10 ';
+              '} LIMIT 50';
   
   console.log(query);
   return new Promise((resolve, reject) => {
     client.query(query)
     .execute(function(error, results) {
       xml2js.parseString(results, (error, parsedResults) => {
-        if (!error) {
+        if (error) {
+          reject(error);
+        } else {
           var name = parsedResults.sparql.results[0].result[0].binding[1].literal[0]._;
           var teamNames = new Set();
           var positions = new Set();

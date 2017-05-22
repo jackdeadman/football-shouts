@@ -236,6 +236,34 @@ function makeRelations(everythingSaved){
   });
 }
 
+function savePositions(positions){
+  var positionSaves = [];
+  positions.forEach((position) => {
+    // console.log(position);
+    positionSaves.push(dbPosition.findOrCreate({
+      where: {
+        name: position
+      }
+    }));
+  });
+  // console.log(positionSaves);
+  return positionSaves;
+}
+
+function relatePositionsToPlayers(player, positionSaves) {
+  var positionRelations = [];
+
+  positionSaves = positionSaves.map(save => save[0]);
+
+  positionSaves.forEach((save) => {
+    positionRelations.push(player.addPosition(save, { 
+      through: { positionId: save.id, playerId: player.id }
+    }));
+  });
+
+  return positionRelations;
+}
+
 module.exports.getFromTwitter = function(query, callback){
   /**
    * Queries twitter based on a query object, saves tweets
@@ -254,7 +282,7 @@ module.exports.getFromTwitter = function(query, callback){
   query.player = query.player || '';
   query.club = query.club || '';
   query.authors = query.authors.length ? query.authors : [];
-  query.operator = query.operator || 'OR'
+  query.operator = query.operator || 'OR';
 
   console.log("getting from twitter");
   var twitterQuery = buildQuery(query);
@@ -282,6 +310,7 @@ module.exports.getFromTwitter = function(query, callback){
                   twitterQuery);
     callback(null, tweetList);
 
+    var savedCount = 0;
     tweetList.forEach(function(tweet, i){
       var hashtags = originalTweetList[i].entities.hashtags;
       hashtags = Hashtag.processHashtags(hashtags);
@@ -292,66 +321,29 @@ module.exports.getFromTwitter = function(query, callback){
                                             query.club,
                                             author,
                                             hashtags);
-
+      
       makeRelations(everythingSaved)
       .then((relatedObjects) => {
+        savedCount += 1;
         var playerInstance = relatedObjects[2];
-        if (i === 0) {
+        if (savedCount === 1) {
           wikidata.getPlayerClubWikidata(query.player)
           .then((wikidataResults) => {
-            playerInstance.name = wikidataResults.name;
-            // playerInstance.position = wikidataResults.positions.values()[0];
-            // console.log(wikidataResults.positions.values());
-            var positionSaves = [];
-            wikidataResults.positions.forEach((position) => {
-              console.log(position);
-              positionSaves.push(dbPosition.findOrCreate({
-                where: {
-                  name: position
-                }
-              }));
-            });
-            var positionRelations = [];
-            Promise.all(positionSaves).then((positionSaves) => {
-              positionSaves.forEach((save) => {
-                positionRelations.push(
-                  playerInstance.addPosition(save, {
-                    through: { positionId: save.id, playerId: playerInstance.id }
-                  }));
-                // save.setPlayer(playerInstance);
+            // playerInstance.name = wikidataResults.name;
+            // playerInstance.save();
+            var positionSaves = savePositions(wikidataResults.positions);
+            console.log("saves: ", positionSaves);
+            Promise.all(positionSaves).then((positions) => {
+              var positionRelations = relatePositionsToPlayers(playerInstance, positions);
+              console.log("relations:", positionRelations);
+              Promise.all(positionRelations)
+              .then(() => {
+                console.log(playerInstance.get());
+                console.log("Player updated");
               });
-            });
-            Promise.all(positionRelations).then(playerInstance.save)
-            .then(() => {
-              console.log(playerInstance.get());
-              console.log("Player updated");
             });
           });
         }
-        // if (i === 0) {
-        //   console.log("getting wikidata");
-        //   wikidata.getPlayerClubWikidata(query.player)
-        //   .then((results) => {
-        //     // console.log(results);
-        //     relatedObjects.forEach((tweet) => {
-        //       console.log(tweet);
-        //       tweet.getPlayer().then((player) => {
-        //         console.log('####', results.name, results.positions.values()[0]);
-        //         player.name = results.name;
-        //         player.position = results.positions.values()[0];
-                
-        //         results.teamNames.forEach((team) => {
-        //           console.log('***', team);
-        //           saveClub(team)
-        //           .then((club) => {
-        //             player.setClub(club);
-        //           });
-        //         });
-        //         player.save();
-        //       });
-        //     });
-        //   });
-        // }
         console.log("Saved tweet to db");
       }).catch((err) => {
         console.error(err);

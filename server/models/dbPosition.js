@@ -10,7 +10,7 @@ module.exports = function(sequelize, DataTypes) {
           as: "Players",
           through: "PlayerPositions",
           foreignKey: "positionId",
-          otherKey: "playerId"
+          // otherKey: "playerId"
         });
       }
     }
