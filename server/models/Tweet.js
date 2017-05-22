@@ -395,7 +395,7 @@ function buildQuery(queryTerms){
   return searchTerms;
 }
 
-function makePlayerOrClubQuery(query){
+function makePlayerQuery(query){
   var queryObj = {
     $or: [
       {
@@ -409,6 +409,15 @@ function makePlayerOrClubQuery(query){
         }
       }
     ]
+  };
+  return queryObj;
+}
+
+function makeClubQuery(query) {
+  var queryObj = {
+    name: {
+      $like: '%' + query + '%'
+    }
   };
   return queryObj;
 }
@@ -443,8 +452,8 @@ function findTweets(player, operator, club, authors, since, until){
   return Promise.all([playerMetadataFound, clubMetadataFound]).then((playerAndClub) => {
     console.log(playerAndClub);
     var [playerName, clubName] = playerAndClub;
-    var playerQuery = makePlayerOrClubQuery(playerName);
-    var clubQuery = makePlayerOrClubQuery(clubName);
+    var playerQuery = makePlayerQuery(playerName);
+    var clubQuery = makeClubQuery(clubName);
 
     // TODO: Currently a hack, the function should be renamed
     authors = authors.map(Hashtag.stripHashtag);
