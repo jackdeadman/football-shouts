@@ -55,10 +55,10 @@ module.exports.getPlayerClubWikidata = (playerName) => {
               var position = innerResults[i].binding[3].literal[0]._;
               console.log(innerResults[i].binding.length);
               if (innerResults[i].binding.length >= 5) {
-                imageURL = innerResults[i].binding[4].literal[0]._;
-                twitterUsername = innerResults[i].binding[5].literal[0]._;
+                imageURL = innerResults[i].binding[4].uri[0];
+                twitterUsername = innerResults[i].binding[5].literal[0];
               } else if (innerResults[i].binding.length >= 4) {
-                imageURL = innerResults[i].binding[4].literal[0]._;
+                imageURL = innerResults[i].binding[4].uri[0];
               }
               
               teamNames.add(team);

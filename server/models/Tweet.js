@@ -334,7 +334,7 @@ module.exports.getFromTwitter = function(query, callback){
             if (wikidataResults.twitterUsername) {
               playerInstance.twitterHandle = wikidataResults.twitterUsername;
             }
-            if (wikidataResults.imageUrl) {
+            if (wikidataResults.imageURL) {
               playerInstance.imageUrl = wikidataResults.imageURL;
             }
             playerInstance.save();
