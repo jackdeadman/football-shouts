@@ -329,8 +329,8 @@ module.exports.getFromTwitter = function(query, callback){
         if (savedCount === 1) {
           wikidata.getPlayerClubWikidata(query.player)
           .then((wikidataResults) => {
+
             playerInstance.name = wikidataResults.name;
-            console.log(wikidataResults);
             if (wikidataResults.twitterUsername) {
               playerInstance.twitterHandle = wikidataResults.twitterUsername;
             }
@@ -338,6 +338,7 @@ module.exports.getFromTwitter = function(query, callback){
               playerInstance.imageUrl = wikidataResults.imageURL;
             }
             playerInstance.save();
+
             var wikidataClub = Array.from(wikidataResults.teamNames.values())[0];
             var clubSave = saveClub(wikidataClub);
             clubSave.then((club) => {
@@ -345,16 +346,11 @@ module.exports.getFromTwitter = function(query, callback){
               playerInstance.setClub(club)
               .catch(err => console.error(err));
             });
+
             var positionSaves = savePositions(wikidataResults.positions);
-            // console.log("saves: ", positionSaves);
             Promise.all(positionSaves).then((positions) => {
               var positionRelations = relatePositionsToPlayers(playerInstance, positions);
-              // console.log("relations:", positionRelations);
-              Promise.all(positionRelations)
-              .then(() => {
-                console.log(playerInstance.get());
-                console.log("Player updated");
-              });
+              Promise.all(positionRelations);
             });
           });
         }
@@ -434,10 +430,11 @@ function findTweets(player, operator, club, authors, since, until){
    * @return {Promise} Resolves when the query to MySQL returns.
    */
 
+  var required = true;
   if (operator === 'OR') {
-    operator = '$or';
+    required = false;
   } else if (operator === 'AND') {
-    operator = '$and';
+    required = true;
   } else {
     // Handle Error
     throw new Error(`Invalid operator supplied: ${operator}`);
@@ -492,7 +489,8 @@ function findTweets(player, operator, club, authors, since, until){
               hashtag: {
                 $in: [Hashtag.stripHashtag(player), Hashtag.stripHashtag(club)]
               }
-            }
+            },
+            required: required
           },
           {
             model: dbAuthor,
@@ -512,14 +510,16 @@ function findTweets(player, operator, club, authors, since, until){
           {
             model: dbClub,
             where: clubQuery,
-            foreignKey: 'transferClubId'
+            foreignKey: 'transferClubId',
+            required: required
           },
           {
             model: dbHashtag,
             as: 'Hashtags',
             where: {
               hashtag: Hashtag.stripHashtag(player)
-            }
+            },
+            required: required
           },
           {
             model: dbAuthor,
@@ -538,14 +538,16 @@ function findTweets(player, operator, club, authors, since, until){
         include: [
           {
             model: dbPlayer,
-            where: playerQuery
+            where: playerQuery, 
+            required: required
           },
           {
             model: dbHashtag,
             as: 'Hashtags',
             where: {
               hashtag: Hashtag.stripHashtag(club)
-            }
+            },
+            required: required
           },
           {
             model: dbAuthor,
@@ -565,12 +567,14 @@ function findTweets(player, operator, club, authors, since, until){
       include: [
         {
           model: dbPlayer,
-          where: playerQuery
+          where: playerQuery,
+          required: required
         },
         {
           model: dbClub,
           where: clubQuery,
-          foreignKey: 'transferClubId'
+          foreignKey: 'transferClubId', 
+          required: required
         },
         {
           model: dbAuthor, 
