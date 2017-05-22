@@ -242,25 +242,19 @@ module.exports.getFromTwitter = function(query, callback){
    * returned to the database.
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
+   * @param {String} query.operator Operator between player and club;
    * @param {String} query.club The club to search for;
-   * @param {String} query.author The author to filter by;
+   * @param {String} query.authors The authors to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @param {Function} callback To be called when Twit returns
    * tweets from Twitter.
    */
 
-  if (query.player === undefined) {
-    query.player = "";
-  }
-
-  if (query.club === undefined) {
-    query.club = "";
-  }
-
-  if (query.author === undefined) {
-    query.author = "";
-  }
+  query.player = query.player || '';
+  query.club = query.club || '';
+  query.authors = query.authors.length ? query.authors : [];
+  query.operator = query.operator || 'OR'
 
   console.log("getting from twitter");
   var twitterQuery = buildQuery(query);
@@ -371,22 +365,24 @@ function buildQuery(queryTerms){
    * Takes a query object and formats a string for the twitter query.
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
+   * @param {String} query.operator Operator between player and club 
    * @param {String} query.club The club to search for;
-   * @param {String} query.author The author to filter by;
+   * @param {String} query.authors The author to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @return A formatted string for searching Twitter.
    */
   var player = queryTerms.player;
   var club = queryTerms.club;
-  var author = queryTerms.author;
+  var operator = queryTerms.operator;
+  var authors = queryTerms.authors.map(Hashtag.stripHashtag);
   var sinceTimestamp = utils.formatDateForTwitter(queryTerms.since);
   var untilTimestamp = utils.formatDateForTwitter(queryTerms.until);
   var timeLimits = " since:" + sinceTimestamp + " until:" + untilTimestamp;
   var filterRetweetsAndReplies = " AND -filter:retweets AND -filter:replies";
-  var authorFilter = author === "" ? "" : "from: " + author;
-  var playerClubAuthorTerms = [player, club, authorFilter].filter(term => term !== "");
-  var playerClubAuthorString = playerClubAuthorTerms.join(" ");
+  var authorFilter = authors.map(a => `from:${a}`).join(' OR ');
+  var playerAndClub = [player, club].filter(term => term !== "").join(` ${operator} `);
+  var playerClubAuthorString = `(${playerAndClub}) ${authorFilter}`;
 
   var searchTerms = playerClubAuthorString + timeLimits + filterRetweetsAndReplies;
   console.log("search terms:", searchTerms);
@@ -411,15 +407,27 @@ function makePlayerOrClubQuery(query){
   return queryObj;
 }
 
-function findTweets(player, club, author, since, until){
+function findTweets(player, operator, club, authors, since, until){
   /**
    * Searches for tweets related to hashtags, players or clubs.
    * @param {String} player The player query term;
+   * @param {String} operator Operator between player and club;
    * @param {String} club The club query term;
+   * @param {String} authors The authors query term;
    * @param {String} since The timestamp to start the search at;
    * @param {String} until The timestamp to end the search at.
    * @return {Promise} Resolves when the query to MySQL returns.
    */
+
+  if (operator === 'OR') {
+    operator = '$or';
+  } else if (operator === 'AND') {
+    operator = '$and';
+  } else {
+    // Handle Error
+    throw new Error(`Invalid operator supplied: ${operator}`);
+  }
+
   since = moment(since).format().toString();
   until = moment(until).format().toString();
 
@@ -431,7 +439,27 @@ function findTweets(player, club, author, since, until){
     var [playerName, clubName] = playerAndClub;
     var playerQuery = makePlayerOrClubQuery(playerName);
     var clubQuery = makePlayerOrClubQuery(clubName);
-    var authorQuery = makePlayerOrClubQuery(author);
+
+    // TODO: Currently a hack, the function should be renamed
+    authors = authors.map(Hashtag.stripHashtag);
+    // var authorQuery = makePlayerOrClubQuery(authors);
+    var authorQuery = {};
+    if (authors.length) {
+      authorQuery = {
+        $or: [
+          {
+            twitterHandle: {
+              $in: authors
+            }
+          },
+          {
+            name: {
+              $in: authors
+            }
+          }
+        ]
+      };
+    }
 
     if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
       return dbTweet.findAll({
@@ -545,6 +573,7 @@ module.exports.getFromDatabase = function(query, callback){
    * as the ones made by getFromTwitter.
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
+   * @param {String} query.operator Operator between player and club;
    * @param {String} query.club The club to search for;
    * @param {String} query.author The author to filter by;
    * @param {String} query.since The timestamp to search from;
@@ -557,11 +586,12 @@ module.exports.getFromDatabase = function(query, callback){
 
   var player = query.player === undefined ? "" : query.player;
   var club = query.club === undefined ? "" : query.club;
-  var author = query.author === undefined ? "" : query.author;
+  var authors = query.authors === undefined ? [] : query.authors;
+  var operator = query.operator;
   var since = query.since;
   var until = query.until;
 
-  findTweets(player, club, author, since, until)
+  findTweets(player, operator, club, authors, since, until)
   .then(tweets => {
     tweets = tweets.map(utils.makeTweetObjectFromDb);
 

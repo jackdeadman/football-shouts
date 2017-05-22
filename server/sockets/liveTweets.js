@@ -33,6 +33,10 @@ var handlers = {
       livetweets.disconnect();
     });
 
+    socket.on('unsubscribe', function() {
+      livetweets.disconnect();
+    });
+
     socket.livetweets = livetweets;
   }
 };

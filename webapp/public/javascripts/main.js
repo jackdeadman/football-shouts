@@ -66,6 +66,7 @@ function loadGraph(canvas, data, callback) {
   var $loadMoreTweets = $('#loadMoreTweets');
   var $appContainer = $('#app-container');
   var $tweetStats = $('#tweet-stats');
+  var $operatorSelector = $('#operator-switcher');
 
   function handleSearch(req) {
   // Setup livetweets
@@ -109,6 +110,7 @@ function loadGraph(canvas, data, callback) {
   var countFromDatabase = 0;
 
   function handleSearchResult(results) {
+    clearSearchResults();
     displaySearchResults(results.tweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
@@ -150,6 +152,10 @@ function loadGraph(canvas, data, callback) {
     showApp();
   }
 
+  function clearSearchResults() {
+    $app.empty();
+  }
+
   hiddenTweets = []
   function handleNewLiveTweet(tweet) {
     hiddenTweets.push(tweet);
@@ -186,6 +192,7 @@ function loadGraph(canvas, data, callback) {
 
   //Upon pressing the search button, send the entered data
   $searchContainer.on('submit', function(e) {
+    liveTweets.emit('unsubscribe');
     document.title = title;
     hideApp();
     e.preventDefault();
@@ -196,16 +203,20 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
+    // TODO: THESE SHOULD BE CACHED
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var authors = $('#authors').materialtags('items');
     var sources = $('#options').val();
 
+    var operator = $operatorSelector.find('input')[0].checked ? 'AND' : 'OR'
+    console.log(operator);
     handleSearch({
       players: playerTags,
       clubs: clubTags,
       authors: authors,
-      sources: sources
+      sources: sources,
+      operator: operator
     });
     // showApp();
   });
