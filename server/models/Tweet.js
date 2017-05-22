@@ -9,11 +9,13 @@ var LiveTweet = require('./LiveTweet');
 var dbPlayer = database.Player;
 var dbClub = database.Club;
 var dbHashtag = database.Hashtag;
+var dbPosition = database.Position;
 var utils = require('./_utils');
 var moment = require('moment');
 var Hashtag = require('./Hashtag');
 var Author = require('./Author');
 var dbpediaClient = require('dbpediaclient');
+var wikidata = require('./DBPediaData');
 
 dbpediaClient.replyFormat('application/json');
 
@@ -31,7 +33,7 @@ function findPlayerMetadata(player){
       var name = player;
       if (results.results.length > 0) {
         name = results.results[0].label;
-        console.log("name: #####", name);
+        // console.log("name: #####", name);
       }
       
       resolve(name);
@@ -42,7 +44,8 @@ function findPlayerMetadata(player){
 
 function savePlayer(player){
   return new Promise((resolve, reject) => {
-    findPlayerMetadata(player).then((dbpediaName) => {
+    findPlayerMetadata(player)
+    .then((dbpediaName) => {
       resolve(dbPlayer.findOrCreate({
         where: {
           name: dbpediaName
@@ -60,7 +63,7 @@ function findClubMetadata(club){
       var name = club;
       if (results.results.length > 0) {
         name = results.results[0].label;
-        console.log("club: #####", name);
+        // console.log("club: #####", name);
       }
       
       resolve(name);
@@ -206,7 +209,7 @@ function makeRelations(everythingSaved){
           });
           setRelation
           .catch((err) => {
-            console.log("#####", hashtag);
+            // console.log("#####", hashtag);
             reject({err, hashtag});
           });
           resolve(setRelation);
@@ -295,9 +298,69 @@ module.exports.getFromTwitter = function(query, callback){
                                             query.club,
                                             author,
                                             hashtags);
+
       makeRelations(everythingSaved)
-      .then(() => {
+      .then((relatedObjects) => {
+        var playerInstance = relatedObjects[2];
+        if (i === 0) {
+          wikidata.getPlayerClubWikidata(query.player)
+          .then((wikidataResults) => {
+            playerInstance.name = wikidataResults.name;
+            // playerInstance.position = wikidataResults.positions.values()[0];
+            // console.log(wikidataResults.positions.values());
+            var positionSaves = [];
+            wikidataResults.positions.forEach((position) => {
+              console.log(position);
+              positionSaves.push(dbPosition.findOrCreate({
+                where: {
+                  name: position
+                }
+              }));
+            });
+            var positionRelations = [];
+            Promise.all(positionSaves).then((positionSaves) => {
+              positionSaves.forEach((save) => {
+                positionRelations.push(
+                  playerInstance.addPosition(save, {
+                    through: { positionId: save.id, playerId: playerInstance.id }
+                  }));
+                // save.setPlayer(playerInstance);
+              });
+            });
+            Promise.all(positionRelations).then(playerInstance.save)
+            .then(() => {
+              console.log(playerInstance.get());
+              console.log("Player updated");
+            });
+          });
+        }
+        // if (i === 0) {
+        //   console.log("getting wikidata");
+        //   wikidata.getPlayerClubWikidata(query.player)
+        //   .then((results) => {
+        //     // console.log(results);
+        //     relatedObjects.forEach((tweet) => {
+        //       console.log(tweet);
+        //       tweet.getPlayer().then((player) => {
+        //         console.log('####', results.name, results.positions.values()[0]);
+        //         player.name = results.name;
+        //         player.position = results.positions.values()[0];
+                
+        //         results.teamNames.forEach((team) => {
+        //           console.log('***', team);
+        //           saveClub(team)
+        //           .then((club) => {
+        //             player.setClub(club);
+        //           });
+        //         });
+        //         player.save();
+        //       });
+        //     });
+        //   });
+        // }
         console.log("Saved tweet to db");
+      }).catch((err) => {
+        console.error(err);
       });
     });
   });
@@ -522,14 +585,14 @@ module.exports.live = function(query){
    */
   var players = query.players;
   var clubs = query.clubs;
-  console.log(players, clubs);
-  console.log('TRACKING: ', utils.createTwitterQuery({players, clubs}));
+  // console.log(players, clubs);
+  // console.log('TRACKING: ', utils.createTwitterQuery({players, clubs}));
 
   var queryObj = { track: utils.createTwitterQuery({players, clubs}) };
 
   var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
   liveTweetStream.on('tweet', tweet => {
-    console.log('New tweet: xsmkmkxmxks');
+    // console.log('New tweet: xsmkmkxmxks');
     var hashtags = Hashtag.processHashtags(tweet.entities.hashtags);
     var processedTweet = utils.makeTweetObject(tweet);
     var author = Author.makeAuthorObject(processedTweet);
