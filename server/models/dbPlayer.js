@@ -2,7 +2,7 @@
 
 module.exports = function(sequelize, DataTypes) {
   var Player = sequelize.define('Player', {
-    name: { type: DataTypes.STRING, allowNull: false },
+    name: { type: DataTypes.STRING, allowNull: false, unique: true },
     twitterHandle: { type: DataTypes.STRING(15), unique: true }, 
     // players might not have twitter handles
     imageUrl: DataTypes.STRING, 

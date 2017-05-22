@@ -5218,6 +5218,10 @@ wide-align@^1.1.0:
   dependencies:
     string-width "^1.0.2"
 
+wikidata-sdk@^5.1.4:
+  version "5.1.4"
+  resolved "https://registry.yarnpkg.com/wikidata-sdk/-/wikidata-sdk-5.1.4.tgz#6f9ae2a889057e813704ad948d123ed9565b45a3"
+
 win-release@^1.0.0:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/win-release/-/win-release-1.1.1.tgz#5fa55e02be7ca934edfc12665632e849b72e5209"

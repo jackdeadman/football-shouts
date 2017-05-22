@@ -329,13 +329,27 @@ module.exports.getFromTwitter = function(query, callback){
         if (savedCount === 1) {
           wikidata.getPlayerClubWikidata(query.player)
           .then((wikidataResults) => {
-            // playerInstance.name = wikidataResults.name;
-            // playerInstance.save();
+            playerInstance.name = wikidataResults.name;
+            console.log(wikidataResults);
+            if (wikidataResults.twitterUsername) {
+              playerInstance.twitterHandle = wikidataResults.twitterUsername;
+            }
+            if (wikidataResults.imageUrl) {
+              playerInstance.imageUrl = wikidataResults.imageURL;
+            }
+            playerInstance.save();
+            var wikidataClub = Array.from(wikidataResults.teamNames.values())[0];
+            var clubSave = saveClub(wikidataClub);
+            clubSave.then((club) => {
+              club = club[0];
+              playerInstance.setClub(club)
+              .catch(err => console.error(err));
+            });
             var positionSaves = savePositions(wikidataResults.positions);
-            console.log("saves: ", positionSaves);
+            // console.log("saves: ", positionSaves);
             Promise.all(positionSaves).then((positions) => {
               var positionRelations = relatePositionsToPlayers(playerInstance, positions);
-              console.log("relations:", positionRelations);
+              // console.log("relations:", positionRelations);
               Promise.all(positionRelations)
               .then(() => {
                 console.log(playerInstance.get());
