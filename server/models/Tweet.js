@@ -634,6 +634,30 @@ module.exports.getFromDatabase = function(query, callback){
   });
 };
 
+function formatDbPlayerInfo(player) {
+  var formattedPlayer = {
+    name: player.name,
+    twitterHandle: '@' + player.twitterHandle,
+    imageUrl: player.imageUrl,
+    positions: player.Positions.map(position => position.name),
+    club: player.Club.name
+  };
+  console.log(formattedPlayer);
+  return formattedPlayer;
+}
+
+function formatWikidataPlayerInfo(player) {
+  var formattedPlayer = {
+    name: player.name,
+    twitterHandle: player.twitterUsername,
+    imageUrl: player.imageURL,
+    positions: Array.from(player.positions),
+    club: Array.from(player.teamNames)[0]
+  };
+  console.log(formattedPlayer);
+  return formattedPlayer;
+}
+
 module.exports.getPlayerInfo = function(player) {
   /**
    * Finds information about a football player such as the position
@@ -641,7 +665,7 @@ module.exports.getPlayerInfo = function(player) {
    * @param {String} player The player to get information for from the database.
    */
    
-  return dbPlayer.findAll({
+  dbPlayer.findAll({
     where: {
       name: {
         $like: '%' + player + '%'
@@ -649,9 +673,12 @@ module.exports.getPlayerInfo = function(player) {
     },
     include: [{ model: dbPosition, as: "Positions" }, { model: dbClub }]
   }).then((players) => {
-    if (players.length) {
-      return players[0];
-    }
+    if (players.length > 0) {
+      return formatDbPlayerInfo(players[0]);
+    } 
+    wikidata.getPlayerClubWikidata(player).then((wikidataResults) => {
+      return formatWikidataPlayerInfo(wikidataResults);
+    });
   }).catch((err) => {
     console.error(err);
   });

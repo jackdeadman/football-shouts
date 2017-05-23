@@ -11,7 +11,7 @@ var dbOptions = {
   dialectOptions: {
     charset: 'utf8mb4'
   },
-  logging: console.log,
+  logging: false,
 
   pool: {
     max: 30,
