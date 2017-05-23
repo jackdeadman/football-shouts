@@ -151,6 +151,7 @@ var groupByDay = (tweets) => {
   var chartData = {};
   // Create an object where the key is the date and the value is the count
   tweets.forEach(tweet => {
+    // var newDate = moment(tweet.datePublished).startOf('day').format();
     var newDate = moment(tweet.datePublished).startOf('day').format();
     if (chartData[newDate]) {
       chartData[newDate]++;
@@ -177,6 +178,35 @@ var groupByDay = (tweets) => {
  * To connect on client: io('/search');
  */
 var handlers = {
+  
+  // socket.on('playerData', req);
+  playerData: (socket, players) => {
+    var errorEvent = 'error';
+
+    if (!players) {
+      var errorMsg = 'Please provide a list of players';
+      socket.emit(errorEvent, generateErrorObj(errorMsg, req));
+      return;
+    }
+
+    var emitter = d => socket.emit('playerData', d);
+
+    var fetchPlayersData = Tweet.getPlayerInfoFromDb(players[0]);
+    fetchPlayersData.then(playerData => {
+      console.log('PLAYER DATA DB')
+      console.log(playerData);
+      if (playerData) {
+        emitter(playerData);
+      } else {
+        Tweet.getPlayerClubWikidata(players[0]).then(playerDataWIKI => {
+          console.log('PLAYER DATA WIKI')
+          console.log(playerDataWIKI);
+          emitter(playerDataWIKI);
+        });
+      }
+    });
+  },
+
   // socket.on('query', req);
   query: (socket, req) => {
     /**
