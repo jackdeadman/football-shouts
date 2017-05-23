@@ -641,15 +641,17 @@ module.exports.getPlayerInfo = function(player) {
    * @param {String} player The player to get information for from the database.
    */
    
-  dbPlayer.findAll({
+  return dbPlayer.findAll({
     where: {
       name: {
         $like: '%' + player + '%'
       }
     },
     include: [{ model: dbPosition, as: "Positions" }, { model: dbClub }]
-  }).then((player) => {
-    return player.get();
+  }).then((players) => {
+    if (players.length) {
+      return players[0];
+    }
   }).catch((err) => {
     console.error(err);
   });

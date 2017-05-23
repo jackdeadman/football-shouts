@@ -68,75 +68,105 @@ block overlay
 //Block containing content "below the fold"
 block tweets
   div.row
-    //The column to the left displaying player and club info
-    //(TEMPORARY)
-    div.col.s12.l5#side-info
-      div.card-panel.z-depth-1.info#playerinfo
-        div.info-top
-          div.info-image#playerimage
-            img.circle.responsive-img(src = "images/manny.png")
-          div.info-title#playername
-            p Manny Calavera
-        table.striped
-          tbody
-            tr
-              td.info-name
-                | Current Club:
-              td#currentclub
-                span Club Universidad Nacional
-            tr
-              td.info-name
-                | Position:
-              td#position
-                span Front, back and sides
-            tr
-              td.info-name
-                | Jersey Number:
-              td#jerseynumber
-                span 13
-            tr
-              td.info-name
-                | Age:
-              td#age
-                span 11
-            tr
-              td.info-name
-                | Country:
-              td#country
-                span Mexico
-            tr
-              td.info-name
-                | Height:
-              td#height
-                span 2ft
-            tr
-              td.info-name
-                | Weight:
-              td#weight
-                span 1kg
-            tr
-              td.info-name
-                | Preferred Foot:
-              td#preferredfoot
-                span The wrong one
-            tr
-              td.info-name
-                | Estimated Value:
-              td#estimatedvalue
-                span £1
-      div.card-panel.grey.lighten-5.z-depth-1.info#clubinfo
-        div.info-top
-          div.info-image#playerimage
-            img.responsive-img(src = "images/club.png")
-          div.info-title#playername
-            p Club Universidad Nacional
-        table.striped
-          tbody
-            tr
-              td.info-name
-                | League:
-              td#league
-                span Liga MX
+    #player-data-location
+      //The column to the left displaying player and club info
+      script#player-data-template(type='text/x-handlebars-template')
+        //(TEMPORARY)
+        div.col.s12.l5#side-info
+          | {{#unless loading}}
+          div.card-panel.z-depth-1.info#playerinfo
+            div.info-top
+              div.info-image#playerimage
+                img.circle.responsive-img(src ="{{ imageUrl }}")
+              div.info-title#playername
+                p
+                  {{ name }}
+            table.striped
+              tbody
+                tr
+                  td.info-name
+                    | Current Club:
+                  td#currentclub
+                    span.
+                      {{#if Club.name}}
+                        {{ Club.name }}
+                      {{else}}
+                        Club is unknown.
+                      {{/if}}
+                tr
+                  td.info-name
+                    | Position:
+                  td#position
+                    span.
+                      {{#if positionClean}}
+                        {{ positionClean }}
+                      {{else}}
+                        Position is unknown.
+                      {{/if}}
+                tr
+                  td.info-name
+                    | Twitter Handle:
+                  td#twitterHandle
+                    span.
+                      {{#if twitterHandle}}
+                      <a href="https://twitter.com/{{twitterHandle}}" target="_blank">@{{twitterHandle}}</a>
+                      {{else}}
+                      Twitter handle is unknown.
+                      {{/if}}
+            | {{else}}
+            div.card-panel.z-depth-1.info#playerinfo.
+              Loading...
+            | {{/unless}}
+            //- tr
+            //-   td.info-name
+            //-     | Shirt Number:
+            //- td#jerseynumber
+            //-   span
+            //-     {{}}
+            //- tr
+            //-   td.info-name
+            //-     | Age:
+            //-   td#age
+            //-     span 11
+            //- tr
+            //-   td.info-name
+            //-     | Country:
+            //-   td#country
+            //-     span Mexico
+            //- tr
+            //-   td.info-name
+            //-     | Height:
+            //-   td#height
+            //-     span 2ft
+            //- tr
+            //-   td.info-name
+            //-     | Weight:
+            //-   td#weight
+            //-     span 1kg
+            //- tr
+            //-   td.info-name
+            //-     | Preferred Foot:
+            //-   td#preferredfoot
+            //-     span The wrong one
+            //- tr
+            //-   td.info-name
+            //-     | Estimated Value:
+            //-   td#estimatedvalue
+            //-     span £1
+            //- div.card-panel.grey.lighten-5.z-depth-1.info#clubinfo
+            //-   div.info-top
+            //- div.info-image#playerimage
+            //-   img.responsive-img(src = "images/club.png")
+            //- div.info-title#playername
+            //-   p
+            //-     {{ Club.name }}
+            //- table.striped
+            //-   tbody
+            //-     tr
+            //-       td.info-name
+            //-         | League:
+            //-       td#league
+            //-         span Liga MX
 
     //Right-hand section for graph and tweets
     div.col.s12.l7#js-tweet-start
@@ -187,10 +217,10 @@ block tweets
         <div class='col s9 xl10'>
           <div class="tweetTop">
               <div class="tweetName">
-                  <a href="https://twitter.com/{tweet.twitterHandle}" target="_blank" class="black-text">{{name}}</a>
+                  <a href="https://twitter.com/{{twitterHandle}}" target="_blank" class="black-text">{{name}}</a>
               </div>
               <div class="tweetHandle">
-                <a href="https://twitter.com/{tweet.twitterHandle}" target="_blank">@{{twitterHandle}}</a>
+                <a href="https://twitter.com/{{twitterHandle}}" target="_blank">@{{twitterHandle}}</a>
               </div>
           </div>
           <span class = "black-text">{{{text}}}</span>
