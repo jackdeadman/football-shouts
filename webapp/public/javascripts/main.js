@@ -87,7 +87,8 @@ function loadGraph(canvas, data, callback) {
   liveTweets.emit('subscribe', {
     players: req.players,
     authors: req.authors,
-    clubs: req.clubs
+    clubs: req.clubs,
+    operator: req.operator,
   });
 
   // Send the queries
@@ -178,13 +179,14 @@ function loadGraph(canvas, data, callback) {
   }
 
   function displayPlayers(player) {
-    // console.log(players);
-    // var player = players[0];
     if (player) {
-      console.log(player);
       player.positionClean = player.positions.map(toUpperCase).join(', ')
       player.loading = false;
       $playerDataLocation.html(playerDataTemplate(player));
+    } else {
+      $playerDataLocation.html(playerDataTemplate({
+        loading: false
+      }));
     }
   }
 
