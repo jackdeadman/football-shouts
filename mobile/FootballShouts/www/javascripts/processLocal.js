@@ -69,9 +69,9 @@ function saveTweet(tweet) {
             ) \
             VALUES \
             ( \
-                        '?',\
-                        '?',\
-                        '?',\
+                        ?,\
+                        ?,\
+                        ?,\
                         ?,\
                         ?,\
                         ?\
