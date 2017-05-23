@@ -637,7 +637,7 @@ module.exports.getFromDatabase = function(query, callback){
 function formatDbPlayerInfo(player) {
   var formattedPlayer = {
     name: player.name,
-    twitterHandle: '@' + player.twitterHandle,
+    twitterHandle: player.twitterHandle,
     imageUrl: player.imageUrl,
     positions: player.Positions.map(position => position.name),
     club: player.Club.name
