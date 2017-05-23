@@ -77,12 +77,12 @@ function saveTweet(tweet) {
                         ?\
             );";
 
-  // console.log(query);
-  // console.log(tweet);
+  console.log(query);
+  console.log(tweet);
   app.localDB.executeSql(query, [tweet.text, tweet.twitterId, tweet.datePublished, tweet.hasMedia, tweet.retweetCount, tweet.favouriteCount], function(rs) {
     console.log('InsertId: ' + rs.insertId);
   }, function(error) {
-      console.log('Error: ' + error.message + ", " error.);
+      console.log('Error: ' + error.message);
   });
 
   // app.localDB.transaction(function(tx) {
