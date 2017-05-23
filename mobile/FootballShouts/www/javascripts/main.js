@@ -38,13 +38,26 @@ function loadGraph(canvas, data, callback) {
                   }
           },
         scales: {
+            yAxes: [
+              {
+                  ticks: {
+                      beginAtZero: true
+                  }
+              }
+            ],
+
             xAxes: [{
             type: 'time',
+            ticks: {
+              autoSkip: false,
+              maxRotation: 45,
+              minRotation: 45,
+              stepSize: 0.5
+            },
             time: {
-              ticks: {
-                    stepSize: 2,
-                    autoSkip: false
-                }
+              displayFormats: {
+                        unit: 'day'
+                    }
             }
           }]
         }
@@ -66,6 +79,8 @@ function loadGraph(canvas, data, callback) {
   var $loadMoreTweets = $('#loadMoreTweets');
   var $appContainer = $('#app-container');
   var $tweetStats = $('#tweet-stats');
+  var $operatorSelector = $('#operator-switcher');
+  var $playerDataLocation = $('#player-data-location');
 
   var localResults = [];
   var localChartData = {};
@@ -102,6 +117,7 @@ function loadGraph(canvas, data, callback) {
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
   var tweetStatTemplate = Handlebars.compile($("#tweet-stats-template").html());
+  var playerDataTemplate = Handlebars.compile($("#player-data-template").html());
 
   // HANDLERS
   function handleSearchError(err) {
@@ -124,7 +140,6 @@ function loadGraph(canvas, data, callback) {
       $submitButton.show();
     });
 
-    // alert('Error');
     console.log(err);
   }
 
@@ -169,6 +184,7 @@ function loadGraph(canvas, data, callback) {
 
     // TODO: store in local DB here!
 
+    clearSearchResults();
     displaySearchResults(allTweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
@@ -212,33 +228,45 @@ function loadGraph(canvas, data, callback) {
     showApp();
   }
 
+  function clearSearchResults() {
+    $app.empty();
+  }
+
+  function toUpperCase(string) {
+    return string.replace(/\b\w/g, function(s) {
+      return s.toUpperCase()
+    });
+  }
+
+  function displayPlayers(player) {
+    // console.log(players);
+    // var player = players[0];
+    if (player) {
+      console.log(player);
+      player.positionClean = player.positions.map(toUpperCase).join(', ')
+      player.loading = false;
+      $playerDataLocation.html(playerDataTemplate(player));
+    }
+  }
+
   hiddenTweets = []
   function handleNewLiveTweet(tweet) {
-    var node = renderTweet(tweet);
     hiddenTweets.push(tweet);
     document.title = '(' + hiddenTweets.length + ') ' + title;
     $loadMoreTweets.find('.count').html(hiddenTweets.length);
     $loadMoreTweets.show();
   }
 
+  var title = document.title;
   function loadLiveTweets() {
     // Add new tweets to the page one-by-one
     while (hiddenTweets.length !== 0) {
       $app.prepend(renderTweet(hiddenTweets.pop()));
     }
+
     document.title = title;
     $(this).hide();
   }
-
-  var title = document.title;
-
-  liveTweets.on('tweet', function(tweet) {
-    var node = createTweetNode(tweet);
-    hiddenTweets.push(tweet);
-    document.title = '(' + hiddenTweets.length + ') ' + title;
-    $loadMoreTweets.show();
-    $loadMoreTweets.find('.count').html(hiddenTweets.length);
-  });
 
   // Setup Socket listeners
   // SEARCH
@@ -252,11 +280,16 @@ function loadGraph(canvas, data, callback) {
   });
   search.on('result', handleSearchResult);
   liveTweets.on('tweet', handleNewLiveTweet);
+  search.on('playerData', displayPlayers);
 
   // Setup DOM listeners
 
   //Upon pressing the search button, send the entered data
   $searchContainer.on('submit', function(e) {
+    $playerDataLocation.html(playerDataTemplate({loading: true}));
+    // Unsub from previous search
+    liveTweets.emit('unsubscribe');
+    document.title = title;
     hideApp();
     e.preventDefault();
     // Empty livetweets not shown
@@ -266,17 +299,25 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
+    // TODO: THESE SHOULD BE CACHED
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var authors = $('#authors').materialtags('items');
     var sources = $('#options').val();
 
+    var operator = $operatorSelector.find('input')[0].checked ? 'AND' : 'OR'
+    console.log(operator);
+
     handleSearch({
       players: playerTags,
       clubs: clubTags,
       authors: authors,
-      sources: sources
+      sources: sources,
+      operator: operator
     });
+
+    // Get player data
+    search.emit('playerData', playerTags);
     // showApp();
   });
 
