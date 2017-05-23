@@ -1,11 +1,7 @@
 'use strict';
 
-var xml2js = require('xml2js');
-// var wikidataSdk = require('wikidata-sdk');
-var SparqlClient = require('sparql-client');
-var endpoint = "https://query.wikidata.org/bigdata/namespace/wdq/sparql";
-
-var client = new SparqlClient(endpoint);
+var wdk = require('wikidata-sdk');
+var requestPromise = require('request-promise');
 
 module.exports.getPlayerClubWikidata = (playerName) => {
   var query = 'PREFIX wd: <http://www.wikidata.org/entity/> ' +
@@ -31,42 +27,39 @@ module.exports.getPlayerClubWikidata = (playerName) => {
                   'OPTIONAL {?player wdt:P2002 ?twitterUsername}. ' +
               '} ORDER BY ?startTime ';
 
+  var url = wdk.sparqlQuery(query);
 
-  console.log(query);
   return new Promise((resolve, reject) => {
-    client.query(query)
-    .execute(function(error, results) {
-      if (!error && results) {
-        xml2js.parseString(results, (error, parsedResults) => {
-          if (error || !parsedResults) {
-            reject(error);
-          } else {
-            var name = parsedResults.sparql.results[0].result[0].binding[1].literal[0]._;
-            var teamNames = new Set();
-            var positions = new Set();
-            var innerResults = parsedResults.sparql.results[0].result;
-            var imageURL = null;
-            var twitterUsername = null;
-            if (innerResults) {
-              for (var i = 0; i < innerResults.length; i++) {
-                var team = innerResults[i].binding[2].literal[0]._;
-                var position = innerResults[i].binding[3].literal[0]._;
-                if (innerResults[i].binding.length > 5) {
-                  imageURL = innerResults[i].binding[4].uri[0];
-                  twitterUsername = innerResults[i].binding[5].literal[0];
-                } else if (innerResults[i].binding.length > 4) {
-                  imageURL = innerResults[i].binding[4].uri[0];
-                }
-                
-                teamNames.add(team);
-                positions.add(position);
-              }
-            }
-            
-            resolve({name, teamNames, positions, imageURL, twitterUsername});
+    requestPromise(url)
+    // .then(wdk.simplifySparqlResults)
+    .then(JSON.parse)
+    .then((results) => {
+      var bindings = results.results.bindings;
+      var name = bindings[0].playerLabel.value;
+      var positions = new Set();
+      var teamName;
+      var imageUrl;
+      var twitterUsername;
+      bindings.forEach((result) => {
+        var resultName = result.playerLabel.value;
+        if (resultName === name) {
+          teamName = result.teamLabel.value;
+          var position = result.positionLabel.value;
+          positions.add(position);
+          if (result.imageURL) {
+            imageUrl = result.imageURL.value;
           }
-        });
-      }
+          if (result.twitterUsername) {
+            twitterUsername = result.twitterUsername.value;
+          }
+        }
+      });
+      resolve({name, teamName, positions, imageUrl, twitterUsername});
+      
+    })
+    .catch((err) => {
+      reject(err);
     });
   });
+  
 };

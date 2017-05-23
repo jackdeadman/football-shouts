@@ -269,14 +269,14 @@ function updatePlayerWithWikidata(playerInstance, wikidataResults) {
   if (wikidataResults.twitterUsername) {
     playerInstance.twitterHandle = wikidataResults.twitterUsername;
   }
-  if (wikidataResults.imageURL) {
-    playerInstance.imageUrl = wikidataResults.imageURL;
+  if (wikidataResults.imageUrl) {
+    playerInstance.imageUrl = wikidataResults.imageUrl;
   }
   playerInstance.save();
 }
 
 function saveWikidataClubs(playerInstance, wikidataResults) {
-  var wikidataClub = Array.from(wikidataResults.teamNames.values())[0];
+  var wikidataClub = wikidataResults.teamName;
   var clubSave = saveClub(wikidataClub);
   clubSave.then((club) => {
     club = club[0];
@@ -650,10 +650,10 @@ function formatDbPlayerInfo(player) {
 function formatWikidataPlayerInfo(player) {
   var formattedPlayer = {
     name: player.name,
-    twitterHandle: player.twitterUsername,
-    imageUrl: player.imageURL,
+    twitterHandle: player.twitterUsername === undefined ? '' : player.twitterUsername,
+    imageUrl: player.imageUrl === undefined ? '' : player.imageUrl,
     positions: Array.from(player.positions),
-    club: Array.from(player.teamNames)[0]
+    club: player.teamName
   };
   console.log(formattedPlayer);
   return formattedPlayer;
@@ -674,7 +674,7 @@ module.exports.getPlayerInfo = function(player) {
     },
     include: [{ model: dbPosition, as: "Positions" }, { model: dbClub }]
   }).then((players) => {
-    if (players.length > 0) {
+    if (players.length > 0 && players[0].Club && players[0].Positions) {
       return formatDbPlayerInfo(players[0]);
     } 
     wikidata.getPlayerClubWikidata(player).then((wikidataResults) => {
