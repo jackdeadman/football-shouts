@@ -298,6 +298,8 @@ function saveMetadata(relatedObjects, query){
       var positionRelations = relatePositionsToPlayers(playerInstance, positions);
       Promise.all(positionRelations);
     });
+  }).catch((err) => {
+    console.error(err);
   });
 }
 
@@ -686,8 +688,10 @@ module.exports.getPlayerInfoFromDb = function(player) {
 };
 
 module.exports.getPlayerClubWikidata = player => {
-  return wikidata.getPlayerClubWikidata(player).then(formatWikidataPlayerInfo);
-}
+  return wikidata.getPlayerClubWikidata(player)
+  .then(formatWikidataPlayerInfo)
+  .catch(err => console.error(err));
+};
 
 module.exports.live = function(query){
   /**

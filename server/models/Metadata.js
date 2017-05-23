@@ -35,27 +35,30 @@ module.exports.getPlayerClubWikidata = (playerName) => {
     .then(JSON.parse)
     .then((results) => {
       var bindings = results.results.bindings;
-      var name = bindings[0].playerLabel.value;
-      var positions = new Set();
-      var teamName;
-      var imageUrl;
-      var twitterUsername;
-      bindings.forEach((result) => {
-        var resultName = result.playerLabel.value;
-        if (resultName === name) {
-          teamName = result.teamLabel.value;
-          var position = result.positionLabel.value;
-          positions.add(position);
-          if (result.imageURL) {
-            imageUrl = result.imageURL.value;
+      if (bindings[0]) {
+        var name = bindings[0].playerLabel.value;
+        var positions = new Set();
+        var teamName;
+        var imageUrl;
+        var twitterUsername;
+        bindings.forEach((result) => {
+          var resultName = result.playerLabel.value;
+          if (resultName === name) {
+            teamName = result.teamLabel.value;
+            var position = result.positionLabel.value;
+            positions.add(position);
+            if (result.imageURL) {
+              imageUrl = result.imageURL.value;
+            }
+            if (result.twitterUsername) {
+              twitterUsername = result.twitterUsername.value;
+            }
           }
-          if (result.twitterUsername) {
-            twitterUsername = result.twitterUsername.value;
-          }
-        }
-      });
-      resolve({name, teamName, positions, imageUrl, twitterUsername});
-      
+        });
+        resolve({name, teamName, positions, imageUrl, twitterUsername});
+      } else {
+        reject("No results from wikidata.");
+      }
     })
     .catch((err) => {
       reject(err);
