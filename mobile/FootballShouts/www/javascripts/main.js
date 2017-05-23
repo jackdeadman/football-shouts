@@ -106,9 +106,25 @@ function loadGraph(canvas, data, callback) {
   // HANDLERS
   function handleSearchError(err) {
 
-    // TODO: show local results still
+    displaySearchResults(localResults.tweets);
 
-    alert('Error');
+    var countFromLocal = localResults.countFromLocal;
+    var stats = renderTweetStats({
+      countFromLocal: countFromLocal,
+      countFromDatabase: 0,
+      countFromTwitter: 0
+    }, false);
+
+    $tweetStats.html(stats);
+
+    // Finally scroll down the page
+    scrollTo($appContainer.offset().top, 750, function() {
+      //Swapping the loader with the button again
+      $loader.hide();
+      $submitButton.show();
+    });
+
+    // alert('Error');
     console.log(err);
   }
 
@@ -130,16 +146,35 @@ function loadGraph(canvas, data, callback) {
 
   var countFromTwitter = 0;
   var countFromDatabase = 0;
+  var countFromLocal = 0;
 
   function handleSearchResult(results) {
 
-    // TODO: Merge local results with server results and store in local db
-    // TODO: Display the merged results
+    //Merging local tweets and server tweets
+    var allTweets = localResults.tweets.concat(results.tweets);
 
-    displaySearchResults(results.tweets);
+    allTweets = allTweets.sort((t1, t2) => {
+      var datePublished1 = new Date(t1.datePublished);
+      var datePublished2 = new Date(t2.datePublished);
+      return datePublished1 >= datePublished2 ? -1 : 1;
+    });
+
+    // Remove duplicate twitters
+    var prev = { twitterId: null };
+    allTweets = allTweets.filter(t => {
+      var different = prev.twitterId !== t.twitterId;
+      prev = t;
+      return different;
+    });
+
+    // TODO: store in local DB here!
+
+    displaySearchResults(allTweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
+    countFromLocal = localResults.countFromLocal;
     var stats = renderTweetStats({
+      countFromLocal: countFromLocal,
       countFromDatabase: countFromDatabase,
       countFromTwitter: countFromTwitter
     }, false);
