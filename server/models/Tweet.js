@@ -15,7 +15,7 @@ var moment = require('moment');
 var Hashtag = require('./Hashtag');
 var Author = require('./Author');
 var dbpediaClient = require('dbpediaclient');
-var wikidata = require('./DBPediaData');
+var wikidata = require('./Metadata');
 
 dbpediaClient.replyFormat('application/json');
 
@@ -264,6 +264,43 @@ function relatePositionsToPlayers(player, positionSaves) {
   return positionRelations;
 }
 
+function updatePlayerWithWikidata(playerInstance, wikidataResults) {
+  playerInstance.name = wikidataResults.name;
+  if (wikidataResults.twitterUsername) {
+    playerInstance.twitterHandle = wikidataResults.twitterUsername;
+  }
+  if (wikidataResults.imageURL) {
+    playerInstance.imageUrl = wikidataResults.imageURL;
+  }
+  playerInstance.save();
+}
+
+function saveWikidataClubs(playerInstance, wikidataResults) {
+  var wikidataClub = Array.from(wikidataResults.teamNames.values())[0];
+  var clubSave = saveClub(wikidataClub);
+  clubSave.then((club) => {
+    club = club[0];
+    playerInstance.setClub(club)
+    .catch(err => console.error(err));
+  });
+}
+
+function saveMetadata(relatedObjects, query){
+  var playerInstance = relatedObjects[2];
+  wikidata.getPlayerClubWikidata(query.player)
+  .then((wikidataResults) => {
+
+    updatePlayerWithWikidata(playerInstance, wikidataResults);
+    saveWikidataClubs(playerInstance, wikidataResults);
+
+    var positionSaves = savePositions(wikidataResults.positions);
+    Promise.all(positionSaves).then((positions) => {
+      var positionRelations = relatePositionsToPlayers(playerInstance, positions);
+      Promise.all(positionRelations);
+    });
+  });
+}
+
 module.exports.getFromTwitter = function(query, callback){
   /**
    * Queries twitter based on a query object, saves tweets
@@ -324,35 +361,9 @@ module.exports.getFromTwitter = function(query, callback){
       
       makeRelations(everythingSaved)
       .then((relatedObjects) => {
-        savedCount += 1;
-        var playerInstance = relatedObjects[2];
+        savedCount++;
         if (savedCount === 1) {
-          wikidata.getPlayerClubWikidata(query.player)
-          .then((wikidataResults) => {
-
-            playerInstance.name = wikidataResults.name;
-            if (wikidataResults.twitterUsername) {
-              playerInstance.twitterHandle = wikidataResults.twitterUsername;
-            }
-            if (wikidataResults.imageURL) {
-              playerInstance.imageUrl = wikidataResults.imageURL;
-            }
-            playerInstance.save();
-
-            var wikidataClub = Array.from(wikidataResults.teamNames.values())[0];
-            var clubSave = saveClub(wikidataClub);
-            clubSave.then((club) => {
-              club = club[0];
-              playerInstance.setClub(club)
-              .catch(err => console.error(err));
-            });
-
-            var positionSaves = savePositions(wikidataResults.positions);
-            Promise.all(positionSaves).then((positions) => {
-              var positionRelations = relatePositionsToPlayers(playerInstance, positions);
-              Promise.all(positionRelations);
-            });
-          });
+          saveMetadata(relatedObjects, query);
         }
         console.log("Saved tweet to db");
       }).catch((err) => {
@@ -623,6 +634,27 @@ module.exports.getFromDatabase = function(query, callback){
   });
 };
 
+module.exports.getPlayerInfo = function(player) {
+  /**
+   * Finds information about a football player such as the position
+   * they play in and the team they play for. 
+   * @param {String} player The player to get information for from the database.
+   */
+   
+  dbPlayer.findAll({
+    where: {
+      name: {
+        $like: '%' + player + '%'
+      }
+    },
+    include: [{ model: dbPosition, as: "Positions" }, { model: dbClub }]
+  }).then((player) => {
+    return player.get();
+  }).catch((err) => {
+    console.error(err);
+  });
+};
+
 module.exports.live = function(query){
   /**
    * Connects to the streaming API, saves tweets coming in
@@ -640,6 +672,7 @@ module.exports.live = function(query){
   var queryObj = { track: utils.createTwitterQuery({players, clubs}) };
 
   var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
+  var savedCount = 0;
   liveTweetStream.on('tweet', tweet => {
     // console.log('New tweet: xsmkmkxmxks');
     var hashtags = Hashtag.processHashtags(tweet.entities.hashtags);
@@ -655,7 +688,11 @@ module.exports.live = function(query){
                                       author,
                                       hashtags);
         makeRelations(everythingSaved)
-        .then(() => {
+        .then((relatedObjects) => {
+          savedCount++;
+          if (savedCount === 1) {
+            saveMetadata(relatedObjects, query);
+          }
           console.log("Saved live tweet");
         })
         .catch(err => {
