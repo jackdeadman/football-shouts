@@ -459,7 +459,8 @@ function findTweets(player, operator, club, authors, since, until){
 
   return Promise.all([playerMetadataFound, clubMetadataFound]).then((playerAndClub) => {
     console.log(playerAndClub);
-    var [playerName, clubName] = playerAndClub;
+    var playerName = playerAndClub[0];
+    var clubName = playerAndClub[1];
     var playerQuery = makePlayerQuery(playerName);
     var clubQuery = makeClubQuery(clubName);
 
