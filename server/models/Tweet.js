@@ -267,6 +267,7 @@ function relatePositionsToPlayers(player, positionSaves) {
 function updatePlayerWithWikidata(playerInstance, wikidataResults) {
   playerInstance.name = wikidataResults.name;
   playerInstance.dateOfBirth = moment(wikidataResults.dateOfBirth).format().toString();
+  playerInstance.shirtNumber = wikidataResults.shirtNumber;
   if (wikidataResults.twitterUsername) {
     playerInstance.twitterHandle = wikidataResults.twitterUsername;
   }
@@ -645,7 +646,8 @@ function formatDbPlayerInfo(player) {
     imageUrl: player.imageUrl,
     positions: player.Positions.map(position => position.name),
     club: player.Club ? player.Club.name : null,
-    dateOfBirth: player.dateOfBirth
+    dateOfBirth: player.dateOfBirth,
+    shirtNumber: player.shirtNumber
   };
   console.log(formattedPlayer);
   return formattedPlayer;
@@ -658,7 +660,8 @@ function formatWikidataPlayerInfo(player) {
     imageUrl: player.imageUrl === undefined ? '' : player.imageUrl,
     positions: Array.from(player.positions),
     club: player.teamName,
-    dateOfBirth: player.dateOfBirth
+    dateOfBirth: player.dateOfBirth,
+    shirtNumber: player.shirtNumber
   };
   console.log(formattedPlayer);
   return formattedPlayer;
