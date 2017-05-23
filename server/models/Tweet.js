@@ -640,7 +640,7 @@ function formatDbPlayerInfo(player) {
     twitterHandle: player.twitterHandle,
     imageUrl: player.imageUrl,
     positions: player.Positions.map(position => position.name),
-    club: player.Club.name
+    club: player.Club ? player.Club.name : null
   };
   console.log(formattedPlayer);
   return formattedPlayer;
@@ -658,31 +658,35 @@ function formatWikidataPlayerInfo(player) {
   return formattedPlayer;
 }
 
-module.exports.getPlayerInfo = function(player) {
+module.exports.getPlayerInfoFromDb = function(player) {
   /**
    * Finds information about a football player such as the position
    * they play in and the team they play for. 
    * @param {String} player The player to get information for from the database.
    */
    
-  dbPlayer.findAll({
+  var fetchDb = dbPlayer.findAll({
     where: {
       name: {
         $like: '%' + player + '%'
       }
     },
     include: [{ model: dbPosition, as: "Positions" }, { model: dbClub }]
-  }).then((players) => {
-    if (players.length > 0) {
+  });
+
+  fetchDb.catch(console.error);
+  
+  return fetchDb.then((players) => {
+    if (players[0]) {
       return formatDbPlayerInfo(players[0]);
-    } 
-    wikidata.getPlayerClubWikidata(player).then((wikidataResults) => {
-      return formatWikidataPlayerInfo(wikidataResults);
-    });
-  }).catch((err) => {
-    console.error(err);
+    }
+    return null;
   });
 };
+
+module.exports.getPlayerClubWikidata = player => {
+  return wikidata.getPlayerClubWikidata(player).then(formatWikidataPlayerInfo);
+}
 
 module.exports.live = function(query){
   /**
