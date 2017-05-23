@@ -113,7 +113,7 @@ var findAllTweets = (req) => {
 
       // Accumulate the errors, then tell the client when all requests
       // have been made
-      if (err) {
+      if (!tweets) {
         var msg = 'Failed to get the tweets for this query.';
         errors.push(new Error({message: msg, request: req}));
       } else {

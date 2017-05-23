@@ -55,8 +55,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('/search');
-  var liveTweets = io('/liveTweets');
+  var search = io('http://164.132.47.12:3000/search');
+  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
@@ -87,7 +87,7 @@ function loadGraph(canvas, data, callback) {
         // Combine tweets by concatenation
         tweets: acc.tweets.concat([tweet]),
         // Add the totals
-        countFromLocal: acc.countFromLocal + (tweet.source === 'local');
+        countFromLocal: acc.countFromLocal + (tweet.source === 'local')
       };
     }, { tweets: [], countFromLocal: 0 });
 
