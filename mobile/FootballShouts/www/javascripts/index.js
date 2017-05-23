@@ -17,6 +17,8 @@
  * under the License.
  */
 var app = {
+
+    localDB: null,
     // Application Constructor
     initialize: function() {
         console.log('Initialising...');
@@ -32,12 +34,7 @@ var app = {
 
         console.log("Device ready, starting connection with local db...");
 
-        var db = window.sqlitePlugin.openDatabase({name: 'local.db', location: 'default', createFromLocation: 1});
-        db.transaction(function(tr) {
-          tr.executeSql("SELECT upper('Test string') AS upperString", [], function(tr, rs) {
-            console.log('Results: ' + rs.rows.item(0).upperString);
-          });
-        });
+        this.localDB = window.sqlitePlugin.openDatabase({name: 'local.db', location: 'default', createFromLocation: 1});
     },
 
     // Update DOM on a Received Event

@@ -68,8 +68,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('http://164.132.47.12:3000/search');
-  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
+  var search = io('/search');
+  var liveTweets = io('/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');

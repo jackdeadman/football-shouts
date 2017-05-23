@@ -8,9 +8,9 @@ var Key = {
 
 //Adds default tags to the input boxes
 function addDefaultTags() {
-  $('#players').materialtags('add', 'Wayne Rooney');
-  $('#clubs').materialtags('add', 'Man U');
-  $('#authors').materialtags('add', '@D_M15TRY');
+  $('#players').materialtags('add', 'John Terry');
+  $('#clubs').materialtags('add', 'Chelsea');
+  $('#authors').materialtags('add', '');
 }
 
 //Animates and reveals the "back to top" button

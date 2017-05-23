@@ -11,7 +11,7 @@ var dbOptions = {
   dialectOptions: {
     charset: 'utf8mb4'
   },
-  logging: false,
+  logging: console.log,
 
   pool: {
     max: 30,
@@ -20,8 +20,8 @@ var dbOptions = {
   }
 };
 
-var sequelize = new Sequelize(config.database, 
-                                config.username, 
+var sequelize = new Sequelize(config.database,
+                                config.username,
                                 config.password,
                                 dbOptions);
 
@@ -47,7 +47,6 @@ db.Sequelize = Sequelize;
 
 module.exports = db;
 
-// some of this code taken from 
+// some of this code taken from
 // https://github.com/sequelize/express-example/blob/master/models/index.js
 // with modifications
-
