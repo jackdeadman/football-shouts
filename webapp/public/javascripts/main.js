@@ -66,13 +66,14 @@ function loadGraph(canvas, data, callback) {
   var $loadMoreTweets = $('#loadMoreTweets');
   var $appContainer = $('#app-container');
   var $tweetStats = $('#tweet-stats');
+  var $operatorSelector = $('#operator-switcher');
 
   function handleSearch(req) {
   // Setup livetweets
   liveTweets.emit('subscribe', {
-    player: req.players[0],
-    author: req.authors[0],
-    club: req.clubs[0]
+    players: req.players,
+    authors: req.authors,
+    clubs: req.clubs
   });
 
   // Send the queries
@@ -109,6 +110,7 @@ function loadGraph(canvas, data, callback) {
   var countFromDatabase = 0;
 
   function handleSearchResult(results) {
+    clearSearchResults();
     displaySearchResults(results.tweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
@@ -150,33 +152,28 @@ function loadGraph(canvas, data, callback) {
     showApp();
   }
 
+  function clearSearchResults() {
+    $app.empty();
+  }
+
   hiddenTweets = []
   function handleNewLiveTweet(tweet) {
-    var node = renderTweet(tweet);
     hiddenTweets.push(tweet);
     document.title = '(' + hiddenTweets.length + ') ' + title;
     $loadMoreTweets.find('.count').html(hiddenTweets.length);
     $loadMoreTweets.show();
   }
 
+  var title = document.title;
   function loadLiveTweets() {
     // Add new tweets to the page one-by-one
     while (hiddenTweets.length !== 0) {
       $app.prepend(renderTweet(hiddenTweets.pop()));
     }
+
     document.title = title;
     $(this).hide();
   }
-
-  var title = document.title;
-
-  liveTweets.on('tweet', function(tweet) {
-    var node = createTweetNode(tweet);
-    hiddenTweets.push(tweet);
-    document.title = '(' + hiddenTweets.length + ') ' + title;
-    $loadMoreTweets.show();
-    $loadMoreTweets.find('.count').html(hiddenTweets.length);
-  });
 
   // Setup Socket listeners
   // SEARCH
@@ -195,6 +192,8 @@ function loadGraph(canvas, data, callback) {
 
   //Upon pressing the search button, send the entered data
   $searchContainer.on('submit', function(e) {
+    liveTweets.emit('unsubscribe');
+    document.title = title;
     hideApp();
     e.preventDefault();
     // Empty livetweets not shown
@@ -204,16 +203,20 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
+    // TODO: THESE SHOULD BE CACHED
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var authors = $('#authors').materialtags('items');
     var sources = $('#options').val();
 
+    var operator = $operatorSelector.find('input')[0].checked ? 'AND' : 'OR'
+    console.log(operator);
     handleSearch({
       players: playerTags,
       clubs: clubTags,
       authors: authors,
-      sources: sources
+      sources: sources,
+      operator: operator
     });
     // showApp();
   });

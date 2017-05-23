@@ -9,11 +9,14 @@ var LiveTweet = require('./LiveTweet');
 var dbPlayer = database.Player;
 var dbClub = database.Club;
 var dbHashtag = database.Hashtag;
+var dbPosition = database.Position;
 var utils = require('./_utils');
 var moment = require('moment');
 var Hashtag = require('./Hashtag');
 var Author = require('./Author');
 var dbpediaClient = require('dbpediaclient');
+var wikidata = require('./DBPediaData');
+
 dbpediaClient.replyFormat('application/json');
 
 var client = new T({
@@ -30,7 +33,7 @@ function findPlayerMetadata(player){
       var name = player;
       if (results.results.length > 0) {
         name = results.results[0].label;
-        console.log("name: #####", name);
+        // console.log("name: #####", name);
       }
       
       resolve(name);
@@ -41,7 +44,8 @@ function findPlayerMetadata(player){
 
 function savePlayer(player){
   return new Promise((resolve, reject) => {
-    findPlayerMetadata(player).then((dbpediaName) => {
+    findPlayerMetadata(player)
+    .then((dbpediaName) => {
       resolve(dbPlayer.findOrCreate({
         where: {
           name: dbpediaName
@@ -59,7 +63,7 @@ function findClubMetadata(club){
       var name = club;
       if (results.results.length > 0) {
         name = results.results[0].label;
-        console.log("club: #####", name);
+        // console.log("club: #####", name);
       }
       
       resolve(name);
@@ -205,7 +209,7 @@ function makeRelations(everythingSaved){
           });
           setRelation
           .catch((err) => {
-            console.log("#####", hashtag);
+            // console.log("#####", hashtag);
             reject({err, hashtag});
           });
           resolve(setRelation);
@@ -232,31 +236,53 @@ function makeRelations(everythingSaved){
   });
 }
 
+function savePositions(positions){
+  var positionSaves = [];
+  positions.forEach((position) => {
+    // console.log(position);
+    positionSaves.push(dbPosition.findOrCreate({
+      where: {
+        name: position
+      }
+    }));
+  });
+  // console.log(positionSaves);
+  return positionSaves;
+}
+
+function relatePositionsToPlayers(player, positionSaves) {
+  var positionRelations = [];
+
+  positionSaves = positionSaves.map(save => save[0]);
+
+  positionSaves.forEach((save) => {
+    positionRelations.push(player.addPosition(save, { 
+      through: { positionId: save.id, playerId: player.id }
+    }));
+  });
+
+  return positionRelations;
+}
+
 module.exports.getFromTwitter = function(query, callback){
   /**
    * Queries twitter based on a query object, saves tweets
    * returned to the database.
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
+   * @param {String} query.operator Operator between player and club;
    * @param {String} query.club The club to search for;
-   * @param {String} query.author The author to filter by;
+   * @param {String} query.authors The authors to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @param {Function} callback To be called when Twit returns
    * tweets from Twitter.
    */
 
-  if (query.player === undefined) {
-    query.player = "";
-  }
-
-  if (query.club === undefined) {
-    query.club = "";
-  }
-
-  if (query.author === undefined) {
-    query.author = "";
-  }
+  query.player = query.player || '';
+  query.club = query.club || '';
+  query.authors = query.authors.length ? query.authors : [];
+  query.operator = query.operator || 'OR';
 
   console.log("getting from twitter");
   var twitterQuery = buildQuery(query);
@@ -284,6 +310,7 @@ module.exports.getFromTwitter = function(query, callback){
                   twitterQuery);
     callback(null, tweetList);
 
+    var savedCount = 0;
     tweetList.forEach(function(tweet, i){
       var hashtags = originalTweetList[i].entities.hashtags;
       hashtags = Hashtag.processHashtags(hashtags);
@@ -294,9 +321,32 @@ module.exports.getFromTwitter = function(query, callback){
                                             query.club,
                                             author,
                                             hashtags);
+      
       makeRelations(everythingSaved)
-      .then(() => {
+      .then((relatedObjects) => {
+        savedCount += 1;
+        var playerInstance = relatedObjects[2];
+        if (savedCount === 1) {
+          wikidata.getPlayerClubWikidata(query.player)
+          .then((wikidataResults) => {
+            // playerInstance.name = wikidataResults.name;
+            // playerInstance.save();
+            var positionSaves = savePositions(wikidataResults.positions);
+            console.log("saves: ", positionSaves);
+            Promise.all(positionSaves).then((positions) => {
+              var positionRelations = relatePositionsToPlayers(playerInstance, positions);
+              console.log("relations:", positionRelations);
+              Promise.all(positionRelations)
+              .then(() => {
+                console.log(playerInstance.get());
+                console.log("Player updated");
+              });
+            });
+          });
+        }
         console.log("Saved tweet to db");
+      }).catch((err) => {
+        console.error(err);
       });
     });
   });
@@ -307,22 +357,24 @@ function buildQuery(queryTerms){
    * Takes a query object and formats a string for the twitter query.
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
+   * @param {String} query.operator Operator between player and club 
    * @param {String} query.club The club to search for;
-   * @param {String} query.author The author to filter by;
+   * @param {String} query.authors The author to filter by;
    * @param {String} query.since The timestamp to search from;
    * @param {String} query.until The timestamp to search up to.
    * @return A formatted string for searching Twitter.
    */
   var player = queryTerms.player;
   var club = queryTerms.club;
-  var author = queryTerms.author;
+  var operator = queryTerms.operator;
+  var authors = queryTerms.authors.map(Hashtag.stripHashtag);
   var sinceTimestamp = utils.formatDateForTwitter(queryTerms.since);
   var untilTimestamp = utils.formatDateForTwitter(queryTerms.until);
   var timeLimits = " since:" + sinceTimestamp + " until:" + untilTimestamp;
   var filterRetweetsAndReplies = " AND -filter:retweets AND -filter:replies";
-  var authorFilter = author === "" ? "" : "from: " + author;
-  var playerClubAuthorTerms = [player, club, authorFilter].filter(term => term !== "");
-  var playerClubAuthorString = playerClubAuthorTerms.join(" ");
+  var authorFilter = authors.map(a => `from:${a}`).join(' OR ');
+  var playerAndClub = [player, club].filter(term => term !== "").join(` ${operator} `);
+  var playerClubAuthorString = `(${playerAndClub}) ${authorFilter}`;
 
   var searchTerms = playerClubAuthorString + timeLimits + filterRetweetsAndReplies;
   console.log("search terms:", searchTerms);
@@ -347,15 +399,27 @@ function makePlayerOrClubQuery(query){
   return queryObj;
 }
 
-function findTweets(player, club, author, since, until){
+function findTweets(player, operator, club, authors, since, until){
   /**
    * Searches for tweets related to hashtags, players or clubs.
    * @param {String} player The player query term;
+   * @param {String} operator Operator between player and club;
    * @param {String} club The club query term;
+   * @param {String} authors The authors query term;
    * @param {String} since The timestamp to start the search at;
    * @param {String} until The timestamp to end the search at.
    * @return {Promise} Resolves when the query to MySQL returns.
    */
+
+  if (operator === 'OR') {
+    operator = '$or';
+  } else if (operator === 'AND') {
+    operator = '$and';
+  } else {
+    // Handle Error
+    throw new Error(`Invalid operator supplied: ${operator}`);
+  }
+
   since = moment(since).format().toString();
   until = moment(until).format().toString();
 
@@ -367,7 +431,27 @@ function findTweets(player, club, author, since, until){
     var [playerName, clubName] = playerAndClub;
     var playerQuery = makePlayerOrClubQuery(playerName);
     var clubQuery = makePlayerOrClubQuery(clubName);
-    var authorQuery = makePlayerOrClubQuery(author);
+
+    // TODO: Currently a hack, the function should be renamed
+    authors = authors.map(Hashtag.stripHashtag);
+    // var authorQuery = makePlayerOrClubQuery(authors);
+    var authorQuery = {};
+    if (authors.length) {
+      authorQuery = {
+        $or: [
+          {
+            twitterHandle: {
+              $in: authors
+            }
+          },
+          {
+            name: {
+              $in: authors
+            }
+          }
+        ]
+      };
+    }
 
     if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
       return dbTweet.findAll({
@@ -481,6 +565,7 @@ module.exports.getFromDatabase = function(query, callback){
    * as the ones made by getFromTwitter.
    * @param {Object} query The database query;
    * @param {String} query.player The player to search for;
+   * @param {String} query.operator Operator between player and club;
    * @param {String} query.club The club to search for;
    * @param {String} query.author The author to filter by;
    * @param {String} query.since The timestamp to search from;
@@ -493,11 +578,12 @@ module.exports.getFromDatabase = function(query, callback){
 
   var player = query.player === undefined ? "" : query.player;
   var club = query.club === undefined ? "" : query.club;
-  var author = query.author === undefined ? "" : query.author;
+  var authors = query.authors === undefined ? [] : query.authors;
+  var operator = query.operator;
   var since = query.since;
   var until = query.until;
 
-  findTweets(player, club, author, since, until)
+  findTweets(player, operator, club, authors, since, until)
   .then(tweets => {
     tweets = tweets.map(utils.makeTweetObjectFromDb);
 
@@ -515,30 +601,40 @@ module.exports.live = function(query){
    * Connects to the streaming API, saves tweets coming in
    * and returns the stream object.
    * @param {Object} query The database query;
-   * @param {String} query.player The player to search for;
-   * @param {String} query.club The club to search for.
+   * @param {String} query.players The players to search for;
+   * @param {String} query.clubs The clubs to search for.
    * @return {LiveTweet} A Twitter Streaming API stream.
    */
-  var player = query.player;
-  var club = query.club;
-  var queryObj = { track: player + " " + club };
+  var players = query.players;
+  var clubs = query.clubs;
+  // console.log(players, clubs);
+  // console.log('TRACKING: ', utils.createTwitterQuery({players, clubs}));
+
+  var queryObj = { track: utils.createTwitterQuery({players, clubs}) };
+
   var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
-  liveTweetStream.on('tweet', function(tweet){
+  liveTweetStream.on('tweet', tweet => {
+    // console.log('New tweet: xsmkmkxmxks');
     var hashtags = Hashtag.processHashtags(tweet.entities.hashtags);
     var processedTweet = utils.makeTweetObject(tweet);
     var author = Author.makeAuthorObject(processedTweet);
     var databaseTweet = utils.makeTweetDbObject(processedTweet);
-    var everythingSaved = saveToDatabase(databaseTweet,
+    
+    players.forEach(player => {
+      clubs.forEach(club => {
+        var everythingSaved = saveToDatabase(databaseTweet,
                                       player,
                                       club,
                                       author,
                                       hashtags);
-    makeRelations(everythingSaved)
-    .then(() => {
-      console.log("Saved live tweet");
-    })
-    .catch(err => {
-      console.error(err);
+        makeRelations(everythingSaved)
+        .then(() => {
+          console.log("Saved live tweet");
+        })
+        .catch(err => {
+          console.error(err);
+        });
+      });
     });
   });
   return liveTweetStream;

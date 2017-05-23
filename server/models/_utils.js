@@ -3,6 +3,17 @@ var classifier = require('../lib/tweet_processors/TweetClassifier')
                   .getClassifier();
 var moment = require('moment');
 
+module.exports.createTwitterQuery = ({ players=[], clubs=[], authors=[] }) => {
+  var combine = a => a.map(x => `${x}`).join(', ');
+  var playersString = combine(players);
+  var clubsString = combine(clubs);
+  var authorsString = combine(authors);
+  var combined = [playersString, clubsString, authorsString];
+  combined = combined.filter(x => x !== '');
+  combined = combined.map(x => `${x}`);
+  return combined.join(' ');
+};
+
 module.exports.selectTransferTweet = tweet => {
   /**
    * Uses the classifier to determine if a tweet

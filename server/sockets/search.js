@@ -5,7 +5,7 @@ var generateErrorObj = require('./_utils').generateErrorObj;
 var threshold = require('../config').cache.threshold;
 var moment = require('moment');
 
-var findTransfers = (player, club, authors, sources, callback) => {
+var findTransfers = (player, club, authors, sources, operator, callback) => {
   /**
    * Finds tweets between players and clubs using database and twitter
    * @param {String} player: Player name
@@ -19,6 +19,7 @@ var findTransfers = (player, club, authors, sources, callback) => {
   // Build query object
   var query = {
     player,
+    operator,
     club,
     authors,
     since: lastWeek, until: today
@@ -82,10 +83,11 @@ var findAllTweets = (req, callback) => {
    * Finds all the tweets for a list of player and clubs from different sources
    * using all the combinations of the players and clubs.
    * @param {Object} req: query and sources
-   * @param {Object} req.players: list of player names
-   * @param {Object} req.clubs: list of clubs names
-   * @param {Object} req.authors: list of author names
-   * @param {Object} req.sources: list of sources from set {'twitter, database'}
+   * @param {String[]} req.players: list of player names
+   * @param {String[]} req.clubs: list of clubs names
+   * @param {String[]} req.authors: list of author names
+   * @param {String[]} req.sources: list of sources from set {'twitter, database'}
+   * @param {String} req.operator: An operator from set {AND, OR}
    * @param {Function} callback: fn(err, list of tweets)
    */
 
@@ -98,7 +100,7 @@ var findAllTweets = (req, callback) => {
   // Search using all combinations
   req.players.forEach(player => {
     req.clubs.forEach(club => {
-      findTransfers(player, club, req.authors, req.sources, (err, tweets) => {
+      findTransfers(player, club, req.authors, req.sources, req.operator, (err, tweets) => {
         // response has been received
         responses ++;
 
@@ -185,8 +187,10 @@ var handlers = {
      * @param {String[]} req.authors: List of author names
      * @param {String[]} req.sources: List of sources
      *                                 from the set {'twitter', 'database'}
+     * @param {String} req.operator: Operator
+     *                                 from the set {'AND', 'OR'}
      */
-
+    console.log(req);
     // Events to be emitted
     var errorEvent = 'error';
     var resultEvent = 'result';
@@ -194,7 +198,7 @@ var handlers = {
 
     // Validate user has given correct fields
     var hasRequiredFields = req && req.players && req.clubs && req.sources
-                              && req.authors;
+                              && req.authors && req.operator;
     var errorMsg = null;
 
     if (!hasRequiredFields) {

@@ -11,6 +11,16 @@ block input
           input(name="players", id="players", type="text", data-role="materialtags")
           label.white-text(for = "players", id="players_label") What is the player's name?
 
+      // Operator Switcher
+      .row.operator-switcher#operator-switcher
+        .switch
+          label
+            | OR
+            input(type='checkbox', name='operator')
+            span.lever
+            | AND
+        
+
       //Second input box
       div.row
         div.input-field.col.s12
