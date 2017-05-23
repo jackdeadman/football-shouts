@@ -1,56 +1,66 @@
 var threshold = 7 * 24 * 60 * 60 * 1000 // 7 days
 
 var getTweetsFromLocal = (query) => {
-  // TODO: Get tweets from database using SQL query
 
-//   SELECT `Tweet`.`id`,
-//        `Tweet`.`text`,
-//        `Tweet`.`twitterId`,
-//        `Tweet`.`datePublished`,
-//        `Tweet`.`hasMedia`,
-//        `Tweet`.`retweetCount`,
-//        `Tweet`.`favouriteCount`,
-//        `Tweet`.`createdAt`,
-//        `Tweet`.`updatedAt`,
-//        `Tweet`.`transferClubId`,
-//        `Tweet`.`PlayerId`,
-//        `Tweet`.`AuthorId`,
-//        `Player`.`id` AS `Player.id`,
-//        `Player`.`name` AS `Player.name`,
-//        `Player`.`twitterHandle` AS `Player.twitterHandle`,
-//        `Player`.`imageUrl` AS `Player.imageUrl`,
-//        `Player`.`createdAt` AS `Player.createdAt`,
-//        `Player`.`updatedAt` AS `Player.updatedAt`,
-//        `Player`.`currentClubId` AS `Player.currentClubId`,
-//        `Club`.`id` AS `Club.id`,
-//        `Club`.`name` AS `Club.name`,
-//        `Club`.`twitterHandle` AS `Club.twitterHandle`,
-//        `Club`.`createdAt` AS `Club.createdAt`,
-//        `Club`.`updatedAt` AS `Club.updatedAt`,
-//        `Author`.`id` AS `Author.id`,
-//        `Author`.`twitterHandle` AS `Author.twitterHandle`,
-//        `Author`.`name` AS `Author.name`,
-//        `Author`.`profileImageUrl` AS `Author.profileImageUrl`,
-//        `Author`.`createdAt` AS `Author.createdAt`,
-//        `Author`.`updatedAt` AS `Author.updatedAt`
-// FROM `Tweets` AS `Tweet`
-// INNER JOIN `Players` AS `Player` ON `Tweet`.`PlayerId` = `Player`.`id`
-// AND (`Player`.`twitterHandle` LIKE '%Wayne Rooney%'
-//      OR `Player`.`name` LIKE '%Wayne Rooney%')
-// INNER JOIN `Clubs` AS `Club` ON `Tweet`.`transferClubId` = `Club`.`id`
-// AND (`Club`.`twitterHandle` LIKE '%Man U%'
-//      OR `Club`.`name` LIKE '%Man U%')
-// INNER JOIN `Authors` AS `Author` ON `Tweet`.`AuthorId` = `Author`.`id`
-// AND (`Author`.`twitterHandle` LIKE '%%'
-//      OR `Author`.`name` LIKE '%%')
-// WHERE (`Tweet`.`datePublished` >= '2017-05-05 16:26:02'
-//        AND `Tweet`.`datePublished` <= '2017-05-19 16:26:02');
+  var sql = "\
+  SELECT `Tweet`.`id`, \
+         `Tweet`.`text`, \
+         `Tweet`.`twitterid`, \
+         `Tweet`.`datepublished`, \
+         `Tweet`.`hasmedia`, \
+         `Tweet`.`retweetcount`, \
+         `Tweet`.`favouritecount`, \
+         `Tweet`.`createdat`, \
+         `Tweet`.`updatedat`, \
+         `Tweet`.`transferclubid`, \
+         `Tweet`.`playerid`, \
+         `Tweet`.`authorid`, \
+         `Player`.`id`              AS `Player.id`, \
+         `Player`.`name`            AS `Player.name`, \
+         `Player`.`twitterhandle`   AS `Player.twitterHandle`, \
+         `Player`.`imageurl`        AS `Player.imageUrl`, \
+         `Player`.`createdat`       AS `Player.createdAt`, \
+         `Player`.`updatedat`       AS `Player.updatedAt`, \
+         `Player`.`currentclubid`   AS `Player.currentClubId`, \
+         `Club`.`id`                AS `Club.id`, \
+         `Club`.`name`              AS `Club.name`, \
+         `Club`.`createdat`         AS `Club.createdAt`, \
+         `Club`.`updatedat`         AS `Club.updatedAt`, \
+         `Author`.`id`              AS `Author.id`, \
+         `Author`.`twitterhandle`   AS `Author.twitterHandle`, \
+         `Author`.`name`            AS `Author.name`, \
+         `Author`.`profileimageurl` AS `Author.profileImageUrl`, \
+         `Author`.`createdat`       AS `Author.createdAt`, \
+         `Author`.`updatedat`       AS `Author.updatedAt` \
+  FROM   `tweets` AS `Tweet` \
+         LEFT OUTER JOIN `players` AS `Player` \
+                      ON `Tweet`.`playerid` = `Player`.`id` \
+                         AND ( `Player`.`twitterhandle` LIKE '?' \
+                                OR `Player`.`name` LIKE '?' ) \
+         LEFT OUTER JOIN `clubs` AS `Club` \
+                      ON `Tweet`.`transferclubid` = `Club`.`id` \
+                         AND `Club`.`name` LIKE '?' \
+         INNER JOIN `authors` AS `Author` \
+                 ON `Tweet`.`authorid` = `Author`.`id` \
+  WHERE  ( `Tweet`.`datepublished` >= '?' \
+           AND `Tweet`.`datepublished` <= '?' ); ";
+
+  // TODO: make operator do something
+  // TODO: make authors do something
+
+  app.localDB.transaction(function(tr) {
+    tr.executeSql(sql, [query.player, query.player, query.club, query.lastWeek, query.until], function(tr, rs) {
+      console.log('Results: ' + rs.rows);
+    });
+  });
+
+  console.log("Done");
 
   tweets = null;
   return tweets;
 };
 
-var findTransfers = (player, club, authors, sources) => {
+var findTransfers = (player, club, authors, sources, operator) => {
   /**
    * Finds tweets between players and clubs using database and twitter
    * @param {String} player: Player name
@@ -64,29 +74,34 @@ var findTransfers = (player, club, authors, sources) => {
   // Build query object
   var query = {
     player,
+    operator,
     club,
     authors,
     since: lastWeek, until: today
   };
 
+  console.log(sources.indexOf('local'));
 
   if (sources.indexOf('local') > -1) {
+    console.log("Here");
     var localTweets = getTweetsFromLocal(query);
 
     // Ensure the Tweets are in order in order to get the latest
-    localTweets = localTweets.sort((t1, t2) => {
-      return new Date(t1.updatedAt) >= new Date(t2.updatedAt) ? -1 : 1;
-    });
+    if (localTweets) {
+      localTweets = localTweets.sort((t1, t2) => {
+        return new Date(t1.updatedAt) >= new Date(t2.updatedAt) ? -1 : 1;
+      });
 
-    localTweets = localTweets.map(tweet => {
-      tweet.source = 'local';
-      return tweet;
-    });
+      localTweets = localTweets.map(tweet => {
+        tweet.source = 'local';
+        return tweet;
+      });
 
-    var latest = localTweets[0];
-    // Update if no tweets found or too old
-    if (latest && ((today - new Date(latest.updatedAt)) > threshold)) {
-      query.since = new Date(latest.datePublished);
+      var latest = localTweets[0];
+      // Update if no tweets found or too old
+      if (latest && ((today - new Date(latest.updatedAt)) > threshold)) {
+        query.since = new Date(latest.datePublished);
+      }
     }
 
     return localTweets;

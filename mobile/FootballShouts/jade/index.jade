@@ -37,6 +37,7 @@ block input
         div.input-field.col.s12
           select(name="options", id="options", multiple="multiple")
             option(value="", disabled="disabled") Please select at least one option...
+            option(value="local", id="option3", selected="selected") Local Storage
             option(value="database", id="option1", selected="selected") Database
             option(value="twitter", id="option2", selected="selected") Twitter
           label.white-text(for="options", id="options_label") Where should we search?
@@ -183,7 +184,7 @@ block tweets
     <div id="js-tweet-chart-container" class="row">
       <div class="col s12">
         <div class="card-panel">
-          <table class="responsive-table" id="tweetData">
+          <table id="tweetData">
             <tbody>
               <tr>
                 <td class="info-name">Tweets from Local Storage</td>
