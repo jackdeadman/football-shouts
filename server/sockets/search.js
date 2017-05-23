@@ -189,11 +189,21 @@ var handlers = {
       return;
     }
 
-    var fetchPlayersData = players.map(Tweet.getPlayerInfo);
-    Promise.all(fetchPlayersData).then(playerData => {
-      console.log('==============');
+    var emitter = d => socket.emit('playerData', d);
+
+    var fetchPlayersData = Tweet.getPlayerInfoFromDb(players[0]);
+    fetchPlayersData.then(playerData => {
+      console.log('PLAYER DATA DB')
       console.log(playerData);
-      socket.emit('playerData', playerData);
+      if (playerData) {
+        emitter(playerData);
+      } else {
+        Tweet.getPlayerClubWikidata(players[0]).then(playerDataWIKI => {
+          console.log('PLAYER DATA WIKI')
+          console.log(playerDataWIKI);
+          emitter(playerDataWIKI);
+        });
+      }
     });
   },
 

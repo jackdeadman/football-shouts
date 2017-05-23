@@ -177,13 +177,12 @@ function loadGraph(canvas, data, callback) {
     });
   }
 
-  function displayPlayers(players) {
-    var player = players[0];
+  function displayPlayers(player) {
+    // console.log(players);
+    // var player = players[0];
     if (player) {
       console.log(player);
-      player.positionClean = player.Positions.map(function(p) {
-        return toUpperCase(p.name);
-      }).join(', ')
+      player.positionClean = player.positions.map(toUpperCase).join(', ')
       player.loading = false;
       $playerDataLocation.html(playerDataTemplate(player));
     }
