@@ -7,6 +7,7 @@ module.exports = function(sequelize, DataTypes) {
     // players might not have twitter handles
     imageUrl: DataTypes.STRING, 
     // should we allow this to be null?
+    dateOfBirth: { type: DataTypes.DATE }
   }, {
     classMethods: {
       associate: function (models) {

@@ -6,7 +6,7 @@ var requestPromise = require('request-promise');
 module.exports.getPlayerClubWikidata = (playerName) => {
   var query = 'PREFIX wd: <http://www.wikidata.org/entity/> ' +
               'PREFIX wdt: <http://www.wikidata.org/prop/direct/> ' + 
-              'SELECT DISTINCT ?player ?playerLabel ?teamLabel ?positionLabel ?imageURL ?twitterUsername WHERE {' +
+              'SELECT DISTINCT ?player ?playerLabel ?teamLabel ?positionLabel ?imageURL ?twitterUsername ?dateOfBirth WHERE {' +
                   'hint:Query hint:optimizer "None". ' +
                   '?player wdt:P106 wd:Q937857. ' + 
                   '?player wdt:P31 wd:Q5. ' +
@@ -23,6 +23,7 @@ module.exports.getPlayerClubWikidata = (playerName) => {
                   '?player p:P413 ?positionList. ' +
                   '?positionList ps:P413 ?position. ' +
                   '?position rdfs:label ?positionLabel FILTER (LANG(?positionLabel) = "en"). ' +
+                  '?player wdt:P569 ?dateOfBirth. ' +
                   'OPTIONAL {?player wdt:P18 ?imageURL}. ' +
                   'OPTIONAL {?player wdt:P2002 ?twitterUsername}. ' +
               '} ORDER BY ?startTime ';
@@ -41,10 +42,12 @@ module.exports.getPlayerClubWikidata = (playerName) => {
         var teamName;
         var imageUrl;
         var twitterUsername;
+        var dateOfBirth;
         bindings.forEach((result) => {
           var resultName = result.playerLabel.value;
           if (resultName === name) {
             teamName = result.teamLabel.value;
+            dateOfBirth = result.dateOfBirth.value;
             var position = result.positionLabel.value;
             positions.add(position);
             if (result.imageURL) {
@@ -55,7 +58,7 @@ module.exports.getPlayerClubWikidata = (playerName) => {
             }
           }
         });
-        resolve({name, teamName, positions, imageUrl, twitterUsername});
+        resolve({name, teamName, positions, imageUrl, twitterUsername, dateOfBirth});
       } else {
         reject("No results from wikidata.");
       }
