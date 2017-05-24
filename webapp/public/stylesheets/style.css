@@ -188,6 +188,11 @@ a.btn-light {
 .spinner-layer.white-loader {
   border-color: #fff;
 }
+
+.spinner-layer.purple-loader {
+  border-color: #6a1b9a;
+}
+
 #loader-wrapper {
   position: absolute;
   left: 50%;
@@ -279,4 +284,13 @@ span.chip, label, .default-cursor {
 
 .center-block {
   margin: auto;
+}
+
+.player-loader {
+  text-align: center;
+  padding-top: 20px;
+}
+
+.player-loader .text {
+  padding-top: 20px;
 }

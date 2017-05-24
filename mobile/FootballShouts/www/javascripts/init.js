@@ -8,9 +8,9 @@ var Key = {
 
 //Adds default tags to the input boxes
 function addDefaultTags() {
-  $('#players').materialtags('add', 'Wayne Rooney');
-  $('#clubs').materialtags('add', 'Man U');
-  $('#authors').materialtags('add', '@D_M15TRY');
+  $('#players').materialtags('add', 'John Terry');
+  $('#clubs').materialtags('add', 'Chelsea');
+  $('#authors').materialtags('add', '');
 }
 
 //Animates and reveals the "back to top" button
@@ -89,19 +89,30 @@ $(document).ready(function() {
   //Getting stuff from the DO
   var $playersLabel = $('#players_label');
   var $clubsLabel = $('#clubs_label');
+  var $authorsLabel = $('#authors_label');
   var $inputs = $('#players, #clubs');
+
+  var $ntag1 = $('.n-tag:first');
+  var $ntag2 = $('.n-tag:eq(1)');
+  var $ntag3 = $('.n-tag:eq(2)');
 
   //Initialising various things
   addDefaultTags();
   $('.parallax').parallax();
   $('select').material_select();
 
+  //Resizing background for mobile
+  $('.mobile-background').css('background-size', 'auto ' + screen.height + 'px');
+
   //Making sure the labels can be clicked on to select the input boxes
   $playersLabel.click(function(){
-    $('.n-tag:first').focus();
+    $ntag1.focus();
   });
   $clubsLabel.click(function(){
-    $('.n-tag:eq(1)').focus();
+    $ntag2.focus();
+  });
+  $authorsLabel.click(function(){
+    $ntag3.focus();
   });
 
   //Listeners for the input boxes
@@ -135,14 +146,6 @@ $(document).ready(function() {
       //NEEDS IMPROVING
       if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
         delIsDown = true;
-
-      //Allowing tabbing between input boxes
-	    if (e.which === Key.TAB) {
-		    if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
-		      $('.n-tag:first').focus();
-        else if ($('.n-tag:first').is(":focus"))
-          $('.n-tag:eq(1)').focus();
-      }
     });
 
     $(this).keyup(function(e) {

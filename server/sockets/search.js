@@ -13,7 +13,7 @@ var findTransfers = (player, club, authors, sources, operator, callback) => {
    * @param {[String]} authors: author names
    * @param {Function} callback: fn(err, tweets)
    */
-  var lastWeek = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   var today = new Date(Date.now());
 
   // Build query object
@@ -24,6 +24,9 @@ var findTransfers = (player, club, authors, sources, operator, callback) => {
     authors,
     since: lastWeek, until: today
   };
+
+  console.log('QUERY FOR DATABASE');
+  console.log(query);
 
   // Helper boolean
   var useDatabase = sources.indexOf('database') > -1;
@@ -91,6 +94,20 @@ var findAllTweets = (req, callback) => {
    * @param {Function} callback: fn(err, list of tweets)
    */
 
+  // Value to 
+  var SENTINEL = '';
+  var addSentinel = array => {
+    if (array.length) {
+      return array;
+    } else {
+      return [SENTINEL];
+    }
+  };
+
+  // Still loop if no players of clubs chosen
+  req.players = addSentinel(req.players);
+  req.clubs = addSentinel(req.clubs);
+
   // Holding variables
   var requests = req.players.length * req.clubs.length;
   var responses = 0;
@@ -101,8 +118,12 @@ var findAllTweets = (req, callback) => {
   req.players.forEach(player => {
     req.clubs.forEach(club => {
       findTransfers(player, club, req.authors, req.sources, req.operator, (err, tweets) => {
+        console.log('all the tweets');
+        console.log(tweets);
+        
         // response has been received
         responses ++;
+        console.log(requests, responses);
 
         // Accumulate the errors, then tell the client when all requests
         // have been made
@@ -152,7 +173,7 @@ var groupByDay = (tweets) => {
   // Create an object where the key is the date and the value is the count
   tweets.forEach(tweet => {
     // var newDate = moment(tweet.datePublished).startOf('day').format();
-    var newDate = moment(tweet.datePublished).startOf('day').format();
+    var newDate = moment(tweet.datePublished).startOf('hour').format();
     if (chartData[newDate]) {
       chartData[newDate]++;
     } else {
@@ -220,7 +241,6 @@ var handlers = {
      * @param {String} req.operator: Operator
      *                                 from the set {'AND', 'OR'}
      */
-    console.log(req);
     // Events to be emitted
     var errorEvent = 'error';
     var resultEvent = 'result';

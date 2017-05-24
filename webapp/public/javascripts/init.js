@@ -89,11 +89,12 @@ $(document).ready(function() {
   //Getting stuff from the DOM
   var $playersLabel = $('#players_label');
   var $clubsLabel = $('#clubs_label');
+  var $authorsLabel = $('#authors_label');
   var $inputs = $('#players, #clubs');
 
-  var ntag1 = $('.n-tag:first');
-  var ntag2 = $('.n-tag:eq(1)');
-  var ntag3 = $('.n-tag:eq(2)');
+  var $ntag1 = $('.n-tag:first');
+  var $ntag2 = $('.n-tag:eq(1)');
+  var $ntag3 = $('.n-tag:eq(2)');
 
   //Initialising various things
   addDefaultTags();
@@ -102,10 +103,13 @@ $(document).ready(function() {
 
   //Making sure the labels can be clicked on to select the input boxes
   $playersLabel.click(function(){
-    $('.n-tag:first').focus();
+    $ntag1.focus();
   });
   $clubsLabel.click(function(){
-    $('.n-tag:eq(1)').focus();
+    $ntag2.focus();
+  });
+  $authorsLabel.click(function(){
+    $ntag3.focus();
   });
 
   //Listeners for the input boxes
@@ -143,15 +147,15 @@ $(document).ready(function() {
       //Allowing tabbing between input boxes
 	    if (e.which === Key.TAB) {
         if (e.shiftKey) {
-          if (ntag2.is(":focus"))
-            ntag1.focus();
-          else if (ntag3.is(":focus"))
-            ntag2.focus();
+          if ($ntag2.is(":focus"))
+            $ntag1.focus();
+          else if ($ntag3.is(":focus"))
+            $ntag2.focus();
         } else {
-          if (ntag1.is(":focus"))
-            ntag2.focus();
-          else if (ntag2.is(":focus"))
-            ntag3.focus();
+          if ($ntag1.is(":focus"))
+            $ntag2.focus();
+          else if ($ntag2.is(":focus"))
+            $ntag3.focus();
         }
       }
     });
