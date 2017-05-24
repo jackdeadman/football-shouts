@@ -33,7 +33,7 @@ function loadGraph(canvas, data, callback) {
       tooltips: {
         callbacks: {
                       title: function(item) {
-                          return moment(item[0].xLabel).format('LL');
+                          return moment(item[0].xLabel).format('LLLL');
                       },
                   }
           },
@@ -49,14 +49,14 @@ function loadGraph(canvas, data, callback) {
             xAxes: [{
             type: 'time',
             ticks: {
-              autoSkip: false,
-              maxRotation: 45,
-              minRotation: 45,
+              autoSkip: true,
+              maxRotation: 70,
+              minRotation: 70,
               stepSize: 0.5
             },
             time: {
               displayFormats: {
-                        unit: 'day'
+                        unit: 'hour'
                     }
             }
           }]

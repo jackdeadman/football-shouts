@@ -393,8 +393,8 @@ function buildQuery(queryTerms){
   var club = queryTerms.club;
   var operator = queryTerms.operator;
   var authors = queryTerms.authors.map(Hashtag.stripHashtag);
-  var sinceTimestamp = utils.formatDateForTwitter(queryTerms.since);
-  var untilTimestamp = utils.formatDateForTwitter(queryTerms.until);
+  var sinceTimestamp = utils.formatDateForTwitter(moment(queryTerms.since).add(1, 'day'));
+  var untilTimestamp = utils.formatDateForTwitter(moment(queryTerms.until).add(1, 'day'));
   var timeLimits = " since:" + sinceTimestamp + " until:" + untilTimestamp;
   var filterRetweetsAndReplies = " AND -filter:retweets AND -filter:replies";
   var authorFilter = authors.map(a => `from:${a}`).join(' OR ');
