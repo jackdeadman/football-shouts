@@ -406,33 +406,6 @@ function buildQuery(queryTerms){
   return searchTerms;
 }
 
-function makePlayerQuery(query){
-  var queryObj = {
-    $or: [
-      {
-        twitterHandle: {
-          $like: '%' + query + '%'
-        }
-      },
-      {
-        name: {
-          $like: '%' + query + '%'
-        }
-      }
-    ]
-  };
-  return queryObj;
-}
-
-function makeClubQuery(query) {
-  var queryObj = {
-    name: {
-      $like: '%' + query + '%'
-    }
-  };
-  return queryObj;
-}
-
 function findTweets(player, operator, club, authors, since, until){
   /**
    * Searches for tweets related to hashtags, players or clubs.
@@ -445,16 +418,6 @@ function findTweets(player, operator, club, authors, since, until){
    * @return {Promise} Resolves when the query to MySQL returns.
    */
 
-  var required = true;
-  if (operator === 'OR') {
-    required = false;
-  } else if (operator === 'AND') {
-    required = true;
-  } else {
-    // Handle Error
-    throw new Error(`Invalid operator supplied: ${operator}`);
-  }
-
   since = moment(since).format().toString();
   until = moment(until).format().toString();
 
@@ -465,141 +428,54 @@ function findTweets(player, operator, club, authors, since, until){
     console.log(playerAndClub);
     var playerName = playerAndClub[0];
     var clubName = playerAndClub[1];
-    var playerQuery = makePlayerQuery(playerName);
-    var clubQuery = makeClubQuery(clubName);
+  
+    var query = "SELECT * FROM Tweets INNER JOIN Authors ON Tweets.AuthorId = Authors.id ";
+    var replacements = {};
 
-    // TODO: Currently a hack, the function should be renamed
-    authors = authors.map(Hashtag.stripHashtag);
-    // var authorQuery = makePlayerOrClubQuery(authors);
-    var authorQuery = {};
-    if (authors.length) {
-      authorQuery = {
-        $or: [
-          {
-            twitterHandle: {
-              $in: authors
-            }
-          },
-          {
-            name: {
-              $in: authors
-            }
-          }
-        ]
-      };
+    if (Hashtag.isHashtag(player) && Hashtag.isHashtag(club)) {
+      query += "WHERE Tweets.id IN(SELECT tweetId FROM TweetHashtags INNER JOIN Hashtags ON TweetHashtags.hashtagId = Hashtags.id " +
+               "WHERE Hashtags.hashtag IN(:hashtags)) ";
+      replacements.hashtags = [Hashtag.stripHashtag(player), Hashtag.stripHashtag(club)];
+    } else if (Hashtag.isHashtag(player)) {
+      query += "WHERE Tweets.id IN(SELECT tweetId FROM TweetHashtags INNER JOIN Hashtags ON TweetHashtags.hashtagId = Hashtags.id " +
+               "WHERE Hashtags.hashtag IN(:hashtags)) " + operator + 
+               " Tweets.transferClubId IN (SELECT id FROM Clubs WHERE Clubs.name LIKE (:clubName))";
+      replacements.clubName = '%' + clubName + '%';
+      replacements.hashtags = [Hashtag.stripHashtag(player)];
+    } else if (Hashtag.isHashtag(club)) {
+      query += "WHERE Tweets.id IN(SELECT tweetId FROM TweetHashtags INNER JOIN Hashtags ON TweetHashtags.hashtagId = Hashtags.id " +
+               "WHERE Hashtags.hashtag IN(:hashtags)) " + operator + 
+               " Tweets.playerId IN (SELECT id FROM Players WHERE Players.name LIKE (:playerName) OR Players.twitterHandle LIKE (:playerName))";
+      replacements.playerName = '%' + playerName + '%';
+      replacements.hashtags = [Hashtag.stripHashtag(club)];
+    } else if (!Hashtag.isHashtag(player) && !Hashtag.isHashtag(club)) {
+      query += " WHERE Tweets.transferClubId IN (SELECT id FROM Clubs WHERE Clubs.name LIKE (:clubName)) "
+               + operator + 
+               " Tweets.playerId IN (SELECT id FROM Players WHERE Players.name LIKE (:playerName) OR Players.twitterHandle LIKE (:playerName))";
+      replacements.playerName = '%' + playerName + '%';
+      replacements.clubName = '%' + clubName + '%';
+  } else {
+      query += " WHERE ";
     }
 
-    if(Hashtag.isHashtag(player) && Hashtag.isHashtag(club)){
-      return dbTweet.findAll({
-        where: {
-          datePublished: {
-            $gte: since,
-            $lte: until
-          }
-        },
-        include: [
-          {
-            model: dbHashtag,
-            as: 'Hashtags',
-            where: {
-              hashtag: {
-                $in: [Hashtag.stripHashtag(player), Hashtag.stripHashtag(club)]
-              }
-            },
-            required: required
-          },
-          {
-            model: dbAuthor,
-            where: authorQuery
-          }
-        ]
-      });
-    } else if(Hashtag.isHashtag(player)){
-      return dbTweet.findAll({
-        where: {
-          datePublished: {
-            $gte: since,
-            $lte: until
-          }
-        },
-        include: [
-          {
-            model: dbClub,
-            where: clubQuery,
-            foreignKey: 'transferClubId',
-            required: required
-          },
-          {
-            model: dbHashtag,
-            as: 'Hashtags',
-            where: {
-              hashtag: Hashtag.stripHashtag(player)
-            },
-            required: required
-          },
-          {
-            model: dbAuthor,
-            where: authorQuery
-          }
-        ]
-      });
-    } else if(Hashtag.isHashtag(club)) {
-      return dbTweet.findAll({
-        where: {
-          datePublished: {
-            $gte: since,
-            $lte: until
-          }
-        },
-        include: [
-          {
-            model: dbPlayer,
-            where: playerQuery, 
-            required: required
-          },
-          {
-            model: dbHashtag,
-            as: 'Hashtags',
-            where: {
-              hashtag: Hashtag.stripHashtag(club)
-            },
-            required: required
-          },
-          {
-            model: dbAuthor,
-            where: authorQuery
-          }
-        ]
-      });
+    if ( authors.length && !player && !club ) {
+      // authors = authors.map(Hashtag.stripHashtag);
+      query += "Authors.name IN(:authors) OR Authors.twitterHandle IN(:authors)";
+      replacements.authors = authors;
+    } else if (authors.length) {
+      // authors = authors.map(Hashtag.stripHashtag);
+      query += operator + " Authors.name IN(:authors) OR Authors.twitterHandle IN(:authors)";
+      replacements.authors = authors;
     }
 
-    return dbTweet.findAll({
-      where: {
-        datePublished: {
-          $gte: since,
-          $lte: until
-        }
-      },
-      include: [
-        {
-          model: dbPlayer,
-          where: playerQuery,
-          required: required
-        },
-        {
-          model: dbClub,
-          where: clubQuery,
-          foreignKey: 'transferClubId', 
-          required: required
-        },
-        {
-          model: dbAuthor, 
-          where: authorQuery
-        }
-      ]
+    query += " AND Tweets.datePublished >= :since AND Tweets.datePublished <= :until ";
+    replacements.since = since;
+    replacements.until = until; 
+    
+    return new Promise((resolve, reject) => {
+      resolve(database.sequelize.query(query, { type: database.sequelize.QueryTypes.SELECT, replacements: replacements }));
     });
   });
-  
 }
 
 module.exports.getFromDatabase = function(query, callback){
@@ -628,13 +504,14 @@ module.exports.getFromDatabase = function(query, callback){
 
   findTweets(player, operator, club, authors, since, until)
   .then(tweets => {
+    // console.log(tweets);
     tweets = tweets.map(utils.makeTweetObjectFromDb);
 
     console.log("tweets from db length: ", tweets.length);
     callback(null, tweets);
   })
   .catch(err => {
-    console.error("Can't find tweets from db.");
+    console.error(err, "Can't find tweets from db.");
     callback(null, []);
   });
 };
@@ -774,5 +651,5 @@ module.exports.live = function(query){
       });
     });
     return liveTweetStream;
-  })
+  });
 };

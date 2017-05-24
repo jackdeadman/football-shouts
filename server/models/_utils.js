@@ -82,9 +82,9 @@ module.exports.makeTweetObjectFromDb = databaseTweet => {
     retweetCount: databaseTweet.retweetCount,
     favouriteCount: databaseTweet.favouriteCount,
     updatedAt: databaseTweet.updatedAt,
-    name: databaseTweet.Author.name,
-    twitterHandle: databaseTweet.Author.twitterHandle,
-    profileImageUrl: databaseTweet.Author.profileImageUrl
+    name: databaseTweet.name,
+    twitterHandle: databaseTweet.twitterHandle,
+    profileImageUrl: databaseTweet.profileImageUrl
   };
   return tweetObject;
 };
