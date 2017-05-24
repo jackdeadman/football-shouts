@@ -27,7 +27,7 @@ module.exports = {
         Object.keys(namespaceModule.handlers).forEach(eventName => {
           let handler = namespaceModule.handlers[eventName];
           socket.on(eventName, req => {
-            handler(this, req, io);
+            handler(socket, req, io);
           });
         });
       });
