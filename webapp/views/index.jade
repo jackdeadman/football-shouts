@@ -121,8 +121,17 @@ block tweets
                 | Sorry our worker minions failed to find any information about this player on the interwebz :(
             | {{/if}}
             | {{else}}
-            div.card-panel.z-depth-1.info#playerinfo.
-              Loading...
+            .player-loader
+              div.preloader-wrapper.big.active.text-center
+                div.spinner-layer.purple-loader
+                  div.circle-clipper.left
+                    div.circle
+                  div.gap-patch
+                    div.circle
+                  div.circle-clipper.right
+                    div.circle
+              div.text
+                | We are looking for player information...
             | {{/unless}}
             //- tr
             //-   td.info-name

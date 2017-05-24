@@ -182,6 +182,14 @@ function loadGraph(canvas, data, callback) {
     if (player) {
       player.positionClean = player.positions.map(toUpperCase).join(', ')
       player.loading = false;
+      
+      var dob = moment(player.dateOfBirth);
+      var dateOfBirth = dob.format('MMMM Do YYYY');
+      var age = moment().diff(dob, 'years');
+
+      player.dateOfBirth = dateOfBirth;
+      player.age = age;
+
       $playerDataLocation.html(playerDataTemplate(player));
     } else {
       $playerDataLocation.html(playerDataTemplate({
