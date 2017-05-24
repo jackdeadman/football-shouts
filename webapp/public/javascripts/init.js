@@ -91,6 +91,13 @@ function validate() {
     $('#submit-button').prop('disabled', true);
 }
 
+function smallNTags(foo) {
+  $('.n-tag').each(function() {
+	if (($(this).val() === "") || foo)
+	  $(this).attr('size', 1);
+  });
+}
+
 $(document).ready(function() {
   //Helper boolean for detecting whether del or backspace is down
   //(NEEDS IMPROVING!)
@@ -138,6 +145,7 @@ $(document).ready(function() {
 
   $inputs.on('beforeItemAdd', function(e) {
     console.log($(this).materialtags('items'));
+	smallNTags(true);
     if (($(this).materialtags('items').length + 1) > MAX_TAGS) {
       e.cancel = true;
     } else if (delIsDown) {
@@ -147,7 +155,7 @@ $(document).ready(function() {
 
   //For each tag, have the following listeners
   $('.n-tag').each(function() {
-    $(this).attr('size', 3);
+    $(this).attr('size', 1);
     //If defocused, empty the text
     $(this).focusout(function() {
       $(this).val("");
@@ -155,8 +163,9 @@ $(document).ready(function() {
 
     $(this).keydown(function(e) {
       //NEEDS IMPROVING
-      if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
-        delIsDown = true;
+      if (e.which == Key.BACKSPACE || e.which == Key.DELETE) {
+		delIsDown = true;
+	  }
 
       //Allowing tabbing between input boxes
 	    if (e.which === Key.TAB) {
@@ -175,8 +184,10 @@ $(document).ready(function() {
     });
 
     $(this).keyup(function(e) {
-      if (e.which == Key.BACKSPACE || e.which == Key.DELETE)
-        delIsDown = false;
+      if (e.which == Key.BACKSPACE || e.which == Key.DELETE) {
+		smallNTags();
+		delIsDown = false;
+	  }  
     });
 
   });
