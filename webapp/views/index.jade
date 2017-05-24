@@ -114,6 +114,26 @@ block tweets
                       {{else}}
                       Twitter handle is unknown.
                       {{/if}}
+                tr
+                  td.info-name
+                    | Date of Birth:
+                  td#twitterHandle
+                    span.
+                      {{#if twitterHandle}}
+                       {{ dateOfBirth }} (age {{ age }})
+                      {{else}}
+                      Date of Birth is unknown.
+                      {{/if}}
+                tr
+                  td.info-name
+                    | Shirt Number:
+                  td#twitterHandle
+                    span.
+                      {{#if twitterHandle}}
+                       {{ shirtNumber }}
+                      {{else}}
+                      Shirt Number is unknown.
+                      {{/if}}
             
             | {{else}}
             div.card-panel.z-depth-1.info
