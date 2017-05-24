@@ -12,6 +12,9 @@ var handlers = {
      * @param {String[]} req.clubs: List of club names
      * @param {String[]} req.authors: List of author names
      */
+
+    console.log('SUBSCRIBING');
+    console.log(req);
     if (socket.livetweets) {
       // A client can only subscribe to one stream at a time
       socket.livetweets.disconnect();

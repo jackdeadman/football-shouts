@@ -41,6 +41,7 @@ var findTransfers = (player, club, authors, sources, operator, callback) => {
 
       databaseTweets = databaseTweets.map(tweet => {
         tweet.source = 'database';
+        tweet.query = query;
         return tweet;
       });
 
@@ -55,6 +56,7 @@ var findTransfers = (player, club, authors, sources, operator, callback) => {
           Tweet.getFromTwitter(query, (twitterErr, twitterTweets) => {
             twitterTweets = twitterTweets.map(tweet => {
               tweet.source = 'twitter';
+              tweet.query = query;
               return tweet;
             });
             callback(null, databaseTweets.concat(twitterTweets));
