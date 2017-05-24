@@ -110,6 +110,6 @@ module.exports.formatDateForTwitter = date => {
    * Formats a date object in the way usable with Twitter's 
    * search API.
    */
-  date = moment(date).add(1, 'day');
+  date = moment(date)
   return date.format('YYYY-MM-DD')
 };

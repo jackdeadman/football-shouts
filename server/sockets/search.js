@@ -13,7 +13,7 @@ var findTransfers = (player, club, authors, sources, operator, callback) => {
    * @param {[String]} authors: author names
    * @param {Function} callback: fn(err, tweets)
    */
-  var lastWeek = new Date(Date.now() - 14 * 24 * 60 * 60 * 1000);
+  var lastWeek = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
   var today = new Date(Date.now());
 
   // Build query object
@@ -173,7 +173,7 @@ var groupByDay = (tweets) => {
   // Create an object where the key is the date and the value is the count
   tweets.forEach(tweet => {
     // var newDate = moment(tweet.datePublished).startOf('day').format();
-    var newDate = moment(tweet.datePublished).startOf('day').format();
+    var newDate = moment(tweet.datePublished).startOf('hour').format();
     if (chartData[newDate]) {
       chartData[newDate]++;
     } else {
