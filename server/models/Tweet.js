@@ -266,6 +266,8 @@ function relatePositionsToPlayers(player, positionSaves) {
 
 function updatePlayerWithWikidata(playerInstance, wikidataResults) {
   playerInstance.name = wikidataResults.name;
+  playerInstance.dateOfBirth = moment(wikidataResults.dateOfBirth).format().toString();
+  playerInstance.shirtNumber = wikidataResults.shirtNumber;
   if (wikidataResults.twitterUsername) {
     playerInstance.twitterHandle = wikidataResults.twitterUsername;
   }
@@ -643,7 +645,9 @@ function formatDbPlayerInfo(player) {
     twitterHandle: player.twitterHandle,
     imageUrl: player.imageUrl,
     positions: player.Positions.map(position => position.name),
-    club: player.Club ? player.Club.name : null
+    club: player.Club ? player.Club.name : null,
+    dateOfBirth: player.dateOfBirth,
+    shirtNumber: player.shirtNumber
   };
   console.log(formattedPlayer);
   return formattedPlayer;
@@ -655,7 +659,9 @@ function formatWikidataPlayerInfo(player) {
     twitterHandle: player.twitterUsername === undefined ? '' : player.twitterUsername,
     imageUrl: player.imageUrl === undefined ? '' : player.imageUrl,
     positions: Array.from(player.positions),
-    club: player.teamName
+    club: player.teamName,
+    dateOfBirth: player.dateOfBirth,
+    shirtNumber: player.shirtNumber
   };
   console.log(formattedPlayer);
   return formattedPlayer;
@@ -699,7 +705,9 @@ module.exports.live = function(query){
    * and returns the stream object.
    * @param {Object} query The database query;
    * @param {String} query.players The players to search for;
+   * @param {String} query.authors The authors to search for;
    * @param {String} query.clubs The clubs to search for.
+   * @param {String} query.operator The clubs to search for.
    * @return {LiveTweet} A Twitter Streaming API stream.
    */
   var players = query.players;
@@ -707,37 +715,64 @@ module.exports.live = function(query){
   // console.log(players, clubs);
   // console.log('TRACKING: ', utils.createTwitterQuery({players, clubs}));
 
-  var queryObj = { track: utils.createTwitterQuery({players, clubs}) };
+  var fetchAuthors = query.authors.map(author => {
+    console.log(author);
+    return client.get('users/lookup', {screen_name: Hashtag.stripHashtag(author)});
+  });
 
-  var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
-  var savedCount = 0;
-  liveTweetStream.on('tweet', tweet => {
-    // console.log('New tweet: xsmkmkxmxks');
-    var hashtags = Hashtag.processHashtags(tweet.entities.hashtags);
-    var processedTweet = utils.makeTweetObject(tweet);
-    var author = Author.makeAuthorObject(processedTweet);
-    var databaseTweet = utils.makeTweetDbObject(processedTweet);
-    
-    players.forEach(player => {
-      clubs.forEach(club => {
-        var everythingSaved = saveToDatabase(databaseTweet,
-                                      player,
-                                      club,
-                                      author,
-                                      hashtags);
-        makeRelations(everythingSaved)
-        .then((relatedObjects) => {
-          savedCount++;
-          if (savedCount === 1) {
-            saveMetadata(relatedObjects, query);
-          }
-          console.log("Saved live tweet");
-        })
-        .catch(err => {
-          console.error(err);
+  return Promise.all(fetchAuthors).then(authors => {
+    authors = authors.map(a => a.data.id_str ? a.data.id_str : []);
+    authors = authors.filter(a => a === []);
+    console.log(authors.length, query.authors.length);
+    console.log(authors)
+    if ((authors.length === 0) && (query.authors.length !== 0)) {
+      // Can't find the authors but the user requested these
+      // authors. If unhandled the user would be shown tweets
+      // with no filter. There no livetweets are created and
+      // a mock is given to gracefully fullback.
+      return {
+        disconnect: () => {},
+        connect: () => {}
+      };
+    }
+    // console.log(authors[0].data);
+    var queryObj = {
+      track: utils.createTwitterQuery({
+        players, clubs
+      }),
+      follow: authors
+    };
+
+    var liveTweetStream = new LiveTweet(client, 'statuses/filter', queryObj);
+    var savedCount = 0;
+    liveTweetStream.on('tweet', tweet => {
+      // console.log('New tweet: xsmkmkxmxks');
+      var hashtags = Hashtag.processHashtags(tweet.entities.hashtags);
+      var processedTweet = utils.makeTweetObject(tweet);
+      var author = Author.makeAuthorObject(processedTweet);
+      var databaseTweet = utils.makeTweetDbObject(processedTweet);
+      
+      players.forEach(player => {
+        clubs.forEach(club => {
+          var everythingSaved = saveToDatabase(databaseTweet,
+                                        player,
+                                        club,
+                                        author,
+                                        hashtags);
+          makeRelations(everythingSaved)
+          .then((relatedObjects) => {
+            savedCount++;
+            if (savedCount === 1) {
+              saveMetadata(relatedObjects, query);
+            }
+            console.log("Saved live tweet");
+          })
+          .catch(err => {
+            console.error(err);
+          });
         });
       });
     });
-  });
-  return liveTweetStream;
+    return liveTweetStream;
+  })
 };

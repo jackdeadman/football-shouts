@@ -86,10 +86,14 @@ $(document).ready(function() {
   //(NEEDS IMPROVING!)
   var delIsDown = false;
 
-  //Getting stuff from the DO
+  //Getting stuff from the DOM
   var $playersLabel = $('#players_label');
   var $clubsLabel = $('#clubs_label');
   var $inputs = $('#players, #clubs');
+
+  var ntag1 = $('.n-tag:first');
+  var ntag2 = $('.n-tag:eq(1)');
+  var ntag3 = $('.n-tag:eq(2)');
 
   //Initialising various things
   addDefaultTags();
@@ -138,10 +142,17 @@ $(document).ready(function() {
 
       //Allowing tabbing between input boxes
 	    if (e.which === Key.TAB) {
-		    if (e.shiftKey && $('.n-tag:eq(1)').is(":focus"))
-		      $('.n-tag:first').focus();
-        else if ($('.n-tag:first').is(":focus"))
-          $('.n-tag:eq(1)').focus();
+        if (e.shiftKey) {
+          if (ntag2.is(":focus"))
+            ntag1.focus();
+          else if (ntag3.is(":focus"))
+            ntag2.focus();
+        } else {
+          if (ntag1.is(":focus"))
+            ntag2.focus();
+          else if (ntag2.is(":focus"))
+            ntag3.focus();
+        }
       }
     });
 

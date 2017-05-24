@@ -27,10 +27,6 @@ module.exports = {
         Object.keys(namespaceModule.handlers).forEach(eventName => {
           let handler = namespaceModule.handlers[eventName];
           socket.on(eventName, req => {
-            console.log('************')
-            console.log('Event fired');
-            console.log(this);
-            console.log('************')
             handler(this, req, io);
           });
         });

@@ -3,15 +3,30 @@ var classifier = require('../lib/tweet_processors/TweetClassifier')
                   .getClassifier();
 var moment = require('moment');
 
-module.exports.createTwitterQuery = ({ players=[], clubs=[], authors=[] }) => {
-  var combine = a => a.map(x => `${x}`).join(', ');
-  var playersString = combine(players);
-  var clubsString = combine(clubs);
-  var authorsString = combine(authors);
-  var combined = [playersString, clubsString, authorsString];
-  combined = combined.filter(x => x !== '');
-  combined = combined.map(x => `${x}`);
-  return combined.join(' ');
+module.exports.createTwitterQuery = ({ players=[], clubs=[], authors=[], operator='AND'}) => {
+  if (operator === 'AND') {
+    var terms = [];
+
+    var arrays = [];
+    var SENTINAL = '';
+    var addSentinal = a => a.length ? a : [SENTINAL];
+
+    players = addSentinal(players);
+    clubs = addSentinal(clubs);
+    authors = addSentinal(authors);
+    
+    var terms = [];
+    players.forEach(player => {
+      clubs.forEach(club => {
+        terms.push([player, club]);
+      });
+    });
+    return terms.map(t => {
+      return t.filter(l => l !== SENTINAL).join(' ');
+    }).join(', ');
+  } else if (operator === 'OR') {
+    return [].concat(players, clubs, authors).join(', ');
+  }
 };
 
 module.exports.selectTransferTweet = tweet => {

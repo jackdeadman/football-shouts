@@ -10,34 +10,33 @@ var handlers = {
      * @param {Object} req: request from the client.
      * @param {String[]} req.players: List of player names
      * @param {String[]} req.clubs: List of club names
+     * @param {String[]} req.authors: List of author names
      */
     if (socket.livetweets) {
       // A client can only subscribe to one stream at a time
       socket.livetweets.disconnect();
       socket.livetweets = null;
     }
+    console.log(req);
+    Tweet.live(req).then(livetweets => {
+      livetweets.connect();
 
-    var players = req.players;
-    var clubs = req.clubs;
+      // emit the normalised version of a tweet to the client
+      livetweets.on('tweet', function(tweet) {
+        socket.emit('tweet', modelUtils.makeTweetObject(tweet));
+      });
 
-    var livetweets = Tweet.live({ players, clubs });
-    livetweets.connect();
+      // Needs to be set here to remember which livetweets to disconnect
+      socket.on('disconnect', function() {
+        livetweets.disconnect();
+      });
 
-    // emit the normalised version of a tweet to the client
-    livetweets.on('tweet', function(tweet) {
-      socket.emit('tweet', modelUtils.makeTweetObject(tweet));
+      socket.on('unsubscribe', function() {
+        livetweets.disconnect();
+      });
+
+      socket.livetweets = livetweets;
     });
-
-    // Needs to be set here to remember which livetweets to disconnect
-    socket.on('disconnect', function() {
-      livetweets.disconnect();
-    });
-
-    socket.on('unsubscribe', function() {
-      livetweets.disconnect();
-    });
-
-    socket.livetweets = livetweets;
   }
 };
 

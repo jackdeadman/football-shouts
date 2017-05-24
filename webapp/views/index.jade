@@ -74,6 +74,7 @@ block tweets
         //(TEMPORARY)
         div.col.s12.l5#side-info
           | {{#unless loading}}
+          | {{#if name}}
           div.card-panel.z-depth-1.info#playerinfo
             div.info-top
               div.info-image#playerimage
@@ -113,6 +114,12 @@ block tweets
                       {{else}}
                       Twitter handle is unknown.
                       {{/if}}
+            
+            | {{else}}
+            div.card-panel.z-depth-1.info
+              .col.s12
+                | Sorry our worker minions failed to find any information about this player on the interwebz :(
+            | {{/if}}
             | {{else}}
             div.card-panel.z-depth-1.info#playerinfo.
               Loading...

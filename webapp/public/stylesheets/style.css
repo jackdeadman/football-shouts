@@ -276,3 +276,7 @@ span.chip, label, .default-cursor {
 .switch label input[type=checkbox]+.lever:after {
   background-color: #6a1b9a;
 }
+
+.center-block {
+  margin: auto;
+}
