@@ -6,6 +6,8 @@ var Key = {
   ENTER: 13,
 };
 
+var MAX_TAGS = 5;
+
 //Adds default tags to the input boxes
 function addDefaultTags() {
   $('#players').materialtags('add', 'Wayne Rooney');
@@ -127,8 +129,12 @@ $(document).ready(function() {
   });
 
   $inputs.on('beforeItemAdd', function(e) {
-    if (delIsDown)
+    console.log($(this).materialtags('items'));
+    if (($(this).materialtags('items').length + 1) > MAX_TAGS) {
+      e.cancel = true;
+    } else if (delIsDown) {
       checkEmpty(e, $(this));
+    }
   });
 
   //For each tag, have the following listeners
