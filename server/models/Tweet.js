@@ -448,19 +448,25 @@ function findTweets(player, operator, club, authors, since, until){
                " Tweets.playerId IN (SELECT id FROM Players WHERE Players.name LIKE (:playerName) OR Players.twitterHandle LIKE (:playerName))";
       replacements.playerName = '%' + playerName + '%';
       replacements.hashtags = [Hashtag.stripHashtag(club)];
-    } else if (!Hashtag.isHashtag(player) && !Hashtag.isHashtag(club)) {
+    }
+
+    if (playerName && !clubName && !Hashtag.isHashtag(player)) {
+      query += " WHERE Tweets.playerId IN (SELECT id FROM Players WHERE Players.name LIKE (:playerName) OR Players.twitterHandle LIKE (:playerName))"
+      replacements.playerName = '%' + playerName + '%';
+    } else if (clubName && !playerName && !Hashtag.isHashtag(club)) {
+      query += " WHERE Tweets.transferClubId IN (SELECT id FROM Clubs WHERE Clubs.name LIKE (:clubName)) ";
+      replacements.clubName = '%' + clubName + '%';
+    } else if (playerName && clubName && !Hashtag.isHashtag(player) && !Hashtag.isHashtag(club)) {
       query += " WHERE Tweets.transferClubId IN (SELECT id FROM Clubs WHERE Clubs.name LIKE (:clubName)) "
                + operator + 
                " Tweets.playerId IN (SELECT id FROM Players WHERE Players.name LIKE (:playerName) OR Players.twitterHandle LIKE (:playerName))";
       replacements.playerName = '%' + playerName + '%';
       replacements.clubName = '%' + clubName + '%';
-  } else {
-      query += " WHERE ";
     }
 
     if ( authors.length && !player && !club ) {
       // authors = authors.map(Hashtag.stripHashtag);
-      query += "Authors.name IN(:authors) OR Authors.twitterHandle IN(:authors)";
+      query += " WHERE Authors.name IN(:authors) OR Authors.twitterHandle IN(:authors)";
       replacements.authors = authors;
     } else if (authors.length) {
       // authors = authors.map(Hashtag.stripHashtag);

@@ -72,11 +72,19 @@ function checkEmpty(e, obj) {
 
 //Validation for the form
 function validate() {
+
   //Makes sure all fields have a value before allowing submission
   var tags1 = $('#players').materialtags('items').length > 0;
   var tags2 = $('#clubs').materialtags('items').length > 0;
   var tags3 = $('#authors').materialtags('items').length > 0;
   var checked = $('#options').val().length > 0;
+  var switcher = $('#operator-switcher');
+  
+  if (!tags1 || !tags2)
+	switcher.hide();
+  else
+	switcher.show();
+  
   if ((tags1 || tags2 || tags3) && checked)
     $('#submit-button').prop('disabled', false);
   else
