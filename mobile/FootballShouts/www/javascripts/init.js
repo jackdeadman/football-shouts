@@ -96,6 +96,9 @@ $(document).ready(function() {
   $('.parallax').parallax();
   $('select').material_select();
 
+  //Resizing background for mobile
+  $('.mobile-background').css('background-size', 'auto ' + screen.height + 'px');
+
   //Making sure the labels can be clicked on to select the input boxes
   $playersLabel.click(function(){
     $('.n-tag:first').focus();
