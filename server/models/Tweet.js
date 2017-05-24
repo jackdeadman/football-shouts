@@ -732,7 +732,8 @@ module.exports.live = function(query){
       // a mock is given to gracefully fullback.
       return {
         disconnect: () => {},
-        connect: () => {}
+        connect: () => {},
+        on: () => {}
       };
     }
     // console.log(authors[0].data);
