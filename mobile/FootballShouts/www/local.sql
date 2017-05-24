@@ -1,77 +1,67 @@
 PRAGMA synchronous = OFF;
 PRAGMA journal_mode = MEMORY;
 BEGIN TRANSACTION;
+DROP TABLE IF EXISTS "Authors";
 CREATE TABLE "Authors" (
-  INTEGER PRIMARY KEY,
+  "id" INTEGER PRIMARY KEY,
   "twitterHandle" varchar(15) NOT NULL,
   "name" varchar(20) NOT NULL,
-  "profileImageUrl" varchar(255) DEFAULT NULL,
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
+  "profileImageUrl" varchar(255) DEFAULT NULL
 );
+DROP TABLE IF EXISTS "Clubs";
 CREATE TABLE "Clubs" (
-  INTEGER PRIMARY KEY,
-  "name" varchar(255) NOT NULL,
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
+  "id" INTEGER PRIMARY KEY,
+  "name" varchar(255) NOT NULL
 );
+DROP TABLE IF EXISTS "Hashtags";
 CREATE TABLE "Hashtags" (
-  INTEGER PRIMARY KEY,
-  "hashtag" varchar(100) NOT NULL,
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
+  "id" INTEGER PRIMARY KEY,
+  "hashtag" varchar(100) NOT NULL
 );
+DROP TABLE IF EXISTS "PlayerPositions";
 CREATE TABLE "PlayerPositions" (
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
   "playerId" int(11) NOT NULL,
   "positionId" int(11) NOT NULL,
   PRIMARY KEY ("playerId","positionId")
   CONSTRAINT "PlayerPositions_ibfk_1" FOREIGN KEY ("playerId") REFERENCES "Players" ("ROWID") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "PlayerPositions_ibfk_2" FOREIGN KEY ("positionId") REFERENCES "Positions" ("ROWID") ON DELETE CASCADE ON UPDATE CASCADE
 );
+DROP TABLE IF EXISTS "Players";
 CREATE TABLE "Players" (
-  INTEGER PRIMARY KEY,
+  "id" INTEGER PRIMARY KEY,
   "name" varchar(255) NOT NULL,
   "twitterHandle" varchar(15) DEFAULT NULL,
   "imageUrl" varchar(255) DEFAULT NULL,
   "dateOfBirth" datetime DEFAULT NULL,
   "shirtNumber" int(11) DEFAULT NULL,
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
   "currentClubId" int(11) DEFAULT NULL,
   CONSTRAINT "Players_ibfk_1" FOREIGN KEY ("currentClubId") REFERENCES "Clubs" ("ROWID") ON DELETE SET NULL ON UPDATE CASCADE
 );
+DROP TABLE IF EXISTS "Positions";
 CREATE TABLE "Positions" (
-  "id" int(11) NOT NULL,
-  "name" varchar(255) NOT NULL,
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
-  PRIMARY KEY ("id")
+  "id" INTEGER PRIMARY KEY,
+  "name" varchar(255) NOT NULL
 );
+DROP TABLE IF EXISTS "TweetHashtags";
 CREATE TABLE "TweetHashtags" (
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
   "hashtagId" int(11) NOT NULL,
   "tweetId" int(11) NOT NULL,
   PRIMARY KEY ("hashtagId","tweetId")
   CONSTRAINT "TweetHashtags_ibfk_1" FOREIGN KEY ("hashtagId") REFERENCES "Hashtags" ("ROWID") ON DELETE CASCADE ON UPDATE CASCADE,
   CONSTRAINT "TweetHashtags_ibfk_2" FOREIGN KEY ("tweetId") REFERENCES "Tweets" ("ROWID") ON DELETE CASCADE ON UPDATE CASCADE
 );
+DROP TABLE IF EXISTS "Tweets";
 CREATE TABLE "Tweets" (
-  "id" int(11) NOT NULL,
+  "id" INTEGER PRIMARY KEY,
   "text" varchar(140) NOT NULL,
   "twitterId" varchar(30) NOT NULL,
   "datePublished" datetime NOT NULL,
   "hasMedia" tinyint(1) NOT NULL,
   "retweetCount" int(11) NOT NULL,
   "favouriteCount" int(11) NOT NULL,
-  "createdAt" datetime NOT NULL,
-  "updatedAt" datetime NOT NULL,
   "transferClubId" int(11) DEFAULT NULL,
   "PlayerId" int(11) DEFAULT NULL,
   "AuthorId" int(11) DEFAULT NULL,
-  PRIMARY KEY ("id")
   CONSTRAINT "Tweets_ibfk_1" FOREIGN KEY ("transferClubId") REFERENCES "Clubs" ("ROWID") ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT "Tweets_ibfk_2" FOREIGN KEY ("PlayerId") REFERENCES "Players" ("ROWID") ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT "Tweets_ibfk_3" FOREIGN KEY ("AuthorId") REFERENCES "Authors" ("ROWID") ON DELETE SET NULL ON UPDATE CASCADE

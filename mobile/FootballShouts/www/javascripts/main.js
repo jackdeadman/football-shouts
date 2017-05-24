@@ -87,11 +87,7 @@ function loadGraph(canvas, data, callback) {
 
   function handleSearch(req) {
     // Setup livetweets
-    liveTweets.emit('subscribe', {
-      player: req.players[0],
-      author: req.authors[0],
-      club: req.clubs[0]
-    });
+    liveTweets.emit('subscribe', req);
 
     //Gather all tweets from local database
     var localTweets = handleLocalQuery(req);
@@ -171,7 +167,7 @@ function loadGraph(canvas, data, callback) {
     });
   }
 
-  function storeInLocalDB(tweets, latest) {
+  function storeInLocalDB(tweets, player, club, latest) {
 
     if (latest) {
       //trim list of tweets to only contain latest
@@ -184,7 +180,7 @@ function loadGraph(canvas, data, callback) {
       // hashtags = Hashtag.processHashtags(hashtags);
       var author = makeAuthorObject(tweet);
       tweet = makeTweetDbObject(tweet);
-      var everythingSaved = saveLocalDatabase(tweet, "", "", author, []);
+      var everythingSaved = saveLocalDatabase(tweet, player, club, author, []);
     });
   }
 
@@ -192,6 +188,12 @@ function loadGraph(canvas, data, callback) {
 
     clearSearchResults();
 
+    if (results.tweets[0]) {
+      var player = results.tweets[0].query.player;
+      var club = results.tweets[0].query.club;
+      console.log(player, club);
+    }
+  
     //Merging local tweets and server tweets
     var allTweets = localResults.tweets.concat(results.tweets);
 
@@ -210,9 +212,9 @@ function loadGraph(canvas, data, callback) {
     });
 
     if (localResults.tweets[0])
-      storeInLocalDB(results.tweets, new Date(localResults.tweets[0].updatedAt));
+      storeInLocalDB(results.tweets, player, club, new Date(localResults.tweets[0].updatedAt));
     else
-      storeInLocalDB(results.tweets);
+      storeInLocalDB(results.tweets, player, club);
 
     console.log(results.tweets, localResults.tweets, allTweets);
 

@@ -1,62 +1,41 @@
 var threshold = 7 * 24 * 60 * 60 * 1000 // 7 days
 
+var makeTweetObjectFromDb = databaseTweet => {
+  /**
+   * Makes a tweet object based on the database fields, 
+   * in a format designed for the frontend.
+   */
+  var tweetObject = {
+    text: databaseTweet.text,
+    twitterId: databaseTweet.twitterId,
+    datePublished: databaseTweet.datePublished,
+    hasMedia: databaseTweet.hasMedia,
+    retweetCount: databaseTweet.retweetCount,
+    favouriteCount: databaseTweet.favouriteCount,
+    updatedAt: databaseTweet.updatedAt,
+    name: databaseTweet.name,
+    twitterHandle: databaseTweet.twitterHandle,
+    profileImageUrl: databaseTweet.profileImageUrl
+  };
+  return tweetObject;
+};
+
 var getTweetsFromLocal = (query) => {
 
-  var sql = "\
-  SELECT `Tweet`.`id`, \
-         `Tweet`.`text`, \
-         `Tweet`.`twitterid`, \
-         `Tweet`.`datepublished`, \
-         `Tweet`.`hasmedia`, \
-         `Tweet`.`retweetcount`, \
-         `Tweet`.`favouritecount`, \
-         `Tweet`.`createdat`, \
-         `Tweet`.`updatedat`, \
-         `Tweet`.`transferclubid`, \
-         `Tweet`.`playerid`, \
-         `Tweet`.`authorid`, \
-         `Player`.`id`              AS `Player.id`, \
-         `Player`.`name`            AS `Player.name`, \
-         `Player`.`twitterhandle`   AS `Player.twitterHandle`, \
-         `Player`.`imageurl`        AS `Player.imageUrl`, \
-         `Player`.`createdat`       AS `Player.createdAt`, \
-         `Player`.`updatedat`       AS `Player.updatedAt`, \
-         `Player`.`currentclubid`   AS `Player.currentClubId`, \
-         `Club`.`id`                AS `Club.id`, \
-         `Club`.`name`              AS `Club.name`, \
-         `Club`.`createdat`         AS `Club.createdAt`, \
-         `Club`.`updatedat`         AS `Club.updatedAt`, \
-         `Author`.`id`              AS `Author.id`, \
-         `Author`.`twitterhandle`   AS `Author.twitterHandle`, \
-         `Author`.`name`            AS `Author.name`, \
-         `Author`.`profileimageurl` AS `Author.profileImageUrl`, \
-         `Author`.`createdat`       AS `Author.createdAt`, \
-         `Author`.`updatedat`       AS `Author.updatedAt` \
-  FROM   `tweets` AS `Tweet` \
-         LEFT OUTER JOIN `players` AS `Player` \
-                      ON `Tweet`.`playerid` = `Player`.`id` \
-                         AND ( `Player`.`twitterhandle` LIKE '?' \
-                                OR `Player`.`name` LIKE '?' ) \
-         LEFT OUTER JOIN `clubs` AS `Club` \
-                      ON `Tweet`.`transferclubid` = `Club`.`id` \
-                         AND `Club`.`name` LIKE '?' \
-         INNER JOIN `authors` AS `Author` \
-                 ON `Tweet`.`authorid` = `Author`.`id` \
-  WHERE  ( `Tweet`.`datepublished` >= '?' \
-           AND `Tweet`.`datepublished` <= '?' ); ";
+  var sql = "SELECT * FROM Tweets WHERE text LIKE ? OR text LIKE ?";
 
   // TODO: make operator do something
   // TODO: make authors do something
-
+  var tweets;
   app.localDB.transaction(function(tr) {
-    tr.executeSql(sql, [query.player, query.player, query.club, query.lastWeek, query.until], function(tr, rs) {
-      console.log('Results: ' + rs.rows);
+    tr.executeSql(sql, [query.player, query.club], function(tr, rs) {
+      tweets = rs.rows.map(tweet => makeTweetObjectFromDb(tweet));
     });
   });
 
+  console.log(tweets);
   console.log("Done");
 
-  tweets = null;
   return tweets;
 };
 
@@ -88,20 +67,20 @@ var findTransfers = (player, club, authors, sources, operator) => {
 
     // Ensure the Tweets are in order in order to get the latest
     if (localTweets) {
-      localTweets = localTweets.sort((t1, t2) => {
-        return new Date(t1.updatedAt) >= new Date(t2.updatedAt) ? -1 : 1;
-      });
+      // localTweets = localTweets.sort((t1, t2) => {
+      //   return new Date(t1.updatedAt) >= new Date(t2.updatedAt) ? -1 : 1;
+      // });
 
       localTweets = localTweets.map(tweet => {
         tweet.source = 'local';
         return tweet;
       });
 
-      var latest = localTweets[0];
-      // Update if no tweets found or too old
-      if (latest && ((today - new Date(latest.updatedAt)) > threshold)) {
-        query.since = new Date(latest.datePublished);
-      }
+      // var latest = localTweets[0];
+      // // Update if no tweets found or too old
+      // if (latest && ((today - new Date(latest.updatedAt)) > threshold)) {
+      //   query.since = new Date(latest.datePublished);
+      // }
     }
 
     return localTweets;

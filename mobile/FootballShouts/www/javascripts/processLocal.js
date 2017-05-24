@@ -24,36 +24,80 @@ var makeTweetDbObject = tweetObject => {
 };
 
 function savePlayer(player) {
+  console.log(player);
+  return new Promise(function(resolve, reject){
+    var searchQuery = "SELECT * FROM Players WHERE name = ?";
+    app.localDB.executeSql(searchQuery, [player], function(result) {
+      if (result.length === 0) {
+        var query = "INSERT INTO Players (name) VALUES  (?)";
+        console.log(query);
+        app.localDB.executeSql(query, [player], function(result) {
+          resolve(result.insertId);
+        }, function(error){
+          console.error(error);
+          reject(error);
+        });
+      } else {
+        resolve(result.insertId);
+      }
+    }, function(error) {
+      console.error(error);
+    });
+  });
+ 
 
+  
 }
 
 function saveClub(club) {
+  return new Promise(function(resolve, reject){
+    var searchQuery = "SELECT * FROM Clubs WHERE name = ?";
+    app.localDB.executeSql(searchQuery, [club], function(result) {
+      if (result.length === 0) {
+        var query = "INSERT INTO Clubs (name) VALUES (?)";
+        console.log(query);
+        app.localDB.executeSql(query, [club], function(result) {
+          resolve(result.insertId);
+        }, function(error){
+          console.error(error);
+          reject(error);
+        });
+      } else {
+        resolve(result.insertId);
+      }
+    }, function(error){
+      console.error(error);
+    });
+  });
+  
 
+  
 }
 
 function saveAuthor(author) {
   var query = "\
   INSERT INTO `authors` \
             ( \
-                        `twitterhandle`, \
-                        `NAME`, \
-                        `profileimageurl` \
+                        `twitterHandle`, \
+                        `name`, \
+                        `profileImageUrl` \
             ) \
             VALUES \
             ( \
-                        '?', \
-                        '?', \
-                        '?'\
+                        ?, \
+                        ?, \
+                        ?\
             );";
 
   // console.log(author);
-
-  app.localDB.transaction(function(tr) {
-    tr.executeSql(query, [author.twitterHandle, author.name, author.profileimageurl], function(tr, rs) {
-      console.log('InsertId: ' + rs.insertId);
+  return new Promise(function(resolve, reject) {
+    app.localDB.executeSql(query, [author.twitterHandle, author.name, author.profileImageUrl], function(rs) {
+      resolve(rs.insertId);
+    }, function(error) {
+      console.error(error);
+      reject(error);
     });
   });
-  return true;
 }
 
 function saveTweet(tweet) {
@@ -76,14 +120,15 @@ function saveTweet(tweet) {
                         ?,\
                         ?\
             );";
-
-  console.log(query);
-  console.log(tweet);
-  app.localDB.executeSql(query, [tweet.text, tweet.twitterId, tweet.datePublished, tweet.hasMedia, tweet.retweetCount, tweet.favouriteCount], function(rs) {
-    console.log('InsertId: ' + rs.insertId);
-  }, function(error) {
-      console.log('Error: ' + error.message);
+  return new Promise(function(resolve, reject){
+    app.localDB.executeSql(query, [tweet.text, tweet.twitterId, tweet.datePublished, tweet.hasMedia, tweet.retweetCount, tweet.favouriteCount], function(rs) {
+      resolve(rs.insertId);
+    }, function(error) {
+      console.error('Error: ' + error.message);
+      reject(error);
+    });
   });
+  
 
   // app.localDB.transaction(function(tx) {
   //   tx.executeSql("select count(id) as cnt from tweets;", [], function(tx, res) {
@@ -91,8 +136,6 @@ function saveTweet(tweet) {
   //     console.log("res.rows.item(0).cnt: " + res.rows.item(0).cnt);
   //   });
   // });
-
-  return true;
 }
 
 function saveHashtags(hashtags) {
@@ -120,5 +163,7 @@ function saveLocalDatabase(tweet, player, club, author, hashtags) {
     everything.push(hashtagsSaved);
   }
 
-  return Promise.all(everything);
+  Promise.all(everything).then((results) => {
+    console.log(results);
+  });
 }
