@@ -182,14 +182,19 @@ function makeRelations(everythingSaved){
 
     if (results.length > 2) {
       var playerResult = results[2][0];
-      var clubResult = results[3][0];
-
+      
       var setTweetRelationToPlayer = tweetResult.setPlayer(playerResult);
-      var setTweetRelationToClub = tweetResult.setClub(clubResult);
+     
       var setPlayerRelationToTweet = playerResult.addTweet(tweetResult);
+      
+      allRelations.push(setTweetRelationToPlayer, setPlayerRelationToTweet);
+    }
+
+    if (results.length > 3) {
+      var clubResult = results[3][0];
+      var setTweetRelationToClub = tweetResult.setClub(clubResult);
       var setClubRelationToTweet = clubResult.addTweet(tweetResult);
-      allRelations.push(setTweetRelationToPlayer, setTweetRelationToClub, 
-                        setPlayerRelationToTweet, setClubRelationToTweet);
+      allRelations.push(setTweetRelationToClub, setClubRelationToTweet);
     }
     
     var setAuthorRelation = tweetResult.setAuthor(authorResult);
@@ -325,6 +330,7 @@ module.exports.getFromTwitter = function(query, callback){
   query.authors = query.authors.length ? query.authors : [];
   query.operator = query.operator || 'OR';
 
+  console.log(query.player, query.club, query.authors);
   console.log("getting from twitter");
   var twitterQuery = buildQuery(query);
   var fullQuery = {
