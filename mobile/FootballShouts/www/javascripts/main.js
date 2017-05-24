@@ -68,8 +68,8 @@ function loadGraph(canvas, data, callback) {
 
 (function(io) {
   // Connections with sockets
-  var search = io('/search');
-  var liveTweets = io('/liveTweets');
+  var search = io('http://164.132.47.12:3000/search');
+  var liveTweets = io('http://164.132.47.12:3000/liveTweets');
 
   // Cache the DOM
   var $app = $('#app');
@@ -82,26 +82,76 @@ function loadGraph(canvas, data, callback) {
   var $operatorSelector = $('#operator-switcher');
   var $playerDataLocation = $('#player-data-location');
 
-  function handleSearch(req) {
-  // Setup livetweets
-  liveTweets.emit('subscribe', {
-    players: req.players,
-    authors: req.authors,
-    clubs: req.clubs
-  });
+  var localResults = null;
+  var localChartData = {};
 
-  // Send the queries
-  search.emit('query', req);
-};
+  function handleSearch(req) {
+    // Setup livetweets
+    liveTweets.emit('subscribe', {
+      player: req.players[0],
+      author: req.authors[0],
+      club: req.clubs[0]
+    });
+
+    //Gather all tweets from local database
+    var localTweets = handleLocalQuery(req);
+
+    //Get the results
+    localResults = localTweets.reduce((acc, tweet) => {
+      return {
+        // Combine tweets by concatenation
+        tweets: acc.tweets.concat([tweet]),
+        // Add the totals
+        countFromLocal: acc.countFromLocal + (tweet.source === 'local')
+      };
+    }, { tweets: [], countFromLocal: 0 });
+
+    //Get the chart data
+    localChartData = groupByDay(localTweets);
+
+    // Send the queries to the server
+    var latestLocal = localResults.tweets[0];
+    if (!latestLocal || ((today - new Date(latestLocal.updatedAt)) > threshold))
+      search.emit('query', req);
+    else
+      displayLocal();
+
+  }
 
   // Cache templates
   var tweetTemplate = Handlebars.compile($("#tweet-template").html());
   var tweetStatTemplate = Handlebars.compile($("#tweet-stats-template").html());
   var playerDataTemplate = Handlebars.compile($("#player-data-template").html());
 
+  var countFromTwitter = 0;
+  var countFromDatabase = 0;
+  var countFromLocal = 0;
+
+  function displayLocal() {
+    displaySearchResults(localResults.tweets);
+
+    countFromLocal = localResults.countFromLocal;
+    var stats = renderTweetStats({
+      countFromLocal: countFromLocal,
+      countFromDatabase: 0,
+      countFromTwitter: 0
+    }, false);
+
+    $tweetStats.html(stats);
+
+    // Finally scroll down the page
+    scrollTo($appContainer.offset().top, 750, function() {
+      //Swapping the loader with the button again
+      $loader.hide();
+      $submitButton.show();
+    });
+  }
+
   // HANDLERS
   function handleSearchError(err) {
-    alert('Error');
+    displayLocal();
+
+    alert("Error");
     console.log(err);
   }
 
@@ -121,15 +171,57 @@ function loadGraph(canvas, data, callback) {
     });
   }
 
-  var countFromTwitter = 0;
-  var countFromDatabase = 0;
+  function storeInLocalDB(tweets, latest) {
+
+    if (latest) {
+      //trim list of tweets to only contain latest
+    }
+
+    tweets.forEach(function(tweet, i){
+      // TODO: store player and club info in local
+      // TODO: store hashtags in local
+      // var hashtags = originalTweetList[i].entities.hashtags;
+      // hashtags = Hashtag.processHashtags(hashtags);
+      var author = makeAuthorObject(tweet);
+      tweet = makeTweetDbObject(tweet);
+      var everythingSaved = saveLocalDatabase(tweet, "", "", author, []);
+    });
+  }
 
   function handleSearchResult(results) {
+
     clearSearchResults();
-    displaySearchResults(results.tweets);
+
+    //Merging local tweets and server tweets
+    var allTweets = localResults.tweets.concat(results.tweets);
+
+    allTweets = allTweets.sort((t1, t2) => {
+      var datePublished1 = new Date(t1.datePublished);
+      var datePublished2 = new Date(t2.datePublished);
+      return datePublished1 >= datePublished2 ? -1 : 1;
+    });
+
+    // Remove duplicate twitters
+    var prev = { twitterId: null };
+    allTweets = allTweets.filter(t => {
+      var different = prev.twitterId !== t.twitterId;
+      prev = t;
+      return different;
+    });
+
+    if (localResults.tweets[0])
+      storeInLocalDB(results.tweets, new Date(localResults.tweets[0].updatedAt));
+    else
+      storeInLocalDB(results.tweets);
+
+    console.log(results.tweets, localResults.tweets, allTweets);
+
+    displaySearchResults(allTweets);
     countFromTwitter = results.countFromTwitter;
     countFromDatabase = results.countFromDatabase;
+    countFromLocal = localResults.countFromLocal;
     var stats = renderTweetStats({
+      countFromLocal: countFromLocal,
       countFromDatabase: countFromDatabase,
       countFromTwitter: countFromTwitter
     }, false);
@@ -153,6 +245,7 @@ function loadGraph(canvas, data, callback) {
 
   function renderTweetStats(counts, renderGraph) {
     return tweetStatTemplate({
+      countFromLocal: counts.countFromLocal,
       countFromTwitter: counts.countFromTwitter,
       countFromDatabase: counts.countFromDatabase,
       renderGraph: renderGraph
@@ -190,6 +283,7 @@ function loadGraph(canvas, data, callback) {
 
   hiddenTweets = []
   function handleNewLiveTweet(tweet) {
+    var node = renderTweet(tweet);
     hiddenTweets.push(tweet);
     document.title = '(' + hiddenTweets.length + ') ' + title;
     $loadMoreTweets.find('.count').html(hiddenTweets.length);
@@ -238,7 +332,6 @@ function loadGraph(canvas, data, callback) {
     $submitButton.fadeOut(200);
     $loader.fadeIn(200);
 
-    // TODO: THESE SHOULD BE CACHED
     var playerTags = $('#players').materialtags('items');
     var clubTags = $('#clubs').materialtags('items');
     var authors = $('#authors').materialtags('items');
@@ -246,6 +339,7 @@ function loadGraph(canvas, data, callback) {
 
     var operator = $operatorSelector.find('input')[0].checked ? 'AND' : 'OR'
     console.log(operator);
+
     handleSearch({
       players: playerTags,
       clubs: clubTags,

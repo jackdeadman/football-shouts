@@ -91,6 +91,19 @@ function loadGraph(canvas, data, callback) {
     operator: req.operator,
   });
 
+    //Gather all tweets from local database
+    allTweets = handleLocalQuery(req);
+
+    //Get the results
+    localResults = allTweets.reduce((acc, tweet) => {
+      return {
+        // Combine tweets by concatenation
+        tweets: acc.tweets.concat([tweet]),
+        // Add the totals
+        countFromLocal: acc.countFromLocal + (tweet.source === 'local');
+      };
+    }, { tweets: [], countFromLocal: 0 });
+
   // Send the queries
   search.emit('query', req);
 };
